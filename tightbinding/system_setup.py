@@ -6,8 +6,8 @@ from itertools import product
 a_0 = 5
 
 # unit vector for atom system
-a_unitvec_1 = np.array([1, 2])
-a_unitvec_2 = np.array([2, 3])
+a_unitvec_1 = np.array([np.sqrt(3)*a_0/2, a_0/2])
+a_unitvec_2 = np.array([np.sqrt(3)*a_0/2, a_0/2])
 
 # reciprocal unit vector for atom system
 a_g_unitvec_1 = np.array([3, 4])
@@ -15,7 +15,7 @@ a_g_unitvec_2 = np.array([5, 6])
 
 # atom postion in graphene
 atom_pstn_1 = np.array([0, 0])
-atom_pstn_2 = np.array([1, 2])
+atom_pstn_2 = np.array([2*a_0/np.sqrt(3), 0])
 
 
 def set_moire_angle(n_moire: int)->float:

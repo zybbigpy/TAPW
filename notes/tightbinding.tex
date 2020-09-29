@@ -1,0 +1,168 @@
+% ****** Start of file apssamp.tex ******
+%
+%   This file is part of the APS files in the REVTeX 4.2 distribution.
+%   Version 4.2a of REVTeX, December 2014
+%
+%   Copyright (c) 2014 The American Physical Society.
+%
+%   See the REVTeX 4 README file for restrictions and more information.
+%
+% TeX'ing this file requires that you have AMS-LaTeX 2.0 installed
+% as well as the rest of the prerequisites for REVTeX 4.2
+%
+% See the REVTeX 4 README file
+% It also requires running BibTeX. The commands are as follows:
+%
+%  1)  latex apssamp.tex
+%  2)  bibtex apssamp
+%  3)  latex apssamp.tex
+%  4)  latex apssamp.tex
+%
+\documentclass[%
+%reprint,
+%superscriptaddress,
+%groupedaddress,
+%unsortedaddress,
+%runinaddress,
+%frontmatterverbose, 
+%preprint,
+%preprintnumbers,
+%nofootinbib,
+%nobibnotes,
+%bibnotes,
+ amsmath,amssymb,
+% aps,
+%pra,
+%prb,
+rmp,
+%prstab,
+%prstper,
+%floatfix,
+]{revtex4-1}
+
+\usepackage{graphicx}% Include figure files
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{bm}% bold math
+%\usepackage{hyperref}% add hypertext capabilities
+%\usepackage[mathlines]{lineno}% Enable numbering of text and display math
+%\linenumbers\relax % Commence numbering lines
+
+%\usepackage[showframe,%Uncomment any one of the following lines to test 
+%%scale=0.7, marginratio={1:1, 2:3}, ignoreall,% default settings
+%%text={7in,10in},centering,
+%%margin=1.5in,
+%%total={6.5in,8.75in}, top=1.2in, left=0.9in, includefoot,
+%%height=10in,a5paper,hmargin={3cm,0.8in},
+%]{geometry}
+
+\def \bkbar {\bar{\mathbf{k}}}
+\def \bG    {\mathbf{G}}
+\def \e     {\mathrm{e}}
+\def \I     {\mathrm{I}}
+\def \J     {\mathrm{J}}
+\def \i     {\mathrm{i}}
+\def \bR    {\mathbf{R}}
+\def \bL    {\mathbf{L}}
+\def \btau  {\bm{\tau}}
+\def \bH    {\mathbf{H}}
+
+\begin{document}
+
+\preprint{APS/123-QED}
+
+\title{Tight Binding Model for Twist Bilayer Graphene}% Force line breaks with \\
+\thanks{A footnote to the article title}%
+
+\author{Wangqian Miao}
+
+\date{\today}% It is always \today, today,
+             %  but any date may be explicitly specified
+
+
+
+%\keywords{Suggested keywords}%Use showkeys class option if keyword
+                              %display desired
+\maketitle
+
+%\tableofcontents
+
+
+
+% The \nocite command causes all entries in a bibliography to be printed out
+% whether or not they are actually referenced in the text. This is appropriate
+% for the sample file to show the different styles of references, but authors
+% most likely will not want to use it.
+\nocite{*}
+
+
+
+\bibliography{apssamp}% Produces the bibliography via BibTeX.
+
+\section{Symbol Convention}
+
+\section{The Tight Binding Hamiltonian for Twist Bilayer Graphene}
+
+The tight binding Hamiltonian written in the second quantization language is
+
+\begin{equation}
+\begin{aligned}
+\hat{H} = \sum_{\bkbar} \sum_{\alpha n, \beta m} H_{\alpha n, \beta m} C_{\alpha}^\dagger (\bkbar+ \bG_n)C_{\beta}(\bkbar+\bG_m).
+\end{aligned}
+\end{equation}
+
+The basis wave function can be expressed as a summation of planewave:
+
+\begin{equation}
+\psi_{\alpha, n}(\bkbar) = \frac{1}{\sqrt{N_\mathrm{m} N_\mathrm{a}}}\sum_{\I, i} \e^{\i(\bkbar+\bG_n)\bR_{\I i \alpha}},
+\end{equation}
+
+And
+
+\begin{equation}
+\bR_{\I i \alpha} = \bL_{\I} + \btau_{i \alpha}.
+\end{equation}
+
+The matrix element of the Hamiltonian should be written as:
+
+\begin{equation}
+\begin{aligned}
+H_{\alpha n, \beta m} &= \frac{1}{N_\mathrm{m} N_\mathrm{a}} \sum_{\I \J,ij} t(\bR_{\I i \alpha}-\bR_{\J j \beta})
+\e^{-\i(\bkbar+\bG_n)\bR_{\I i \alpha}} \e^{\i(\bkbar+\bG_m)\bR_{\J j \beta}} \\
+&= \frac{1}{N_\mathrm{m} N_\mathrm{a}} \sum_{\I \J,ij} t(\bR_{\I i \alpha}-\bR_{\J j \beta})
+\e^{-\i(\bkbar+\bG_n)\cdot(\bL_{\I} +\btau_{i\alpha})} \e^{\i(\bkbar+\bG_m)\cdot(\bL_{\J} +\btau_{j\beta})} \\
+&=\frac{1}{N_\mathrm{m} N_\mathrm{a}} \sum_{\I \J,ij} \e^{-\i \bG_n \btau_{i\alpha}} \e^{-\i \bkbar (\bL_\I -\bL_\J+\btau_{i\alpha}-\btau_{j\beta})} 
+t(\bL_\I -\bL_\J+\btau_{i\alpha}-\btau_{j\beta}) \e^{\i \bG_m \btau_{j\beta}}\\
+\text{cutoff: $\left<\I, \J\right>$,}\,\,&= \frac{1}{N_\mathrm{m} N_\mathrm{a}} \sum_{\I ,ij} \e^{-\i \bG_n \btau_{i\alpha}} \e^{-\i \bkbar (\bar{\btau}_{i\alpha, j\beta})} 
+t(\bar{\btau}_{i\alpha, j\beta}) \e^{\i \bG_m \btau_{j\beta}} \\
+\text{$\frac{1}{N_{\mathrm{m}}}\sum_{\I} =1$,}\,\,&=\frac{1}{N_\mathrm{a}} \sum_{ij} \e^{-\i \bG_n \btau_{i\alpha}} \e^{-\i \bkbar (\bar{\btau}_{i\alpha, j\beta})} 
+t(\bar{\btau}_{i\alpha, j\beta}) \e^{\i \bG_m \btau_{j\beta}}. \\
+\end{aligned}
+\end{equation}
+
+Tricky here, we write down the matrix form of the Hamiltonian,
+\begin{equation}
+\begin{aligned}
+\bH_{\alpha\beta} &= \mathbf{X}^\dagger_{\alpha} \mathbf{T}_{\alpha\beta} \mathbf{X}_{\beta} \\
+\bH &= \oplus_{\alpha \beta} \bH_{\alpha\beta}
+\end{aligned}
+\end{equation}
+The above equation describes a block matrix multiplication.
+
+The matrix element:
+
+\begin{equation}
+\begin{aligned}
+(\mathbf{X_\alpha}^\dagger)_{n,i}  &=\e^{\i\bG_n\btau_{i\alpha}},\\
+(\mathbf{T_{\alpha \beta}})_{i, j} &= \e^{-\i \bkbar (\bar{\btau}_{i\alpha, j\beta})} 
+t(\bar{\btau}_{i\alpha, j\beta}).
+\end{aligned}
+\end{equation}
+
+
+
+
+
+
+\end{document}
+%
+% ****** End of file apssamp.tex ******
