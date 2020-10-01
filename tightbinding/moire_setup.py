@@ -3,20 +3,27 @@ import numpy as np
 from itertools import product
 
 # lattice constant
-a_0 = 2.46
-a_edge = a_0 / np.sqrt(3)
+A_0 = 2.46
+A_EDGE = A_0 / np.sqrt(3)
+
+# moire information
+
+D_LAYER = 3.433333333 
+D1_LAYER = 0.027777778
+D_AB = 3.35 
+ 
 
 # unit vector for atom system
-a_unitvec_1 = np.array([np.sqrt(3)*a_0/2, -a_0/2])
-a_unitvec_2 = np.array([np.sqrt(3)*a_0/2,  a_0/2])
+A_UNITVEC_1 = np.array([np.sqrt(3)*A_0/2, -A_0/2])
+A_UNITVEC_2 = np.array([np.sqrt(3)*A_0/2,  A_0/2])
 
 # reciprocal unit vector for atom system
-a_g_unitvec_1 = np.array([2*np.pi/(3*a_edge), -2*np.pi/(np.sqrt(3)*a_edge)])
-a_g_unitvec_2 = np.array([2*np.pi/(3*a_edge),  2*np.pi/(np.sqrt(3)*a_edge)])
+A_G_UNITVEC_1 = np.array([2*np.pi/(3*A_EDGE), -2*np.pi/(np.sqrt(3)*A_EDGE)])
+A_G_UNITVEC_2 = np.array([2*np.pi/(3*A_EDGE),  2*np.pi/(np.sqrt(3)*A_EDGE)])
 
 # atom postion in graphene
-atom_pstn_1 = np.array([0, 0])
-atom_pstn_2 = np.array([2*a_0/np.sqrt(3), 0])
+ATOM_PSTN_1 = np.array([0, 0])
+ATOM_PSTN_2 = np.array([2*A_0/np.sqrt(3), 0])
 
 
 def _set_moire_angle(n_moire: int)->float:
@@ -68,12 +75,12 @@ def _set_moire(n_moire: int)->tuple:
 
     # first `m_` represents for moire
     # moire unit vector
-    m_unitvec_1 = (-n_moire*a_unitvec_1 + (2*n_moire +1)*a_unitvec_2)@rt_mtrx_half.T
-    m_unitvec_2 = (-(2*n_moire+1)*a_unitvec_1 + (n_moire +1)*a_unitvec_2)@rt_mtrx_half.T
+    m_unitvec_1 = (-n_moire*A_UNITVEC_1 + (2*n_moire +1)*A_UNITVEC_2)@rt_mtrx_half.T
+    m_unitvec_2 = (-(2*n_moire+1)*A_UNITVEC_1 + (n_moire +1)*A_UNITVEC_2)@rt_mtrx_half.T
     
     # moire reciprocal vector
-    m_g_unitvec_1 = a_g_unitvec_1@rt_mtrx_half.T - a_g_unitvec_1@rt_mtrx_half
-    m_g_unitvec_2 = a_g_unitvec_2@rt_mtrx_half.T - a_g_unitvec_2@rt_mtrx_half
+    m_g_unitvec_1 = A_G_UNITVEC_1@rt_mtrx_half.T - A_G_UNITVEC_1@rt_mtrx_half
+    m_g_unitvec_2 = A_G_UNITVEC_2@rt_mtrx_half.T - A_G_UNITVEC_2@rt_mtrx_half
     
     # high symmetry points
     m_gamma_vec = np.array([0, 0])
@@ -91,57 +98,69 @@ def set_atom_list(n_moire: int):
     (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
      m_g_unitvec_2, m_gamma_vec, m_k1_vec,    
      m_k2_vec,      m_m_vec,     rt_mtrx_half) =_set_moire(n_moire)
-
+    
+    atom_b_pstn = ATOM_PSTN_2 - A_UNITVEC_1
+    small_g_vec = np.array([m_g_unitvec_1, m_g_unitvec_2, -m_g_unitvec_1-m_g_unitvec_2])
+    
     ly = m_unitvec_1[1]
-    n  = int(2*ly/a_0)+2
-    atom_b_pstn = atom_pstn_2 - a_unitvec_1
+    n  = int(2*ly/A_0)+2
+    
+    
     delta = 0.0001
 
     atom_list = []
-
     num_a1 = num_b1 = num_a2 = num_b2 =0
 
+    # TODO: add d information in R
     # A1 atoms
     for (ix, iy) in product(range(n), range(n)):
-        R = -ix*a_unitvec_1 + iy*a_unitvec_2
-        R = R @ rt_mtrx_half.T
-        x = R.dot(m_g_unitvec_1)/(2*np.pi)
-        y = R.dot(m_g_unitvec_2)/(2*np.pi)
+        atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2
+        atom_pstn= atom_pstn @ rt_mtrx_half.T
+        x = atom_pstn.dot(m_g_unitvec_1)/(2*np.pi)
+        y = atom_pstn.dot(m_g_unitvec_2)/(2*np.pi)
         if (x>-delta) and (x<(1-delta)) and (y>-delta) and (y<(1-delta)):
-            atom_list.append(R)
+            d = 0.5*D_LAYER + D1_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            atom = np.array([atom_pstn[0], atom_pstn[1], d])
+            atom_list.append(atom)
             num_a1 += 1
 
     
     # B1 atoms
     for (ix, iy) in product(range(n), range(n)):
-        R = -ix*a_unitvec_1 + iy*a_unitvec_2 + atom_b_pstn
-        R = R @ rt_mtrx_half.T
-        x = R.dot(m_g_unitvec_1)/(2*np.pi)
-        y = R.dot(m_g_unitvec_2)/(2*np.pi)
+        atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2 + atom_b_pstn
+        atom_pstn= atom_pstn @ rt_mtrx_half.T
+        x = atom_pstn.dot(m_g_unitvec_1)/(2*np.pi)
+        y = atom_pstn.dot(m_g_unitvec_2)/(2*np.pi)
         if (x>-delta) and (x<(1-delta)) and (y>-delta) and (y<(1-delta)):
-            atom_list.append(R)
+            d = 0.5*D_LAYER + D1_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            atom = np.array([atom_pstn[0], atom_pstn[1], d])
+            atom_list.append(atom)
             num_b1 += 1
 
 
     # A2 atoms
     for (ix, iy) in product(range(n), range(n)):
-        R = -ix*a_unitvec_1 + iy*a_unitvec_2
-        R = R @ rt_mtrx_half
-        x = R.dot(m_g_unitvec_1)/(2*np.pi)
-        y = R.dot(m_g_unitvec_2)/(2*np.pi)
+        atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2
+        atom_pstn = atom_pstn @ rt_mtrx_half
+        x = atom_pstn.dot(m_g_unitvec_1)/(2*np.pi)
+        y = atom_pstn.dot(m_g_unitvec_2)/(2*np.pi)
         if (x>-delta) and (x<(1-delta)) and (y>-delta) and (y<(1-delta)):
-            atom_list.append(R)
+            d = -0.5*D_LAYER - D1_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            atom = np.array([atom_pstn[0], atom_pstn[1], d])
+            atom_list.append(atom)
             num_a2 += 1
             
 
     # B2 atoms
     for (ix, iy) in product(range(n), range(n)):
-        R = -ix*a_unitvec_1 + iy*a_unitvec_2 + atom_b_pstn
-        R = R @ rt_mtrx_half
-        x = R.dot(m_g_unitvec_1)/(2*np.pi)
-        y = R.dot(m_g_unitvec_2)/(2*np.pi)
+        atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2 + atom_b_pstn
+        atom_pstn = atom_pstn @ rt_mtrx_half
+        x = atom_pstn.dot(m_g_unitvec_1)/(2*np.pi)
+        y = atom_pstn.dot(m_g_unitvec_2)/(2*np.pi)
         if (x>-delta) and (x<(1-delta)) and (y>-delta) and (y<(1-delta)):
-            atom_list.append(R)
+            d = -0.5*D_LAYER - D1_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            atom = np.array([atom_pstn[0], atom_pstn[1], d])
+            atom_list.append(atom)
             num_b2 += 1
 
     assert(num_a1 == num_a2 == num_b1 == num_b2)
@@ -171,7 +190,7 @@ def system_info_log(n_moire: int):
      m_k2_vec,      m_m_vec,     rt_mtrx_half) = _set_moire(n_moire)
     
     np.set_printoptions(6)
-    print("atom unit vector".ljust(30), ":", a_unitvec_1, a_unitvec_2)
-    print("atom reciprotocal unit vector".ljust(30), ":", a_g_unitvec_1, a_g_unitvec_2)
+    print("atom unit vector".ljust(30), ":", A_UNITVEC_1, A_UNITVEC_2)
+    print("atom reciprotocal unit vector".ljust(30), ":", A_G_UNITVEC_1, A_G_UNITVEC_2)
     print("moire unit vector".ljust(30), ":", m_unitvec_1, m_unitvec_2)
     print("moire recoprotocal unit vector".ljust(30), ":", m_g_unitvec_1, m_g_unitvec_2)
