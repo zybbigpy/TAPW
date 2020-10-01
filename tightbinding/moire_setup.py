@@ -194,3 +194,9 @@ def system_info_log(n_moire: int):
     print("atom reciprotocal unit vector".ljust(30), ":", A_G_UNITVEC_1, A_G_UNITVEC_2)
     print("moire unit vector".ljust(30), ":", m_unitvec_1, m_unitvec_2)
     print("moire recoprotocal unit vector".ljust(30), ":", m_g_unitvec_1, m_g_unitvec_2)
+
+
+def save_atom_list(atom_list: list):
+    num_atoms = len(atom_list)
+    atoms = np.array(atom_list)
+    np.savetxt("atom"+str(num_atoms)+".csv", atoms, header="Rx, Ry, d", delimiter=',')
