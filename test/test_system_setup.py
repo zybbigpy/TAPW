@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 
-import tightbinding.system_setup as tbset
+import tightbinding.moire_setup as tbset
 import numpy as np
 
 # should be two
