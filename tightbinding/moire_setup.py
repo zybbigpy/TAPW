@@ -167,11 +167,10 @@ def set_atom_pstn_list(n_moire: int):
     
     return atom_pstn_list
 
+
 def set_atom_neighbour_list(distance: float):
     pass
 
-def get_atom_pos_neighour_list():
-    pass
 
 def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list)->tuple:
     """
@@ -182,6 +181,7 @@ def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list)->t
 
     (atom_pstn_2darray, atom_neighbour_2darray, row, col)
     """
+
     # Tricky code here
     # construct Ri list
     neighbour_len_list = [len(sublist) for sublist in atom_neighbour_list]
@@ -194,6 +194,7 @@ def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list)->t
     col = [jatom for sublist in atom_neighbour_list for jatom in sublist]
 
     return (atom_pstn_2darray, atom_neighbour_2darray, row, col)
+
 
 def system_info_log(n_moire: int):
 
@@ -212,3 +213,25 @@ def save_atom_pstn_list(atom_pstn_list: list, path: str, n_moire:int):
     
     atoms = np.array(atom_pstn_list)
     np.savetxt(path+"atom"+str(n_moire)+".csv", atoms, header="Rx, Ry, d", delimiter=',')
+
+
+def read_atom_neighbour_list(path: str, n_moire: int)->list:
+
+    with open(path+"Nlist"+str(n_moire)+".dat","r") as f:
+        lines = f.readlines()
+        atom_neighbour_list = []
+        for line in lines:
+            line_data = line.split()
+            data = [int(data_str) for data_str in line_data]
+            atom_neighbour_list.append(data)
+
+    return atom_neighbour_list
+
+
+def read_atom_pstn_list(path: str, n_moire: int)->list:
+
+    atom_neighbour_list = np.loadtxt(path+"atom"+str(n_moire)+".csv", delimiter=',', comments='#')
+
+    print(atom_neighbour_list.shape)
+    return list(atom_neighbour_list)
+
