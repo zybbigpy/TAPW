@@ -93,7 +93,7 @@ def _set_moire(n_moire: int)->tuple:
             m_k2_vec,      m_m_vec,     rt_mtrx_half)
 
 
-def set_atom_list(n_moire: int):
+def set_atom_pstn_list(n_moire: int):
 
     (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
      m_g_unitvec_2, m_gamma_vec, m_k1_vec,    
@@ -108,7 +108,7 @@ def set_atom_list(n_moire: int):
     
     delta = 0.0001
 
-    atom_list = []
+    atom_pstn_list = []
     num_a1 = num_b1 = num_a2 = num_b2 =0
 
     # TODO: add d information in R
@@ -121,7 +121,7 @@ def set_atom_list(n_moire: int):
         if (x>-delta) and (x<(1-delta)) and (y>-delta) and (y<(1-delta)):
             d = 0.5*D_LAYER + D1_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
             atom = np.array([atom_pstn[0], atom_pstn[1], d])
-            atom_list.append(atom)
+            atom_pstn_list.append(atom)
             num_a1 += 1
 
     
@@ -134,7 +134,7 @@ def set_atom_list(n_moire: int):
         if (x>-delta) and (x<(1-delta)) and (y>-delta) and (y<(1-delta)):
             d = 0.5*D_LAYER + D1_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
             atom = np.array([atom_pstn[0], atom_pstn[1], d])
-            atom_list.append(atom)
+            atom_pstn_list.append(atom)
             num_b1 += 1
 
 
@@ -147,7 +147,7 @@ def set_atom_list(n_moire: int):
         if (x>-delta) and (x<(1-delta)) and (y>-delta) and (y<(1-delta)):
             d = -0.5*D_LAYER - D1_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
             atom = np.array([atom_pstn[0], atom_pstn[1], d])
-            atom_list.append(atom)
+            atom_pstn_list.append(atom)
             num_a2 += 1
             
 
@@ -160,28 +160,40 @@ def set_atom_list(n_moire: int):
         if (x>-delta) and (x<(1-delta)) and (y>-delta) and (y<(1-delta)):
             d = -0.5*D_LAYER - D1_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
             atom = np.array([atom_pstn[0], atom_pstn[1], d])
-            atom_list.append(atom)
+            atom_pstn_list.append(atom)
             num_b2 += 1
 
     assert(num_a1 == num_a2 == num_b1 == num_b2)
     
-    return atom_list
+    return atom_pstn_list
 
-def set_atom_neighbour(distance: float):
+def set_atom_neighbour_list(distance: float):
     pass
 
 def get_atom_pos_neighour_list():
     pass
 
-def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list):
+def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list)->tuple:
     """
     construct relative distance ndarry
 
-    ------
-    Returns
-    """
+    -------
+    Returns:
 
-    pass
+    (atom_pstn_2darray, atom_neighbour_2darray, row, col)
+    """
+    # Tricky code here
+    # construct Ri list
+    neighbour_len_list = [len(sublist) for sublist in atom_neighbour_list]
+    atom_pstn_2darray = np.repeat(np.array(atom_pstn_list), neighbour_len_list, axis=0) 
+    # construct Rj near Ri list
+    atom_neighbour_2darray = np.array([atom_pstn_list[i] for sublist in atom_neighbour_list for i in sublist])
+    
+    #(row, col) <=> (Ri, Rj)
+    row = [iatom for iatom in range(len(atom_pstn_list)) for n in range(len(atom_neighbour_list[iatom]))]
+    col = [jatom for sublist in atom_neighbour_list for jatom in sublist]
+
+    return (atom_pstn_2darray, atom_neighbour_2darray, row, col)
 
 def system_info_log(n_moire: int):
 
@@ -196,7 +208,7 @@ def system_info_log(n_moire: int):
     print("moire recoprotocal unit vector".ljust(30), ":", m_g_unitvec_1, m_g_unitvec_2)
 
 
-def save_atom_list(atom_list: list):
-    num_atoms = len(atom_list)
-    atoms = np.array(atom_list)
-    np.savetxt("atom"+str(num_atoms)+".csv", atoms, header="Rx, Ry, d", delimiter=',')
+def save_atom_pstn_list(atom_pstn_list: list, path: str, n_moire:int):
+    
+    atoms = np.array(atom_pstn_list)
+    np.savetxt(path+"atom"+str(n_moire)+".csv", atoms, header="Rx, Ry, d", delimiter=',')
