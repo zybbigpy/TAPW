@@ -93,7 +93,15 @@ def _set_moire(n_moire: int)->tuple:
             m_k2_vec,      m_m_vec,     rt_mtrx_half)
 
 
-def set_atom_pstn_list(n_moire: int):
+def set_atom_pstn_list(n_moire: int)->list:
+    """
+    find all (A1 B1 A2 B2) atoms in a single moire unit lattice after rotation
+    
+    ------
+    Return:
+
+    atom_pstn_list
+    """
 
     (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
      m_g_unitvec_2, m_gamma_vec, m_k1_vec,    
@@ -111,7 +119,6 @@ def set_atom_pstn_list(n_moire: int):
     atom_pstn_list = []
     num_a1 = num_b1 = num_a2 = num_b2 =0
 
-    # TODO: add d information in R
     # A1 atoms
     for (ix, iy) in product(range(n), range(n)):
         atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2
@@ -124,7 +131,6 @@ def set_atom_pstn_list(n_moire: int):
             atom_pstn_list.append(atom)
             num_a1 += 1
 
-    
     # B1 atoms
     for (ix, iy) in product(range(n), range(n)):
         atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2 + atom_b_pstn
@@ -136,7 +142,6 @@ def set_atom_pstn_list(n_moire: int):
             atom = np.array([atom_pstn[0], atom_pstn[1], d])
             atom_pstn_list.append(atom)
             num_b1 += 1
-
 
     # A2 atoms
     for (ix, iy) in product(range(n), range(n)):
@@ -150,7 +155,6 @@ def set_atom_pstn_list(n_moire: int):
             atom_pstn_list.append(atom)
             num_a2 += 1
             
-
     # B2 atoms
     for (ix, iy) in product(range(n), range(n)):
         atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2 + atom_b_pstn
@@ -172,7 +176,8 @@ def set_atom_neighbour_list(distance: float):
     pass
 
 
-def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list)->tuple:
+def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list, m_g_unitvec_1, 
+                             m_g_unitvec_2,        m_unitvec_1,               m_unitvec_2)->tuple:
     """
     construct relative distance ndarry
 
@@ -193,7 +198,18 @@ def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list)->t
     row = [iatom for iatom in range(len(atom_pstn_list)) for n in range(len(atom_neighbour_list[iatom]))]
     col = [jatom for sublist in atom_neighbour_list for jatom in sublist]
 
-    return (atom_pstn_2darray, atom_neighbour_2darray, row, col)
+    dr = (atom_pstn_2darray-atom_neighbour_2darray)[:, :2]
+    dd = (atom_pstn_2darray-atom_neighbour_2darray)[:, -1]
+    x  = np.dot(dr, m_g_unitvec_1)/(2*np.pi)
+    y  = np.dot(dr, m_g_unitvec_2)/(2*np.pi)
+
+    # reconstruct dr
+    x = x - np.trunc(2*x)
+    y = y - np.trunc(2*y)
+
+    dr = (x.reshape(-1, 1))*m_unitvec_1 + (y.reshape(-1, 1))*m_unitvec_2
+    
+    return (dr, dd, row, col)
 
 
 def system_info_log(n_moire: int):
