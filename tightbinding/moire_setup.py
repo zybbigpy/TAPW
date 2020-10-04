@@ -246,8 +246,8 @@ def read_atom_neighbour_list(path: str, n_moire: int)->list:
 
 def read_atom_pstn_list(path: str, n_moire: int)->list:
 
-    atom_neighbour_list = np.loadtxt(path+"atom"+str(n_moire)+".csv", delimiter=',', comments='#')
+    atom_pstn_list = np.loadtxt(path+"atom"+str(n_moire)+".csv", delimiter=',', comments='#')
 
-    print(atom_neighbour_list.shape)
-    return list(atom_neighbour_list)
+    print(atom_pstn_list.shape)
+    return list(atom_pstn_list)
 
