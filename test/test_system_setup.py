@@ -5,8 +5,9 @@ import tightbinding.moire_setup as tbset
 import tightbinding.moire_tb as tbtb
 import numpy as np
 
+__author__ ='Wangqian Miao'
 
-n_moire = 16
+n_moire = 30
 n_k     = 3
 n_g     = 5
 valley  = 1

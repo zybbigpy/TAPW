@@ -1,8 +1,8 @@
 import numpy as np
-from scipy.linalg import block_diag
-from scipy import sparse
 import tightbinding.moire_setup as mset
 
+from scipy.linalg import block_diag
+from scipy import sparse
 from itertools import product
 
 # eV
@@ -87,7 +87,6 @@ def _set_const_mtrx(n_moire,  dr,  dd,    m_g_unitvec_1,  m_g_unitvec_2,
     g1, g2, g3, g4 = np.hsplit(gr_mtrx, 4)
     gr_mtrx = np.matrix(block_diag(g1, g2, g3, g4))
 
-
     hopping = _sk_integral(dr, dd)
     tr_mtrx = sparse.csr_matrix((hopping, (row, col)), shape=(n_atom, n_atom))
 
@@ -97,7 +96,6 @@ def _set_const_mtrx(n_moire,  dr,  dd,    m_g_unitvec_1,  m_g_unitvec_2,
 def cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom):
     
     tk_data = np.exp(-1j*np.dot(dr, k_vec))
-    
     kr_mtrx = sparse.csr_matrix((tk_data, (row, col)), shape=(n_atom, n_atom))
     hr_mtrx = kr_mtrx.multiply(tr_mtrx)
 
@@ -126,11 +124,24 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int)->tuple:
     (dr, dd, row, col) = mset.set_relative_dis_ndarray(atom_pstn_list, atom_neighbour_list, m_g_unitvec_1, 
                                                        m_g_unitvec_2,  m_unitvec_1,         m_unitvec_2)
 
-    n_atom = len(atom_pstn_list)
     kmesh = _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k)
     g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
     gr_mtrx, tr_mtrx = _set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
                                        row, col, g_vec_list, atom_pstn_list, valley)
+    n_atom = len(atom_pstn_list)
+    n_band = len(g_vec_list)*4
+    n_kpts = len(kmesh)
+
+    print('='*100)
+    np.set_printoptions(6)
+    print("atom unit vector".ljust(30), ":", mset.A_UNITVEC_1, mset.A_UNITVEC_2)
+    print("atom reciprotocal unit vector".ljust(30), ":", mset.A_G_UNITVEC_1, mset.A_G_UNITVEC_2)
+    print("moire unit vector".ljust(30), ":", m_unitvec_1, m_unitvec_2)
+    print("moire recoprotocal unit vector".ljust(30), ":", m_g_unitvec_1, m_g_unitvec_2)
+    print("num of atoms".ljust(30), ":", n_atom) 
+    print("num of kpoints".ljust(30), ":", n_kpts)
+    print("num of bands".ljust(30), ":", n_band)
+    print('='*100)
 
     dmesh = []
     emesh = []
@@ -138,8 +149,6 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int)->tuple:
     emin = 1000
     count = 1
 
-    print("num of atom:", len(atom_pstn_list))
-    mset.system_info_log(n_moire)
     for k_vec in kmesh:
         print("k sampling process, counter:", count)
         count += 1
@@ -152,6 +161,7 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int)->tuple:
         #print(eigen_val)
         emesh.append(eigen_val)
         dmesh.append(eigen_vec)
-
-    print("emax=", emax, "emin=", emin)
+    print('='*100)
+    print("emax =", emax, "emin =", emin)
+    print('='*100)
     return (emesh, dmesh)
