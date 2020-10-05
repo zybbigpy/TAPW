@@ -2,17 +2,15 @@ import numpy as np
 
 from itertools import product
 
-# lattice constant
+# lattice constant (angstrom)
 A_0 = 2.46
 A_EDGE = A_0 / np.sqrt(3)
 
-# moire information
-
+# moire information (angstrom)
 D_LAYER = 3.433333333 
 D1_LAYER = 0.027777778
 D_AB = 3.35 
  
-
 # unit vector for atom system
 A_UNITVEC_1 = np.array([np.sqrt(3)*A_0/2, -A_0/2])
 A_UNITVEC_2 = np.array([np.sqrt(3)*A_0/2,  A_0/2])
@@ -119,7 +117,7 @@ def set_atom_pstn_list(n_moire: int)->list:
     atom_pstn_list = []
     num_a1 = num_b1 = num_a2 = num_b2 =0
 
-    # A1 atoms
+    # find A1 atoms
     for (ix, iy) in product(range(n), range(n)):
         atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2
         atom_pstn= atom_pstn @ rt_mtrx_half.T
@@ -131,7 +129,7 @@ def set_atom_pstn_list(n_moire: int)->list:
             atom_pstn_list.append(atom)
             num_a1 += 1
 
-    # B1 atoms
+    # find B1 atoms
     for (ix, iy) in product(range(n), range(n)):
         atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2 + atom_b_pstn
         atom_pstn= atom_pstn @ rt_mtrx_half.T
@@ -143,7 +141,7 @@ def set_atom_pstn_list(n_moire: int)->list:
             atom_pstn_list.append(atom)
             num_b1 += 1
 
-    # A2 atoms
+    # find A2 atoms
     for (ix, iy) in product(range(n), range(n)):
         atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2
         atom_pstn = atom_pstn @ rt_mtrx_half
@@ -155,7 +153,7 @@ def set_atom_pstn_list(n_moire: int)->list:
             atom_pstn_list.append(atom)
             num_a2 += 1
             
-    # B2 atoms
+    # find B2 atoms
     for (ix, iy) in product(range(n), range(n)):
         atom_pstn = -ix*A_UNITVEC_1 + iy*A_UNITVEC_2 + atom_b_pstn
         atom_pstn = atom_pstn @ rt_mtrx_half
@@ -194,7 +192,7 @@ def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list, m_
     # construct Rj near Ri list
     atom_neighbour_2darray = np.array([atom_pstn_list[i] for sublist in atom_neighbour_list for i in sublist])
     
-    #(row, col) <=> (Ri, Rj)
+    # (row, col) <=> (Ri, Rj)
     row = [iatom for iatom in range(len(atom_pstn_list)) for n in range(len(atom_neighbour_list[iatom]))]
     col = [jatom for sublist in atom_neighbour_list for jatom in sublist]
 
@@ -203,7 +201,7 @@ def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list, m_
     x  = np.dot(dr, m_g_unitvec_1)/(2*np.pi)
     y  = np.dot(dr, m_g_unitvec_2)/(2*np.pi)
 
-    # reconstruct dr
+    # reconstruct dr (tricky here)
     x = x - np.trunc(2*x)
     y = y - np.trunc(2*y)
 
@@ -248,6 +246,5 @@ def read_atom_pstn_list(path: str, n_moire: int)->list:
 
     atom_pstn_list = np.loadtxt(path+"atom"+str(n_moire)+".csv", delimiter=',', comments='#')
 
-    print(atom_pstn_list.shape)
     return list(atom_pstn_list)
 
