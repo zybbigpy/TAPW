@@ -23,7 +23,7 @@ print(np.dot(mm_unitvec_2, mm_g_unitvec_1)/np.pi)
 
 
 a, b = magtbset.set_magnetic_atom_pstn(n_moire, 1, "../data/")
-ind  = magtbset.set_magnetic_atom_neighbour_list(distance, a, b)
+ind  = magtbset.set_magnetic_atom_neighbour_list(a, b, distance)
 num_atoms = len(a)
 print(num_atoms)
 ind = ind%num_atoms

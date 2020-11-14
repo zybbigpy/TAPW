@@ -124,7 +124,7 @@ def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
     return (mm_atom_list, enlarge_mm_atom_list)
 
 
-def set_magnetic_atom_neighbour_list(distance: float, mm_atom_list: list, enlarge_mm_atom_list: list):
+def set_magnetic_atom_neighbour_list(mm_atom_list: list, enlarge_mm_atom_list: list, distance=2.5113*A_0):
     """
     find neighours within `distance` by using kdtree algorithm
     """
@@ -137,6 +137,33 @@ def set_magnetic_atom_neighbour_list(distance: float, mm_atom_list: list, enlarg
 
     return ind
 
+def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_index: list)->tuple:
+    """
+    construct relative distance ndarry
+
+    -------
+    Returns:
+
+    (atom_pstn_2darray, atom_neighbour_2darray, row, col)
+    """
+  
+    num_atom = len(atom_pstn_list)
+    atom_pstn_list = np.array(atom_pstn_list)
+
+    # tricky code here
+    # construct Ri list
+    neighbour_len_list = [subindex.shape[0] for subindex in atom_neighbour_index]
+    atom_pstn_2darray = np.repeat(atom_pstn_list, neighbour_len_list, axis=0) 
+
+    # construct Rj near Ri list
+    atom_neighbour_2darray = np.array([atom_pstn_list[subindex] for subindex in atom_neighbour_index]).reshape(-1, 3)
+    
+    ind = atom_neighbour_index%num_atom
+    # (row, col) <=> (index_i, index_j)
+    row = [iatom for iatom in range(num_atom) for n in range(ind[iatom].shape[0])]
+    col = [jatom for subindex in ind for jatom in subindex]
+
+    return (atom_pstn_2darray, atom_neighbour_2darray, row, col)
 
 # def system_info_log(n_moire: int):
 
