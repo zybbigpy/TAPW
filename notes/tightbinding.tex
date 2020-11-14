@@ -43,6 +43,7 @@ rmp,
 \usepackage{graphicx}% Include figure files
 \usepackage{dcolumn}% Align table columns on decimal point
 \usepackage{bm}% bold math
+\usepackage{physics}
 %\usepackage{hyperref}% add hypertext capabilities
 %\usepackage[mathlines]{lineno}% Enable numbering of text and display math
 %\linenumbers\relax % Commence numbering lines
@@ -57,6 +58,7 @@ rmp,
 
 \def \bkbar {\bar{\mathbf{k}}}
 \def \bG    {\mathbf{G}}
+\def \bA    {\mathbf{A}}
 \def \e     {\mathrm{e}}
 \def \I     {\mathrm{I}}
 \def \J     {\mathrm{J}}
@@ -65,6 +67,8 @@ rmp,
 \def \bL    {\mathbf{L}}
 \def \btau  {\bm{\tau}}
 \def \bH    {\mathbf{H}}
+\def \br    {\mathbf{r}}
+\def \d     {\mathrm{d}}
 
 \begin{document}
 
@@ -95,14 +99,11 @@ rmp,
 \nocite{*}
 
 
-
-\bibliography{apssamp}% Produces the bibliography via BibTeX.
-
 \section{Symbol Convention}
 
 \section{The Tight Binding Hamiltonian for Twist Bilayer Graphene}
 
-The tight binding Hamiltonian written in the second quantization language is
+The tight binding Hamiltonian written in the second quantization langauge is
 
 \begin{equation}
 \begin{aligned}
@@ -113,10 +114,10 @@ The tight binding Hamiltonian written in the second quantization language is
 The basis wave function can be expressed as a summation of planewave:
 
 \begin{equation}
-\psi_{\alpha, n}(\bkbar) = \frac{1}{\sqrt{N_\mathrm{m} N_\mathrm{a}}}\sum_{\I, i} \e^{\i(\bkbar+\bG_n)\bR_{\I i \alpha}},
+\psi_{\alpha, n}(\bkbar) = \frac{1}{\sqrt{N_\mathrm{m} N_\mathrm{a}}}\sum_{\I, i} \e^{\i(\bkbar+\bG_n)\bR_{\I i \alpha}} \ket{\phi_{p_z}},
 \end{equation}
 
-And
+$N_{\mathrm{a}} = N_{\mathrm{atom}}/4$, And
 
 \begin{equation}
 \bR_{\I i \alpha} = \bL_{\I} + \btau_{i \alpha}.
@@ -139,7 +140,7 @@ t(\bar{\btau}_{i\alpha, j\beta}) \e^{\i \bG_m \btau_{j\beta}}. \\
 \end{aligned}
 \end{equation}
 
-$N_{\mathrm{a}} = N_{\mathrm{atom}}/4$ Tricky here, we write down the matrix form of the Hamiltonian,
+Tricky here, we write down the matrix form of the Hamiltonian,
 \begin{equation}
 \begin{aligned}
 \bH_{\alpha\beta} &= \mathbf{X}^\dagger_{\alpha} \mathbf{T}_{\alpha\beta} \mathbf{X}_{\beta} \\
@@ -158,10 +159,68 @@ t(\bar{\btau}_{i\alpha, j\beta}).
 \end{aligned}
 \end{equation}
 
+\section{TBG under Magnetic Field}
+
+\subsection{Magnetic Translation Operator}
+
+The original lattice translation symmetry is broken by the vector potential:
+
+\begin{equation}
+\hat{T}_{\bL_\I} \hat{T}_{\bL_\J} = \hat{T}_{\bL_\J} \hat{T}_{\bL_\I} \exp \left({\i \frac{e}{\hbar} \oint \bA \d \br }\right) 
+\end{equation}
+
+which gives us the form of AB effect in lattice:
+
+\begin{equation}
+    \hat{T}_{\bL_\I}^{-1} \hat{T}^{-1}_{\bL_\J}\hat{T}_{\bL_\I} \hat{T}_{\bL_\J} =  \exp \left({\i \frac{e}{\hbar} \oint_S \bA \d \br }\right) 
+\end{equation}
+
+$S$ is the cell size spaned by $\bL_\I, \bL_\J$. Cosider a specific case:
+\begin{equation}
+\begin{aligned}
+    \bL_\I &= \bL_1 \\
+    \bL_\J &= q\bL_2 \\
+    \Phi &= B \mathcal{S} = \frac{p}{q} \Phi_0
+\end{aligned}
+\end{equation}
+
+where $p, q$ are relatively prime, $\mathcal{S}$ is the moire unit lattice size. $\Phi_0 =h/e$. When $B$ is uniform,
+
+\begin{equation}
+\begin{aligned}
+S &= q \mathcal{S}\\
+\exp \left({\i \frac{e}{\hbar} \oint_S \bA \d \br }\right) &= \exp \left(\i \frac{e}{\hbar} \int_{\partial S} B \d S\right) \\
+& = \exp(2\pi\i p ) \\
+& = 1
+\end{aligned}
+\end{equation}
+Subsequently, we have the commutation relationship:
+\begin{equation}
+\hat{T}_{\bL_1} \hat{T}_{q\bL_2} = \hat{T}_{q\bL_2}\hat{T}_{\bL_1} 
+\end{equation}
+It suggests that we should adopt a magnetic lattice unit cell $q$ times lager than the original one.
+
+\subsection{Tight Binding Hopping term}
+
+By using Peierls substitution, the hopping term should be written as 
+
+\begin{equation}
+\begin{aligned}
+    \tilde{t}(\bR_{\I i \alpha}-\bR_{\J j \beta})&= t(\bR_{\I i \alpha}-\bR_{\J j \beta}) \exp(-\i \frac{e}{\hbar} \int_{\bR_{\I i \alpha}}^{\bR_{\J j \beta}}\bA \d \br)\\
+    &=t(\bR_{\I i \alpha}-\bR_{\J j \beta}) \exp(-2\pi\i \frac{1}{\Phi_0} \int_{\bR_{\I i \alpha}}^{\bR_{\J j \beta}}\bA \d \br)
+\end{aligned}
+\end{equation}
 
 
+Here we use the Landau gauge, $\bA = (0, Bx, 0)$, the corresponding phase factor can be calculated in the following way:
 
-
+\begin{equation}
+\begin{aligned}
+\int_{\bR_1}^{\bR_2} \bA \, \d \br &= \int_{\bR_1}^{\bR_2} Bx \,\d y \\
+&= B \frac{y_2-y_1}{x_2-x_1}\int_{x_1}^{x_2} x \,\d x \\
+&= \frac{B(x_2+x_1)(y_2-y_1)}{2}
+\end{aligned}
+\end{equation}
 
 \end{document}
 %

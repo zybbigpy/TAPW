@@ -192,7 +192,7 @@ def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list, m_
     # construct Rj near Ri list
     atom_neighbour_2darray = np.array([atom_pstn_list[i] for sublist in atom_neighbour_list for i in sublist])
     
-    # (row, col) <=> (Ri, Rj)
+    # (row, col) <=> (index_i, index_j)
     row = [iatom for iatom in range(len(atom_pstn_list)) for n in range(len(atom_neighbour_list[iatom]))]
     col = [jatom for sublist in atom_neighbour_list for jatom in sublist]
 
@@ -223,7 +223,7 @@ def system_info_log(n_moire: int):
     print("moire recoprotocal unit vector".ljust(30), ":", m_g_unitvec_1, m_g_unitvec_2)
 
 
-def save_atom_pstn_list(atom_pstn_list: list, path: str, n_moire:int):
+def save_atom_pstn_list(atom_pstn_list: list, path: str, n_moire: int):
     
     atoms = np.array(atom_pstn_list)
     np.savetxt(path+"atom"+str(n_moire)+".csv", atoms, header="Rx, Ry, d", delimiter=',')
