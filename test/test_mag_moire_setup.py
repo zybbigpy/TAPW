@@ -1,5 +1,7 @@
 import sys
 
+from sklearn import neighbors
+
 sys.path.append("..")
 
 import magnetic.moire_magnetic_setup as magtbset
@@ -30,8 +32,8 @@ ind = ind%num_atoms
 
 # print(ind[1].shape)
 # print(np.sort(ind[1]))
-# #print(np.sort(ind[2]))
 
+# check consistency with professor Dai's method
 # def washboard(x):
 #     y = x-int(x/0.5)
 #     return y
@@ -46,8 +48,15 @@ nlist = tbset.read_atom_neighbour_list("../data/", n_moire)
 print(len(nlist))
 
 for i in range(num_atoms):
-    nlist[i].append(i)
+    #print(np.array_equiv(np.sort(ind[i]), np.sort(np.array(nlist[i]))))
+    assert np.array_equiv(np.sort(ind[i]), np.sort(np.array(nlist[i])))==True
 
-
-for i in range(num_atoms):
-    assert np.array_equiv(np.sort(ind[1]), np.sort(np.array(nlist[1])))==True
+# neighbour_len_list = [subindex.shape[0] for subindex in ind]
+# #print(neighbour_len_list)
+# #print([subindex.shape for subindex in ind])
+# atoms = np.array(a)
+# k = atoms[ind[0]]
+# print(k.shape)
+# neighbor_array = np.concatenate(tuple(atoms[subindex] for subindex in ind))
+# print(neighbor_array.shape)
+magtbset.set_relative_dis_ndarray(a, ind)

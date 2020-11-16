@@ -134,8 +134,12 @@ def set_magnetic_atom_neighbour_list(mm_atom_list: list, enlarge_mm_atom_list: l
     y = np.array(mm_atom_list)[:, :2]
     tree = KDTree(x)
     ind = tree.query_radius(y, r=distance)
+    
+    # the kdtree algotithm provided by sklearn will return the index 
+    # including itself, the following code will remove them
+    all_nns = np.array([np.array([idx for idx in nn_indices if idx != i]) for i, nn_indices in enumerate(ind)])
 
-    return ind
+    return all_nns
 
 def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_index: list)->tuple:
     """
@@ -156,12 +160,17 @@ def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_index: list)->
     atom_pstn_2darray = np.repeat(atom_pstn_list, neighbour_len_list, axis=0) 
 
     # construct Rj near Ri list
-    atom_neighbour_2darray = np.array([atom_pstn_list[subindex] for subindex in atom_neighbour_index]).reshape(-1, 3)
-    
+    atom_neighbour_2darray = np.concatenate(tuple(atom_pstn_list[subindex] for subindex in atom_neighbour_index))
+
+    # print(atom_neighbour_2darray.shape)
+    assert atom_pstn_2darray.shape == atom_neighbour_2darray.shape
+
     ind = atom_neighbour_index%num_atom
     # (row, col) <=> (index_i, index_j)
     row = [iatom for iatom in range(num_atom) for n in range(ind[iatom].shape[0])]
     col = [jatom for subindex in ind for jatom in subindex]
+
+    assert len(row) == len(col)
 
     return (atom_pstn_2darray, atom_neighbour_2darray, row, col)
 
