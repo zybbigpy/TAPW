@@ -99,7 +99,7 @@ def read_atom_pstn_list(path: str, n_moire: int)->list:
 def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
 
     (m_unitvec_1,    m_unitvec_2,  m_g_unitvec_1, m_g_unitvec_2, 
-     mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s)= _set_moire_magnetic(n_moire, q)
+     mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s) = _set_moire_magnetic(n_moire, q)
     
     # before translate the postions, add information `d` for mm_unitvec
     m_unitvec_2  = np.array([m_unitvec_2[0],  m_unitvec_2[1],  0])
@@ -107,8 +107,14 @@ def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
     mm_unitvec_2 = np.array([mm_unitvec_2[0], mm_unitvec_2[1], 0])
     # moire atoms
     m_atom_list = read_atom_pstn_list(path, n_moire)
+    # split for a1 b1 a2 b2 atoms
+    atom_list_tuple = np.split(np.array(m_atom_list), 4)
     # magnetic moire atoms
-    mm_atom_list = [atom+i*m_unitvec_2 for i in range(q) for atom in m_atom_list]
+    mm_atom_list = np.concatenate(tuple(atom_list+i*m_unitvec_2 for atom_list in atom_list_tuple for i in range(q)))
+    print(mm_atom_list.shape)
+
+    # magnetic moire atoms
+    # mm_atom_list = [atom+i*m_unitvec_2 for i in range(q) for atom in m_atom_list]
 
     # 9 times bigger than the original magnetic lattice
     area1 = [atom+mm_unitvec_1 for atom in mm_atom_list]

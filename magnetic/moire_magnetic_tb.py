@@ -52,6 +52,7 @@ def _set_sk_integral(atom_pstn_2darray, atom_neighbour_2darray):
     
     hopping: (*, ) ndarray
     """
+    
     dr = (atom_pstn_2darray-atom_neighbour_2darray)[:,:2]
     dd = (atom_pstn_2darray-atom_neighbour_2darray)[:,-1]
     res = np.sum(dr**2, axis=1) + dd**2

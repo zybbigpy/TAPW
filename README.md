@@ -8,11 +8,7 @@ See the notes.
 
 - [x] Tight Binding Model (CPU)
 
-- [] Tight Binding Model (GPU)
-
-- [] RPA
-
-- [] G-factor
+- [x] Tight Binding Model in Magnetic Field
 
 ## Dependent Module
 
