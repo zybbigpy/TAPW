@@ -1,5 +1,5 @@
 import numpy as np
-import magnetic.moire_magnetic_setup as magset 
+import moire_magnetic_setup as magset 
 
 from scipy.linalg import block_diag
 from scipy import sparse
@@ -130,7 +130,7 @@ def cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, k_vec, gr_mtrx,
 
     return hamiltonian_k
 
-def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley:int, p, q):
+def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley: int, p: int, q: int):
     
     (m_unitvec_1,    m_unitvec_2,  m_g_unitvec_1, m_g_unitvec_2, 
      mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s) = magset._set_moire_magnetic(n_moire, q)
@@ -140,13 +140,15 @@ def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley:int, p, q):
     (mm_atom_list, enlarge_mm_atom_list) = magset.set_magnetic_atom_pstn(n_moire, q, "../data/")
     ind = magset.set_magnetic_atom_neighbour_list(mm_atom_list, enlarge_mm_atom_list)
 
-    (atom_pstn_2darray, atom_neighbour_2darray, row, col) = magset.set_relative_dis_ndarray(mm_atom_list, ind)
+    (atom_pstn_2darray, atom_neighbour_2darray, row, col) = magset.set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, ind)
 
     kmesh = _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k)
     g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
+    print("before set const matrix")
     (gr_mtrx, tr_mtrx) = _set_const_mtrx(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
                                          atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag)
 
+    print("after set const matrix")
     n_atom = len(mm_atom_list)
     n_band = len(g_vec_list)*4
     n_kpts = len(kmesh)
@@ -155,8 +157,14 @@ def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley:int, p, q):
     emesh = []
 
     for kvec in kmesh:
+        print("in k sampling:")
         hamk = cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, kvec, gr_mtrx, tr_mtrx, row, col, n_atom)
         eigen_val, eigen_vec = np.linalg.eigh(hamk)
-
+        print(eigen_val)
         emesh.append(eigen_val)
         dmesh.append(eigen_vec)
+
+    return (emesh, dmesh)
+
+
+mag_tb_solver(30, 5, 3, 1, 1, 2)

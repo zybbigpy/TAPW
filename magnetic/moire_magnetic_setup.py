@@ -82,8 +82,8 @@ def _set_moire_magnetic(n_moire: int, q: int)->tuple:
     mm_g_unitvec_1 = m_g_unitvec_1
     mm_g_unitvec_2 = m_g_unitvec_2/q
 
-    # magnetic unit lattice size
-    s = np.linalg.norm(np.cross(mm_unitvec_1, mm_unitvec_2))
+    # moire unit lattice size
+    s = np.linalg.norm(np.cross(m_unitvec_1, m_unitvec_2))
 
     return (m_unitvec_1,    m_unitvec_2,  m_g_unitvec_1, m_g_unitvec_2, 
             mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s)
@@ -117,17 +117,32 @@ def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
     # mm_atom_list = [atom+i*m_unitvec_2 for i in range(q) for atom in m_atom_list]
 
     # 9 times bigger than the original magnetic lattice
-    area1 = [atom+mm_unitvec_1 for atom in mm_atom_list]
-    area2 = [atom+mm_unitvec_2 for atom in mm_atom_list]
-    area3 = [atom-mm_unitvec_1 for atom in mm_atom_list]
-    area4 = [atom-mm_unitvec_2 for atom in mm_atom_list]
-    area5 = [atom+mm_unitvec_1+mm_unitvec_2 for atom in mm_atom_list]
-    area6 = [atom+mm_unitvec_1-mm_unitvec_2 for atom in mm_atom_list]
-    area7 = [atom-mm_unitvec_1+mm_unitvec_2 for atom in mm_atom_list]
-    area8 = [atom-mm_unitvec_1-mm_unitvec_2 for atom in mm_atom_list]
-    enlarge_mm_atom_list = mm_atom_list+area1+area2+area3+area4+area5+area6+area7+area8
+    # area1 = [atom+mm_unitvec_1 for atom in mm_atom_list]
+    # area2 = [atom+mm_unitvec_2 for atom in mm_atom_list]
+    # area3 = [atom-mm_unitvec_1 for atom in mm_atom_list]
+    # area4 = [atom-mm_unitvec_2 for atom in mm_atom_list]
+    # area5 = [atom+mm_unitvec_1+mm_unitvec_2 for atom in mm_atom_list]
+    # area6 = [atom+mm_unitvec_1-mm_unitvec_2 for atom in mm_atom_list]
+    # area7 = [atom-mm_unitvec_1+mm_unitvec_2 for atom in mm_atom_list]
+    # area8 = [atom-mm_unitvec_1-mm_unitvec_2 for atom in mm_atom_list]
 
-    return (mm_atom_list, enlarge_mm_atom_list)
+    area1 = mm_atom_list+mm_unitvec_1
+    area2 = mm_atom_list+mm_unitvec_2
+    area3 = mm_atom_list-mm_unitvec_1
+    area4 = mm_atom_list-mm_unitvec_2
+    area5 = mm_atom_list+mm_unitvec_1+mm_unitvec_2
+    area6 = mm_atom_list+mm_unitvec_1-mm_unitvec_2
+    area7 = mm_atom_list-mm_unitvec_1+mm_unitvec_2
+    area8 = mm_atom_list-mm_unitvec_1-mm_unitvec_2
+    print("len of area 1", len(area1))
+    print("len of area 2", len(area2))
+
+    enlarge_mm_atom_list = np.concatenate((mm_atom_list, area1, area2, area3, area4, area5, area6, area7, area8))
+
+    print("I am here")
+    print(enlarge_mm_atom_list.shape)
+    print("mm atom list", mm_atom_list.shape)
+    return (mm_atom_list.tolist(), enlarge_mm_atom_list.tolist())
 
 
 def set_magnetic_atom_neighbour_list(mm_atom_list: list, enlarge_mm_atom_list: list, distance=2.5113*A_0):
@@ -136,6 +151,7 @@ def set_magnetic_atom_neighbour_list(mm_atom_list: list, enlarge_mm_atom_list: l
     """
     # print((np.array(enlarge_mm_atom_list)[:, :2]).shape)
     # print((np.array(mm_atom_list)[:, :2]).shape)
+
     x = np.array(enlarge_mm_atom_list)[:, :2]
     y = np.array(mm_atom_list)[:, :2]
     tree = KDTree(x)
@@ -147,7 +163,7 @@ def set_magnetic_atom_neighbour_list(mm_atom_list: list, enlarge_mm_atom_list: l
 
     return all_nns
 
-def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_index: list)->tuple:
+def set_relative_dis_ndarray(mm_atom_list: list, enlarge_mm_atom_list: list, atom_neighbour_index)->tuple:
     """
     construct relative distance ndarry
 
@@ -157,17 +173,23 @@ def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_index: list)->
     (atom_pstn_2darray, atom_neighbour_2darray, row, col)
     """
   
-    num_atom = len(atom_pstn_list)
-    atom_pstn_list = np.array(atom_pstn_list)
+    num_atom = len(mm_atom_list)
+    mm_atom_list = np.array(mm_atom_list)
+    enlarge_mm_atom_list = np.array(enlarge_mm_atom_list)
 
     # tricky code here
     # construct Ri list
     neighbour_len_list = [subindex.shape[0] for subindex in atom_neighbour_index]
-    atom_pstn_2darray = np.repeat(atom_pstn_list, neighbour_len_list, axis=0) 
+    atom_pstn_2darray = np.repeat(mm_atom_list, neighbour_len_list, axis=0) 
 
+    print(atom_neighbour_index.shape)
+    #print(atom_neighbour_index[0])
     # construct Rj near Ri list
-    atom_neighbour_2darray = np.concatenate(tuple(atom_pstn_list[subindex] for subindex in atom_neighbour_index))
+    #print(np.array(enlarge_mm_atom_list)[atom_neighbour_index[0]])
 
+    print("before concatenate")
+    atom_neighbour_2darray = np.concatenate(tuple(enlarge_mm_atom_list[subindex] for subindex in atom_neighbour_index))
+    print("after concatenate")
     # print(atom_neighbour_2darray.shape)
     assert atom_pstn_2darray.shape == atom_neighbour_2darray.shape
 
@@ -179,15 +201,3 @@ def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_index: list)->
     assert len(row) == len(col)
 
     return (atom_pstn_2darray, atom_neighbour_2darray, row, col)
-
-# def system_info_log(n_moire: int):
-
-#     (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
-#      m_g_unitvec_2, m_gamma_vec, m_k1_vec,      
-#      m_k2_vec,      m_m_vec,     rt_mtrx_half) = _set_moire(n_moire)
-    
-#     np.set_printoptions(6)
-#     print("atom unit vector".ljust(30), ":", A_UNITVEC_1, A_UNITVEC_2)
-#     print("atom reciprotocal unit vector".ljust(30), ":", A_G_UNITVEC_1, A_G_UNITVEC_2)
-#     print("moire unit vector".ljust(30), ":", m_unitvec_1, m_unitvec_2)
-#     print("moire recoprotocal unit vector".ljust(30), ":", m_g_unitvec_1, m_g_unitvec_2)
