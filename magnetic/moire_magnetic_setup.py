@@ -113,19 +113,7 @@ def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
     mm_atom_list = np.concatenate(tuple(atom_list+i*m_unitvec_2 for atom_list in atom_list_tuple for i in range(q)))
     print(mm_atom_list.shape)
 
-    # magnetic moire atoms
-    # mm_atom_list = [atom+i*m_unitvec_2 for i in range(q) for atom in m_atom_list]
-
     # 9 times bigger than the original magnetic lattice
-    # area1 = [atom+mm_unitvec_1 for atom in mm_atom_list]
-    # area2 = [atom+mm_unitvec_2 for atom in mm_atom_list]
-    # area3 = [atom-mm_unitvec_1 for atom in mm_atom_list]
-    # area4 = [atom-mm_unitvec_2 for atom in mm_atom_list]
-    # area5 = [atom+mm_unitvec_1+mm_unitvec_2 for atom in mm_atom_list]
-    # area6 = [atom+mm_unitvec_1-mm_unitvec_2 for atom in mm_atom_list]
-    # area7 = [atom-mm_unitvec_1+mm_unitvec_2 for atom in mm_atom_list]
-    # area8 = [atom-mm_unitvec_1-mm_unitvec_2 for atom in mm_atom_list]
-
     area1 = mm_atom_list+mm_unitvec_1
     area2 = mm_atom_list+mm_unitvec_2
     area3 = mm_atom_list-mm_unitvec_1
@@ -134,26 +122,24 @@ def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
     area6 = mm_atom_list+mm_unitvec_1-mm_unitvec_2
     area7 = mm_atom_list-mm_unitvec_1+mm_unitvec_2
     area8 = mm_atom_list-mm_unitvec_1-mm_unitvec_2
-    print("len of area 1", len(area1))
-    print("len of area 2", len(area2))
 
     enlarge_mm_atom_list = np.concatenate((mm_atom_list, area1, area2, area3, area4, area5, area6, area7, area8))
 
-    print("I am here")
-    print(enlarge_mm_atom_list.shape)
-    print("mm atom list", mm_atom_list.shape)
-    return (mm_atom_list.tolist(), enlarge_mm_atom_list.tolist())
+    print("enlarge mm atom list shape:", enlarge_mm_atom_list.shape)
+    print("mm atom list shape:", mm_atom_list.shape)
+
+    return (mm_atom_list, enlarge_mm_atom_list)
 
 
-def set_magnetic_atom_neighbour_list(mm_atom_list: list, enlarge_mm_atom_list: list, distance=2.5113*A_0):
+def set_magnetic_atom_neighbour_list(mm_atom_list, enlarge_mm_atom_list, distance=2.5113*A_0):
     """
     find neighours within `distance` by using kdtree algorithm
     """
     # print((np.array(enlarge_mm_atom_list)[:, :2]).shape)
     # print((np.array(mm_atom_list)[:, :2]).shape)
 
-    x = np.array(enlarge_mm_atom_list)[:, :2]
-    y = np.array(mm_atom_list)[:, :2]
+    x = enlarge_mm_atom_list[:, :2]
+    y = mm_atom_list[:, :2]
     tree = KDTree(x)
     ind = tree.query_radius(y, r=distance)
     
@@ -163,7 +149,7 @@ def set_magnetic_atom_neighbour_list(mm_atom_list: list, enlarge_mm_atom_list: l
 
     return all_nns
 
-def set_relative_dis_ndarray(mm_atom_list: list, enlarge_mm_atom_list: list, atom_neighbour_index)->tuple:
+def set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, atom_neighbour_index)->tuple:
     """
     construct relative distance ndarry
 
@@ -173,9 +159,9 @@ def set_relative_dis_ndarray(mm_atom_list: list, enlarge_mm_atom_list: list, ato
     (atom_pstn_2darray, atom_neighbour_2darray, row, col)
     """
   
-    num_atom = len(mm_atom_list)
-    mm_atom_list = np.array(mm_atom_list)
-    enlarge_mm_atom_list = np.array(enlarge_mm_atom_list)
+    num_atom = mm_atom_list.shape[0]
+    # mm_atom_list = np.array(mm_atom_list)
+    # enlarge_mm_atom_list = np.array(enlarge_mm_atom_list)
 
     # tricky code here
     # construct Ri list
@@ -187,9 +173,10 @@ def set_relative_dis_ndarray(mm_atom_list: list, enlarge_mm_atom_list: list, ato
     # construct Rj near Ri list
     #print(np.array(enlarge_mm_atom_list)[atom_neighbour_index[0]])
 
-    print("before concatenate")
-    atom_neighbour_2darray = np.concatenate(tuple(enlarge_mm_atom_list[subindex] for subindex in atom_neighbour_index))
-    print("after concatenate")
+    # print("before concatenate")
+    # atom_neighbour_2darray = np.concatenate(tuple(enlarge_mm_atom_list[subindex] for subindex in atom_neighbour_index))
+    # print("after concatenate")
+    atom_neighbour_2darray = enlarge_mm_atom_list[np.hstack(atom_neighbour_index)]
     # print(atom_neighbour_2darray.shape)
     assert atom_pstn_2darray.shape == atom_neighbour_2darray.shape
 
