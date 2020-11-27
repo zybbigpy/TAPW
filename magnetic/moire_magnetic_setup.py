@@ -27,10 +27,11 @@ ATOM_PSTN_2 = np.array([2*A_0/np.sqrt(3), 0])
 
 def _set_moire_angle(n_moire: int)->float:
     """
-    get the angle by defining the moire number n_moire
+    get the angle by defining the moire number `n_moire`
 
     ----------
     Return:
+
     moire angle in radius
     """
     return np.arcsin(np.sqrt(3)*(2*n_moire+1)/(6*n_moire**2+6*n_moire+2))
@@ -56,9 +57,15 @@ def _set_rt_mtrx(theta: float):
 
     return rt_mtrx
 
+
 def _set_moire_magnetic(n_moire: int, q: int)->tuple:
     """ 
     set up magnetic moire information 
+
+    -------
+    Returns:
+
+    a tuple: Magnetic Moire information 
     """
     
     rt_angle = _set_moire_angle(n_moire)
@@ -90,13 +97,26 @@ def _set_moire_magnetic(n_moire: int, q: int)->tuple:
 
 
 def read_atom_pstn_list(path: str, n_moire: int)->list:
-
+    """
+    read the atom pstn list in a single moire lattice 
+    """
     atom_pstn_list = np.loadtxt(path+"atom"+str(n_moire)+".csv", delimiter=',', comments='#')
 
     return list(atom_pstn_list)
 
 
 def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
+    """
+    magnetic moire lattice is q times bigger than the original one, the enlarge
+    magnetic moire lattice is 9 times bigger than the magnetic moire lattice and it
+    makes easy to find neighbours
+
+    --------
+    Returns:
+
+    mm_atom_list: numpy 2d array (q*n, 3), n is # of moire atoms
+    enlarge_mm_atom_list: numpy 2d array (9*q*n, 3)
+    """
 
     (m_unitvec_1,    m_unitvec_2,  m_g_unitvec_1, m_g_unitvec_2, 
      mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s) = _set_moire_magnetic(n_moire, q)
@@ -107,11 +127,10 @@ def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
     mm_unitvec_2 = np.array([mm_unitvec_2[0], mm_unitvec_2[1], 0])
     # moire atoms
     m_atom_list = read_atom_pstn_list(path, n_moire)
-    # split for a1 b1 a2 b2 atoms
+    # split for `a1 b1 a2 b2` atoms
     atom_list_tuple = np.split(np.array(m_atom_list), 4)
     # magnetic moire atoms
     mm_atom_list = np.concatenate(tuple(atom_list+i*m_unitvec_2 for atom_list in atom_list_tuple for i in range(q)))
-    print(mm_atom_list.shape)
 
     # 9 times bigger than the original magnetic lattice
     area1 = mm_atom_list+mm_unitvec_1
@@ -125,8 +144,8 @@ def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
 
     enlarge_mm_atom_list = np.concatenate((mm_atom_list, area1, area2, area3, area4, area5, area6, area7, area8))
 
-    print("enlarge mm atom list shape:", enlarge_mm_atom_list.shape)
-    print("mm atom list shape:", mm_atom_list.shape)
+    # print("enlarge mm atom list shape:", enlarge_mm_atom_list.shape)
+    # print("mm atom list shape:", mm_atom_list.shape)
 
     return (mm_atom_list, enlarge_mm_atom_list)
 
@@ -134,10 +153,14 @@ def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
 def set_magnetic_atom_neighbour_list(mm_atom_list, enlarge_mm_atom_list, distance=2.5113*A_0):
     """
     find neighours within `distance` by using kdtree algorithm
-    """
-    # print((np.array(enlarge_mm_atom_list)[:, :2]).shape)
-    # print((np.array(mm_atom_list)[:, :2]).shape)
 
+    -----
+    Return
+
+    all_nns: numpy array (index)
+    """
+
+    # only use first two dimentional information
     x = enlarge_mm_atom_list[:, :2]
     y = mm_atom_list[:, :2]
     tree = KDTree(x)
@@ -149,6 +172,7 @@ def set_magnetic_atom_neighbour_list(mm_atom_list, enlarge_mm_atom_list, distanc
 
     return all_nns
 
+
 def set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, atom_neighbour_index)->tuple:
     """
     construct relative distance ndarry
@@ -159,23 +183,20 @@ def set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, atom_neighbour_
     (atom_pstn_2darray, atom_neighbour_2darray, row, col)
     """
   
+    # magnetic moire atom number
     num_atom = mm_atom_list.shape[0]
-    # mm_atom_list = np.array(mm_atom_list)
-    # enlarge_mm_atom_list = np.array(enlarge_mm_atom_list)
 
     # tricky code here
     # construct Ri list
     neighbour_len_list = [subindex.shape[0] for subindex in atom_neighbour_index]
     atom_pstn_2darray = np.repeat(mm_atom_list, neighbour_len_list, axis=0) 
 
-    print(atom_neighbour_index.shape)
-    #print(atom_neighbour_index[0])
-    # construct Rj near Ri list
-    #print(np.array(enlarge_mm_atom_list)[atom_neighbour_index[0]])
-
-    # print("before concatenate")
+    # print(atom_neighbour_index.shape)
+    # print(atom_neighbour_index[0])
+    # print(np.array(enlarge_mm_atom_list)[atom_neighbour_index[0]])
     # atom_neighbour_2darray = np.concatenate(tuple(enlarge_mm_atom_list[subindex] for subindex in atom_neighbour_index))
-    # print("after concatenate")
+
+    # construct Rj near Ri list
     atom_neighbour_2darray = enlarge_mm_atom_list[np.hstack(atom_neighbour_index)]
     # print(atom_neighbour_2darray.shape)
     assert atom_pstn_2darray.shape == atom_neighbour_2darray.shape

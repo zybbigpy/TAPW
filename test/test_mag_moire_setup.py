@@ -59,4 +59,3 @@ for i in range(num_atoms):
 # print(k.shape)
 # neighbor_array = np.concatenate(tuple(atoms[subindex] for subindex in ind))
 # print(neighbor_array.shape)
-magtbset.set_relative_dis_ndarray(a, ind)

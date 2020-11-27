@@ -1,5 +1,5 @@
 import numpy as np
-import moire_magnetic_setup as magset 
+import magnetic.moire_magnetic_setup as magset 
 
 from scipy.linalg import block_diag
 from scipy import sparse
@@ -10,11 +10,13 @@ from itertools import product
 VPI_0 = -2.7
 # eV
 VSIGMA_0 = 0.48
+# flux quantum (SI unit in Wb)
+FLUX_QUANTUM = 2.067833848e-15
 
 R_RANGE = 0.184*magset.A_0 
 
 
-def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int)->list:
+def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g: int)->list:
 
     g_vec_list = []
 
@@ -34,11 +36,11 @@ def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int)->list:
     return g_vec_list
 
 
-def _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k:int)->list:
+def _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k: int, q: int)->list:
     
     k_step = 1/n_k
-    kmesh = [i*k_step*mm_g_unitvec_1 + j*k_step*mm_g_unitvec_2 
-             for (i, j) in product(range(n_k), range(n_k))]
+    kmesh = [i*k_step*mm_g_unitvec_1/q + j*k_step*mm_g_unitvec_2 
+             for (i, j) in product(range(n_k*q), range(n_k))]
 
     return kmesh
 
@@ -72,6 +74,7 @@ def _set_ab_phase(atom_pstn_2darray, atom_neighbour_2darray, mag):
     
     ----------
     Parameters:
+
     atom_pstn_2darray, atom neighbour_2darray <==> (Ri, Rj), both are (*, 3) shape
     mag: magnetic field `B`
     """
@@ -119,7 +122,7 @@ def _set_const_mtrx(n_moire, m_g_unitvec_1,  m_g_unitvec_2, row, col, mm_atom_li
     return (gr_mtrx, tr_mtrx)
 
 
-def cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom):
+def _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom):
     
     dr = (atom_pstn_2darray-atom_neighbour_2darray)[:,:2]
     tk_data = np.exp(-1j*np.dot(dr, k_vec))
@@ -130,7 +133,17 @@ def cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, k_vec, gr_mtrx,
 
     return hamiltonian_k
 
+
 def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley: int, p: int, q: int):
+    """
+    A wrapper,  the magnetic tightbinding solver
+
+    -------
+    Returns:
+
+    (emesh, dmesh)
+    emesh: eigenvalues, dnmesh: eigen vectors
+    """
     
     (m_unitvec_1,    m_unitvec_2,  m_g_unitvec_1, m_g_unitvec_2, 
      mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s) = magset._set_moire_magnetic(n_moire, q)
@@ -142,29 +155,40 @@ def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley: int, p: int, q: int)
 
     (atom_pstn_2darray, atom_neighbour_2darray, row, col) = magset.set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, ind)
 
-    kmesh = _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k)
+    kmesh = _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k, q)
     g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
-    print("before set const matrix")
+
     (gr_mtrx, tr_mtrx) = _set_const_mtrx(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
                                          atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag)
 
-    print("after set const matrix")
     n_atom = len(mm_atom_list)
     n_band = len(g_vec_list)*4
     n_kpts = len(kmesh)
+    mag_tesla = p*FLUX_QUANTUM*(10**20)/(q*s)
+    
+    print('='*100)
+    np.set_printoptions(6)
+    print("magnetic field (T)".ljust(35),":", mag_tesla, "(", "p =", p, ", q =", q, ")")
+    print("n moire is".ljust(35), ":", n_moire)
+    print("valley  is".ljust(35), ":", valley)
+    print("num of g vectors is".ljust(35), ":", n_g)
+    print("num of atoms in magnetic lattice".ljust(35), ":", n_atom) 
+    print("num of kpoints".ljust(35), ":", n_kpts)
+    print("num of bands".ljust(35), ":", n_band)
+    print('='*100)
 
     dmesh = []
     emesh = []
+    count = 1
 
     for kvec in kmesh:
-        print("in k sampling:")
-        hamk = cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, kvec, gr_mtrx, tr_mtrx, row, col, n_atom)
+        print("in k sampling process count =", count)
+        count += 1
+        hamk = _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, kvec, gr_mtrx, tr_mtrx, row, col, n_atom)
         eigen_val, eigen_vec = np.linalg.eigh(hamk)
-        print(eigen_val)
+        #print(eigen_val)
         emesh.append(eigen_val)
         dmesh.append(eigen_vec)
-
+    
+    print("k sampling process finished.")
     return (emesh, dmesh)
-
-
-mag_tb_solver(30, 5, 3, 1, 1, 2)
