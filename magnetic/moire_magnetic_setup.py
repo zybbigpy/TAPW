@@ -168,7 +168,7 @@ def set_magnetic_atom_neighbour_list(mm_atom_list, enlarge_mm_atom_list, distanc
     
     # the kdtree algotithm provided by sklearn will return the index 
     # including itself, the following code will remove them
-    all_nns = np.array([np.array([idx for idx in nn_indices if idx != i]) for i, nn_indices in enumerate(ind)])
+    all_nns = np.array([np.array([idx for idx in nn_indices if idx != i]) for i, nn_indices in enumerate(ind)], dtype=object)
 
     return all_nns
 
