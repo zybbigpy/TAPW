@@ -19,5 +19,5 @@ See the notes.
 
 For `n_moire = 30, valley = 1`:
 
-![eg](../TBG/fig/band_n_30_v_1.png)
+![eg](fig/band_n_30_v_1.png)
 
