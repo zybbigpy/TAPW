@@ -93,7 +93,7 @@ def _set_const_mtrx(n_moire,  dr,  dd,    m_g_unitvec_1,  m_g_unitvec_2,
     return (gr_mtrx, tr_mtrx)
 
 
-def cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom):
+def _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom):
     
     tk_data = np.exp(-1j*np.dot(dr, k_vec))
     kr_mtrx = sparse.csr_matrix((tk_data, (row, col)), shape=(n_atom, n_atom))
@@ -104,27 +104,74 @@ def cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom):
     return hamiltonian_k
 
 
-def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int)->tuple:
+def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
+    """
+    moire dispertion, this code is just modifield from Prof Dai's realization
+    """
+
+    num_sec = 4
+    ksec = np.zeros((num_sec,2), float)
+    num_kpt = nk * (num_sec - 1)
+
+    kline = np.zeros((num_kpt), float)
+    kmesh = np.zeros((num_kpt,2), float)
+
+    # set k path (K1 - Gamma - M - K2)
+    ksec[0] = m_k1_vec
+    ksec[1] = m_gamma_vec
+    ksec[2] = m_m_vec
+    ksec[3] = m_k2_vec
+
+    for i in range(num_sec-1):
+        vec = ksec[i+1]-ksec[i]
+        # print ('vec=',vec)
+        klen = np.sqrt(np.dot(vec,vec))
+        # print ('klen=',klen)
+        step = klen/nk
+        # print ('step=',step)
+        for ikpt in range(nk):
+            kline[ikpt+i*nk] = kline[i*nk-1] + ikpt * step
+            kmesh[ikpt+i*nk] = vec*ikpt/(nk-1)+ksec[i]
+
+    return (kline, kmesh)
+
+
+def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=False)->tuple:
     """  
     Tight binding solver for moire system
 
     -------
     Returns:
     
-    1. emesh: eigenvalues
-    2. dmesh: eigenvectors
+    1. emesh: eigenvalues, np.array(n_k, n_bands)
+    2. dmesh: eigenvectors, np.array(n_k, n_bands, n_bands)
+    3. kline: 0 for uniform sampling, list for k-path sampling: np.array(n_k)
     """
+    
+
     
     (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
      m_g_unitvec_2, m_gamma_vec, m_k1_vec,    
      m_k2_vec,      m_m_vec,     rt_mtrx_half) = mset._set_moire(n_moire)
+
+    dmesh = []
+    emesh = []
+    kline = 0
+    emax = -1000
+    emin = 1000
+    count = 1
 
     atom_pstn_list = mset.read_atom_pstn_list("../data/", n_moire)
     atom_neighbour_list = mset.read_atom_neighbour_list("../data/", n_moire)
     (dr, dd, row, col) = mset.set_relative_dis_ndarray(atom_pstn_list, atom_neighbour_list, m_g_unitvec_1, 
                                                        m_g_unitvec_2,  m_unitvec_1,         m_unitvec_2)
 
-    kmesh = _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k)
+    if(disp): # k-path sampling
+        (kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
+    else:     # uniform sampling
+        kmesh = _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k)
+    
+    
     g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
     gr_mtrx, tr_mtrx = _set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
                                        row, col, g_vec_list, atom_pstn_list, valley)
@@ -143,16 +190,10 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int)->tuple:
     print("num of bands".ljust(30), ":", n_band)
     print('='*100)
 
-    dmesh = []
-    emesh = []
-    emax = -1000
-    emin = 1000
-    count = 1
-
     for k_vec in kmesh:
         print("k sampling process, counter:", count)
         count += 1
-        hamk = cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom)
+        hamk = _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom)
         eigen_val, eigen_vec = np.linalg.eigh(hamk)
         if np.max(eigen_val) > emax:
             emax = np.max(eigen_val)
@@ -164,4 +205,5 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int)->tuple:
     print('='*100)
     print("emax =", emax, "emin =", emin)
     print('='*100)
-    return (emesh, dmesh)
+
+    return (np.array(emesh), np.array(dmesh), kline)

@@ -50,4 +50,4 @@ print("dd shape:", dd.shape)
 # g_vec_list = tbtb._set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
 # gr_mtrx, tr_mtrx = tbtb._set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
 #                                         row, col, g_vec_list, atom_pstn_list, valley)
-(a, b) = tbtb.tightbinding_solver(n_moire, n_g, n_k, valley)
+(a, b, k) = tbtb.tightbinding_solver(n_moire, n_g, n_k, valley)

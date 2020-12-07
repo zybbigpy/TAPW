@@ -32,6 +32,7 @@ def _set_moire_angle(n_moire: int)->float:
     Return:
     moire angle in radius
     """
+    
     return np.arcsin(np.sqrt(3)*(2*n_moire+1)/(6*n_moire**2+6*n_moire+2))
 
 
