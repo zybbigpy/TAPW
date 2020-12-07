@@ -110,11 +110,8 @@ def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
     """
 
     num_sec = 4
-    ksec = np.zeros((num_sec,2), float)
-    num_kpt = nk * (num_sec - 1)
-
-    kline = np.zeros((num_kpt), float)
-    kmesh = np.zeros((num_kpt,2), float)
+    ksec = np.zeros((num_sec,2),  float)
+    kmesh = []
 
     # set k path (K1 - Gamma - M - K2)
     ksec[0] = m_k1_vec
@@ -123,17 +120,12 @@ def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
     ksec[3] = m_k2_vec
 
     for i in range(num_sec-1):
-        vec = ksec[i+1]-ksec[i]
-        # print ('vec=',vec)
-        klen = np.sqrt(np.dot(vec,vec))
-        # print ('klen=',klen)
-        step = klen/nk
-        # print ('step=',step)
+        vec = ksec[i+1] - ksec[i]
         for ikpt in range(nk):
-            kline[ikpt+i*nk] = kline[i*nk-1] + ikpt * step
-            kmesh[ikpt+i*nk] = vec*ikpt/(nk-1)+ksec[i]
+            kmesh.append(vec*ikpt/nk + ksec[i])
+    kmesh.append(ksec[3])
 
-    return (kline, kmesh)
+    return np.array(kmesh)
 
 
 def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=False)->tuple:
@@ -145,7 +137,6 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=Fals
     
     1. emesh: eigenvalues, np.array(n_k, n_bands)
     2. dmesh: eigenvectors, np.array(n_k, n_bands, n_bands)
-    3. kline: 0 for uniform sampling, list for k-path sampling: np.array(n_k)
     """
     
 
@@ -156,7 +147,6 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=Fals
 
     dmesh = []
     emesh = []
-    kline = 0
     emax = -1000
     emin = 1000
     count = 1
@@ -167,7 +157,7 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=Fals
                                                        m_g_unitvec_2,  m_unitvec_1,         m_unitvec_2)
 
     if(disp): # k-path sampling
-        (kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
+        kmesh = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
     else:     # uniform sampling
         kmesh = _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k)
     
@@ -206,4 +196,4 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=Fals
     print("emax =", emax, "emin =", emin)
     print('='*100)
 
-    return (np.array(emesh), np.array(dmesh), kline)
+    return (np.array(emesh), np.array(dmesh))

@@ -14,5 +14,10 @@ See the notes.
 
 1. Numpy
 2. Scipy
-3. Cupy
+
+## Example Output
+
+For `n_moire = 30, valley = 1`:
+
+![eg](../TBG/fig/band_n_30_v_1.png)
 
