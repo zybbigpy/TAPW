@@ -45,6 +45,14 @@ def _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k: int, q: int)->list:
     return kmesh
 
 
+def _set_kmesh_disp(mm_g_unitvec_1, n_k: int):
+
+    k_step = 1/n_k
+    kmesh = [i*k_step*mm_g_unitvec_1 for i in range(n_k)]
+
+    return kmesh
+
+
 def _set_sk_integral(atom_pstn_2darray, atom_neighbour_2darray):
     """
     dr (*, 2) ndarray, dd (*, ) ndarray, * represents for neighbour pair
@@ -134,7 +142,7 @@ def _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, k_vec, gr_mtrx
     return hamiltonian_k
 
 
-def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley: int, p: int, q: int):
+def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley: int, p: int, q: int, disp=False):
     """
     A wrapper,  the magnetic tightbinding solver
 
@@ -155,9 +163,12 @@ def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley: int, p: int, q: int)
 
     (atom_pstn_2darray, atom_neighbour_2darray, row, col) = magset.set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, ind)
 
-    kmesh = _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k, q)
+    if disp:
+        kmesh = _set_kmesh_disp(mm_g_unitvec_1, n_k)
+    else:
+        kmesh = _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k, q)
+    
     g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
-
     (gr_mtrx, tr_mtrx) = _set_const_mtrx(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
                                          atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag)
 
