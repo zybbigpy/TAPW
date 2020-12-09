@@ -1,6 +1,6 @@
-# Tight binding method for Twist Bilayer Graphene
+# Tight Binding Method for Twist Bilayer Graphene
 
-## Graphene coordinates
+## Graphene Coordinates
 
 See the notes.
 
@@ -19,5 +19,8 @@ See the notes.
 
 For `n_moire = 30, valley = 1`:
 
-![eg](fig/band_n_30_v_1.png)
+![eg1](fig/band_n_30_v_1.png)
 
+For `n_moire = 30, valley = -1`:
+
+![eg2](fig/band_n_30_v_-1.png)
