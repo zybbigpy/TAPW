@@ -10,7 +10,7 @@ import tightbinding.moire_tb as tbtb
 n_moire = 30
 n_g = 5
 n_k = 60
-valley = -1
+valley = 1
 n_band = 244
 
 (emesh, dmesh, kline) = tbtb.tightbinding_solver(n_moire, n_g, n_k, valley, disp=True)

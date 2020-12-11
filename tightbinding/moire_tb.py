@@ -6,7 +6,7 @@ from scipy import sparse
 from itertools import product
 
 # eV
-VPI_0 = -2.7
+VPI_0 = -2.81
 # eV
 VSIGMA_0 = 0.48
 
