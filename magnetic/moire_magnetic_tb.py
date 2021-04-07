@@ -38,9 +38,10 @@ def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g: int)->list:
 
 def _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k: int, q: int)->list:
     
+    # attention here, not normalized sampling
     k_step = 1/n_k
-    kmesh = [i*k_step*mm_g_unitvec_1/q + j*k_step*mm_g_unitvec_2 
-             for (i, j) in product(range(n_k*q), range(n_k))]
+    kmesh = [i*k_step*mm_g_unitvec_1 + j*k_step*mm_g_unitvec_2 
+             for (i, j) in product(range(n_k), range(n_k))]
 
     return kmesh
 

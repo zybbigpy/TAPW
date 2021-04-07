@@ -1,6 +1,7 @@
 import numpy as np
 
 from itertools import product
+from sklearn.neighbors import KDTree
 
 # lattice constant (angstrom)
 A_0 = 2.46
@@ -171,8 +172,67 @@ def set_atom_pstn_list(n_moire: int)->list:
     return atom_pstn_list
 
 
-def set_atom_neighbour_list(distance: float):
-    pass
+def set_atom_neighbour_list(atom_pstn_list:list, m_unitvec_1, m_unitvec_2, distance=2.5113*A_0):
+    
+    print("num of atoms (code in moire set up):", len(atom_pstn_list))
+    num_atoms = len(atom_pstn_list)
+    atom_pstn_list = np.array(atom_pstn_list)
+    # add information for `d`
+    m_unitvec_1 = np.array([m_unitvec_1[0],m_unitvec_1[1], 0])
+    m_unitvec_2 = np.array([m_unitvec_2[0],m_unitvec_2[1], 0])
+
+    # 9 times larger than the original primitive lattice for searching nearest neighours
+    area1 = atom_pstn_list+m_unitvec_1
+    area2 = atom_pstn_list+m_unitvec_2
+    area3 = atom_pstn_list-m_unitvec_1
+    area4 = atom_pstn_list-m_unitvec_2
+    area5 = atom_pstn_list+m_unitvec_1+m_unitvec_2
+    area6 = atom_pstn_list+m_unitvec_1-m_unitvec_2
+    area7 = atom_pstn_list-m_unitvec_1+m_unitvec_2
+    area8 = atom_pstn_list-m_unitvec_1-m_unitvec_2
+
+    enlarge_atom_pstn_list = np.concatenate((atom_pstn_list, area1, area2, area3, area4, area5, area6, area7, area8))
+
+    # kdtree search, only use first 2D information
+    x = enlarge_atom_pstn_list[:, :2]
+    y = atom_pstn_list[:, :2]
+    tree = KDTree(x)
+    ind = tree.query_radius(y, r=distance)
+
+    # the kdtree algotithm provided by sklearn will return the index 
+    # including itself, the following code will remove them
+    all_nns = np.array([np.array([idx for idx in nn_indices if idx != i]) for i, nn_indices in enumerate(ind)], dtype=object)
+
+    return (all_nns, enlarge_atom_pstn_list)
+
+
+def set_relative_dis_ndarray_new(atom_pstn_list, enlarge_atom_pstn_list, all_nns):
+
+    print("num of atoms (code in moire set up):", len(atom_pstn_list))
+    num_atoms = len(atom_pstn_list)
+    atom_pstn_list = np.array(atom_pstn_list)
+
+    # tricky code here
+    # construct Ri list
+    neighbour_len_list = [subindex.shape[0] for subindex in all_nns]
+    atom_pstn_2darray = np.repeat(atom_pstn_list, neighbour_len_list, axis=0) 
+    
+    # construct Rj near Ri list
+    atom_neighbour_2darray = enlarge_atom_pstn_list[np.hstack(all_nns)]
+    assert atom_pstn_2darray.shape == atom_neighbour_2darray.shape
+    
+    ind = all_nns%num_atoms
+    # ind = [np.sort(subind) for subind in ind]
+    # (row, col) <=> (index_i, index_j)
+    row = [iatom for iatom in range(num_atoms) for n in range(ind[iatom].shape[0])]
+    col = [jatom for subindex in ind for jatom in subindex]
+
+    assert len(row) == len(col)
+    
+    dr = (atom_pstn_2darray-atom_neighbour_2darray)[:,:2]
+    dd = (atom_pstn_2darray-atom_neighbour_2darray)[:,-1]
+
+    return (dr, dd, row, col)
 
 
 def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list, m_g_unitvec_1, 
@@ -233,6 +293,7 @@ def save_atom_pstn_list(atom_pstn_list: list, path: str, n_moire: int):
 def read_atom_neighbour_list(path: str, n_moire: int)->list:
 
     with open(path+"Nlist"+str(n_moire)+".dat","r") as f:
+        print("Open file Nlist...\n")
         lines = f.readlines()
         atom_neighbour_list = []
         for line in lines:

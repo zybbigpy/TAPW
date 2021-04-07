@@ -6,7 +6,7 @@ from scipy import sparse
 from itertools import product
 
 # eV
-VPI_0 = -2.81
+VPI_0 = -2.7
 # eV
 VSIGMA_0 = 0.48
 
@@ -14,10 +14,12 @@ R_RANGE = 0.184*mset.A_0
 
 
 def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int)->list:
-
+    """
+    old version code, aborted.
+    """
     g_vec_list = []
 
-    # construct a hexagon area by using three smallest g vectors 
+    # construct a hexagon area by using three smallest g vectors (with symmetry)
     g_3 = -m_g_unitvec_1-m_g_unitvec_2
     
     for (i, j) in product(range(n_g), range(n_g)):
@@ -30,6 +32,61 @@ def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int)->list:
         for j in range(1, n_g):
             g_vec_list.append(j*g_3 + i*m_g_unitvec_2)
      
+    return g_vec_list
+
+
+def _set_g_vec_list_symm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
+
+    g_vec_list = []
+    offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
+
+    # construct a hexagon area by using three smallest g vectors (with symmetry)
+    g_3 = -m_g_unitvec_1-m_g_unitvec_2
+    
+    for (i, j) in product(range(n_g), range(n_g)):
+        g_vec_list.append(i*m_g_unitvec_1 + j*m_g_unitvec_2)
+    
+    for (i, j) in product(range(n_g), range(n_g)):
+        g_vec_list.append(i*g_3 + j*m_g_unitvec_1)
+    
+    for (i, j) in product(range(n_g), range(n_g)):
+            g_vec_list.append(j*g_3 + i*m_g_unitvec_2)
+
+    # remove repeated gvecs in glist
+    g_vec_list = np.unique(np.array(g_vec_list), axis=0) + offset*valley
+
+    return g_vec_list
+
+
+def _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
+
+    g_vec_list = []
+    offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
+
+    g_1 = m_g_unitvec_1
+    g_2 = m_g_unitvec_2
+    g_3 = -m_g_unitvec_1
+    g_4 = -m_g_unitvec_2
+
+    for (i, j) in product(range(n_g), range(n_g)):
+        g_vec_list.append(i*g_1 + j*g_2)
+
+    for (i, j) in product(range(n_g), range(n_g)):
+        g_vec_list.append(i*g_1 + j*g_4)
+
+    for (i, j) in product(range(n_g), range(n_g)):
+        g_vec_list.append(i*g_2 + j* g_3)
+
+    for (i, j) in product(range(n_g), range(n_g)):
+        g_vec_list.append(i*g_3 + j*g_4)
+    
+
+    print("G list shape before unique:", len(g_vec_list))
+
+    g_vec_list = np.unique(np.array(g_vec_list), axis=0) + offset*valley
+
+    print("G list shape after unique:", g_vec_list.shape)
+
     return g_vec_list
 
 
@@ -81,7 +138,13 @@ def _set_const_mtrx(n_moire,  dr,  dd,    m_g_unitvec_1,  m_g_unitvec_2,
     factor = 1/np.sqrt(n_atom/4)
     offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
 
-    gr_mtrx = np.array([factor*np.exp(-1j*np.dot(g + valley*offset, r[:2]))
+    # in old version code, offset of Glist realized here
+    # gr_mtrx = np.array([factor*np.exp(-1j*np.dot(g + valley*offset, r[:2]))
+    #                     for g in g_vec_list for r in atom_pstn_list]).reshape(n_g, n_atom)
+
+    # new version code, in g list construction
+
+    gr_mtrx = np.array([factor*np.exp(-1j*np.dot(g, r[:2]))
                         for g in g_vec_list for r in atom_pstn_list]).reshape(n_g, n_atom)
 
     g1, g2, g3, g4 = np.hsplit(gr_mtrx, 4)
@@ -133,7 +196,7 @@ def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
     return (kline, kmesh)
 
 
-def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=False)->tuple:
+def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=False, symm=True)->tuple:
     """  
     Tight binding solver for moire system
 
@@ -158,9 +221,15 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=Fals
     count = 1
 
     atom_pstn_list = mset.read_atom_pstn_list("../data/", n_moire)
-    atom_neighbour_list = mset.read_atom_neighbour_list("../data/", n_moire)
-    (dr, dd, row, col) = mset.set_relative_dis_ndarray(atom_pstn_list, atom_neighbour_list, m_g_unitvec_1, 
-                                                       m_g_unitvec_2,  m_unitvec_1,         m_unitvec_2)
+
+    # old solution 
+    # atom_neighbour_list = mset.read_atom_neighbour_list("../data/", n_moire)
+    # (dr, dd, row, col) = mset.set_relative_dis_ndarray(atom_pstn_list, atom_neighbour_list, m_g_unitvec_1, 
+    #                                                     m_g_unitvec_2,  m_unitvec_1,         m_unitvec_2)
+
+    # new solution
+    (all_nns, enlarge_atom_pstn_list)= mset.set_atom_neighbour_list(atom_pstn_list, m_unitvec_1, m_unitvec_2)
+    (dr, dd, row, col) = mset.set_relative_dis_ndarray_new(atom_pstn_list, enlarge_atom_pstn_list, all_nns)
 
     if(disp): # k-path sampling
         (kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
@@ -168,7 +237,13 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=Fals
         kmesh = _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k)
     
     
-    g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
+    #g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
+    # symmetry G list or non symmetry
+    if symm:
+        g_vec_list = _set_g_vec_list_symm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
+    else:
+        g_vec_list = _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
+
     gr_mtrx, tr_mtrx = _set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
                                        row, col, g_vec_list, atom_pstn_list, valley)
     n_atom = len(atom_pstn_list)
@@ -203,3 +278,6 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=Fals
     print('='*100)
 
     return (np.array(emesh), np.array(dmesh), kline)
+
+
+
