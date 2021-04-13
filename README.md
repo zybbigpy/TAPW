@@ -15,6 +15,11 @@ See the notes.
 1. Numpy
 2. Scipy
 
+## Relationship between n_moire and angle
+
+This is an output of wanniertools (full tb solution)
+![nmoire](fig/nmoire_angle.png)
+
 ## Example Output
 
 For `n_moire = 30, valley = 1`:

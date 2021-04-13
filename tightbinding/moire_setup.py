@@ -25,7 +25,7 @@ ATOM_PSTN_1 = np.array([0, 0])
 ATOM_PSTN_2 = np.array([2*A_0/np.sqrt(3), 0])
 
 
-def _set_moire_angle(n_moire: int)->float:
+def _set_moire_angle(n_moire:int)->float:
     """
     get the angle by defining the moire number n_moire
 
@@ -34,10 +34,12 @@ def _set_moire_angle(n_moire: int)->float:
     moire angle in radius
     """
     
-    return np.arcsin(np.sqrt(3)*(2*n_moire+1)/(6*n_moire**2+6*n_moire+2))
+    angle_r = np.arcsin(np.sqrt(3)*(2*n_moire+1)/(6*n_moire**2+6*n_moire+2))
+    print("nmoire:", n_moire, ", equals angle(degree):", angle_r/np.pi*180)
 
+    return angle_r
 
-def _set_rt_mtrx(theta: float):
+def _set_rt_mtrx(theta:float):
     """
     create the rotation matrix
 
@@ -58,7 +60,7 @@ def _set_rt_mtrx(theta: float):
     return rt_mtrx
 
 
-def _set_moire(n_moire: int)->tuple:
+def _set_moire(n_moire:int)->tuple:
     """
     set up the parameters for the moire system
 
@@ -93,7 +95,7 @@ def _set_moire(n_moire: int)->tuple:
             m_k2_vec,      m_m_vec,     rt_mtrx_half)
 
 
-def set_atom_pstn_list(n_moire: int)->list:
+def set_atom_pstn_list(n_moire:int)->list:
     """
     find all (A1 B1 A2 B2) atoms in a single moire unit lattice after rotation
     
@@ -207,8 +209,10 @@ def set_atom_neighbour_list(atom_pstn_list:list, m_unitvec_1, m_unitvec_2, dista
 
 
 def set_relative_dis_ndarray_new(atom_pstn_list, enlarge_atom_pstn_list, all_nns):
-
-    print("num of atoms (code in moire set up):", len(atom_pstn_list))
+    """
+    new realization, based on KDTree algorithm, we can construct neighbour list very fast.
+    """
+    #print("num of atoms (code in moire set up):", len(atom_pstn_list))
     num_atoms = len(atom_pstn_list)
     atom_pstn_list = np.array(atom_pstn_list)
 
@@ -235,8 +239,8 @@ def set_relative_dis_ndarray_new(atom_pstn_list, enlarge_atom_pstn_list, all_nns
     return (dr, dd, row, col)
 
 
-def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list, m_g_unitvec_1, 
-                             m_g_unitvec_2,        m_unitvec_1,               m_unitvec_2)->tuple:
+def set_relative_dis_ndarray(atom_pstn_list:list, atom_neighbour_list:list, m_g_unitvec_1, 
+                             m_g_unitvec_2,       m_unitvec_1,              m_unitvec_2)->tuple:
     """
     construct relative distance ndarry
 
@@ -271,7 +275,7 @@ def set_relative_dis_ndarray(atom_pstn_list: list, atom_neighbour_list: list, m_
     return (dr, dd, row, col)
 
 
-def system_info_log(n_moire: int):
+def system_info_log(n_moire:int):
 
     (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
      m_g_unitvec_2, m_gamma_vec, m_k1_vec,      
@@ -284,13 +288,16 @@ def system_info_log(n_moire: int):
     print("moire recoprotocal unit vector".ljust(30), ":", m_g_unitvec_1, m_g_unitvec_2)
 
 
-def save_atom_pstn_list(atom_pstn_list: list, path: str, n_moire: int):
+def save_atom_pstn_list(atom_pstn_list:list, path:str, n_moire:int):
     
     atoms = np.array(atom_pstn_list)
     np.savetxt(path+"atom"+str(n_moire)+".csv", atoms, header="Rx, Ry, d", delimiter=',')
 
 
-def read_atom_neighbour_list(path: str, n_moire: int)->list:
+def read_atom_neighbour_list(path:str, n_moire:int)->list:
+    """
+    aborted, we wont generate neighbour list file any more.
+    """
 
     with open(path+"Nlist"+str(n_moire)+".dat","r") as f:
         print("Open file Nlist...\n")
@@ -304,9 +311,8 @@ def read_atom_neighbour_list(path: str, n_moire: int)->list:
     return atom_neighbour_list
 
 
-def read_atom_pstn_list(path: str, n_moire: int)->list:
+def read_atom_pstn_list(path:str, n_moire:int)->list:
 
     atom_pstn_list = np.loadtxt(path+"atom"+str(n_moire)+".csv", delimiter=',', comments='#')
 
     return list(atom_pstn_list)
-

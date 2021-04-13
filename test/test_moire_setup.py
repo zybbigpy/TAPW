@@ -3,14 +3,16 @@ sys.path.append("..")
 
 import tightbinding.moire_setup as tbset
 import tightbinding.moire_tb as tbtb
+
 import numpy as np
+import matplotlib.pyplot as plt
 
 __author__ = 'Wangqian Miao'
 
-n_moire = 31
+n_moire = 30
 n_k     = 3
 n_g     = 5
-valley  = 1
+valley  = -1
 
 # test innder product between unit vec and reciprocal vec
 print(np.dot(tbset.A_UNITVEC_1, tbset.A_G_UNITVEC_1)/np.pi)
@@ -63,27 +65,38 @@ for i in range(num_atoms):
     #print(flag)
     assert(flag==True)
 
-#print((np.sort(all_nns[3450])==np.array(atom_neighbour_list[3450])).all())
-
 (dr, dd, row, col) = tbset.set_relative_dis_ndarray(atom_pstn_list, atom_neighbour_list, m_g_unitvec_1, 
                                                     m_g_unitvec_2,  m_unitvec_1,         m_unitvec_2)
 print("dr shape:", dr.shape)
 print("dd shape:", dd.shape)
-print(dr[1], dr[3])
 
-(dr_new, dd_new, row_new, col_new) = tbset.set_relative_dis_ndarray_new(atom_pstn_list, enlarge_atom_pstn_list, all_nns)
-print("dr new shape:", dr_new.shape)
-print("dd new shape:", dd_new.shape)
-print(dr_new[1], dr_new[3])
-
-print(row == row_new, col==col_new)
-
-
-for i in range(len(col)):
-    assert(col[i]==col_new[i])
+ 
+# The following code wont work any more, we wont sort all_nns with because we need to get neighoubr pstn 
+# through enlarge_atom_list 
 # n_atom = len(atom_pstn_list)
 # kmesh = tbtb._set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k)
 # g_vec_list = tbtb._set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
 # gr_mtrx, tr_mtrx = tbtb._set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
 #                                         row, col, g_vec_list, atom_pstn_list, valley)
 #(a, b, k) = tbtb.tightbinding_solver(n_moire, n_g, n_k, valley)
+
+g_list_1 = tbtb._set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
+print(g_list_1.shape)
+
+g_list_2 = tbtb._set_g_vec_list_nsymm_2(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
+print(g_list_2.shape)
+
+flag = 0
+
+for i in g_list_1:
+    for j in g_list_2:
+        if np.array_equal(i, j):
+            print(i, j)
+            flag+= 1
+
+print("the number of same gvec is",flag)
+print("m g univec 1:", m_g_unitvec_1)
+print("m g univec 2:", m_g_unitvec_2)
+plt.scatter(g_list_1[:, 0], g_list_1[:, 1], c='blue', marker='v')
+plt.scatter(g_list_2[:, 0], g_list_2[:, 1], c='red')
+plt.savefig("../fig/glist_tb_v_"+str(valley)+".png", dpi=600)

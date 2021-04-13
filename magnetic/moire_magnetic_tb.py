@@ -16,27 +16,44 @@ FLUX_QUANTUM = 2.067833848e-15
 R_RANGE = 0.184*magset.A_0 
 
 
-def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g: int)->list:
+# older version code something wrong
+# def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int)->list:
 
-    g_vec_list = []
+#     g_vec_list = []
 
-    # construct a hexagon area by using three smallest g vectors 
-    g_3 = -m_g_unitvec_1-m_g_unitvec_2
+#     # construct a hexagon area by using three smallest g vectors 
+#     g_3 = -m_g_unitvec_1-m_g_unitvec_2
     
-    for (i, j) in product(range(n_g), range(n_g)):
-        g_vec_list.append(i*m_g_unitvec_1 + j*m_g_unitvec_2)
+#     for (i, j) in product(range(n_g), range(n_g)):
+#         g_vec_list.append(i*m_g_unitvec_1 + j*m_g_unitvec_2)
     
-    for (i, j) in product(range(1, n_g), range(1, n_g)):
-        g_vec_list.append(i*g_3 + j*m_g_unitvec_1)
+#     for (i, j) in product(range(1, n_g), range(1, n_g)):
+#         g_vec_list.append(i*g_3 + j*m_g_unitvec_1)
     
-    for i in range(n_g):
-        for j in range(1, n_g):
-            g_vec_list.append(j*g_3 + i*m_g_unitvec_2)
+#     for i in range(n_g):
+#         for j in range(1, n_g):
+#             g_vec_list.append(j*g_3 + i*m_g_unitvec_2)
      
+#     return g_vec_list
+
+
+def _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int, q:int):
+
+    g_vec_list=[]
+    g_1 = m_g_unitvec_1
+    g_2 = m_g_unitvec_2/q
+    offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
+    start_pnt = (-m_g_unitvec_1-m_g_unitvec_2)*(n_g-1) + offset*valley
+
+    for (i, j) in product(range(2*q*n_g), range(2*n_g)):
+        g_vec_list.append(i*g_2 + j*g_1)
+
+    g_vec_list = np.array(g_vec_list) + start_pnt
+
     return g_vec_list
 
 
-def _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k: int, q: int)->list:
+def _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k:int, q:int)->list:
     
     # attention here, not normalized sampling
     k_step = 1/n_k
@@ -46,7 +63,7 @@ def _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k: int, q: int)->list:
     return kmesh
 
 
-def _set_kmesh_disp(mm_g_unitvec_1, n_k: int):
+def _set_kmesh_disp(mm_g_unitvec_1, n_k:int):
 
     k_step = 1/n_k
     kmesh = [i*k_step*mm_g_unitvec_1 for i in range(n_k)]
@@ -112,9 +129,9 @@ def _set_const_mtrx(n_moire, m_g_unitvec_1,  m_g_unitvec_2, row, col, mm_atom_li
     n_atom = len(mm_atom_list)
     
     factor = 1/np.sqrt(n_atom/4)
-    offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
+    #offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
 
-    gr_mtrx = np.array([factor*np.exp(-1j*np.dot(g + valley*offset, r[:2]))
+    gr_mtrx = np.array([factor*np.exp(-1j*np.dot(g, r[:2]))
                         for g in g_vec_list for r in mm_atom_list]).reshape(n_g, n_atom)
 
     g1, g2, g3, g4 = np.hsplit(gr_mtrx, 4)
@@ -143,9 +160,9 @@ def _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, k_vec, gr_mtrx
     return hamiltonian_k
 
 
-def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley: int, p: int, q: int, disp=False):
+def mag_tb_solver(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int, disp=False):
     """
-    A wrapper,  the magnetic tightbinding solver
+    the magnetic tightbinding solver
 
     -------
     Returns:
@@ -169,7 +186,7 @@ def mag_tb_solver(n_moire: int, n_g: int, n_k: int, valley: int, p: int, q: int,
     else:
         kmesh = _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k, q)
     
-    g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
+    g_vec_list = _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley, q)
     (gr_mtrx, tr_mtrx) = _set_const_mtrx(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
                                          atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag)
 

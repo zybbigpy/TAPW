@@ -10,7 +10,7 @@ import tightbinding.moire_tb as tbtb
 n_moire = 30
 n_g = 5
 n_k = 60
-valley = -1
+valley = 1
 
 (emesh, dmesh, kline) = tbtb.tightbinding_solver(n_moire, n_g, n_k, valley, disp=True, symm=False)
 n_band = emesh[0].shape[0]
@@ -35,4 +35,4 @@ ax.axvline(x=kline[n_k-1], color="black")
 ax.axvline(x=kline[2*n_k-1], color="black")
 ax.axvline(x=kline[3*n_k-1], color="black")
 
-plt.savefig("../fig/nsymmg_new_2_band_n_"+str(n_moire)+"_v_"+str(valley)+".png", dpi=500)
+plt.savefig("../fig/nsymmg2_new_2_band_n_"+str(n_moire)+"_v_"+str(valley)+".png", dpi=500)

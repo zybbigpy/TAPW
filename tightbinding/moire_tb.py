@@ -90,6 +90,21 @@ def _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, va
     return g_vec_list
 
 
+def _set_g_vec_list_nsymm_2(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
+
+    g_vec_list = []
+    g_3 = -m_g_unitvec_1-m_g_unitvec_2
+    offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
+    start_pnt = g_3*(n_g-1) + offset*valley
+
+    for (i, j) in product(range(2*n_g), range(2*n_g)):
+        g_vec_list.append(i*m_g_unitvec_1 + j*m_g_unitvec_2)
+    
+    g_vec_list = np.array(g_vec_list) + start_pnt
+
+    return g_vec_list
+
+
 def _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k:int)->list:
     
     k_step = 1/n_k
@@ -196,7 +211,7 @@ def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
     return (kline, kmesh)
 
 
-def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=False, symm=True)->tuple:
+def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, symm=True)->tuple:
     """  
     Tight binding solver for moire system
 
@@ -242,7 +257,8 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=Fals
     if symm:
         g_vec_list = _set_g_vec_list_symm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
     else:
-        g_vec_list = _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
+        print("nsymm2 g list construction.")
+        g_vec_list = _set_g_vec_list_nsymm_2(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
 
     gr_mtrx, tr_mtrx = _set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
                                        row, col, g_vec_list, atom_pstn_list, valley)
@@ -278,6 +294,3 @@ def tightbinding_solver(n_moire: int, n_g: int, n_k: int, valley: int, disp=Fals
     print('='*100)
 
     return (np.array(emesh), np.array(dmesh), kline)
-
-
-

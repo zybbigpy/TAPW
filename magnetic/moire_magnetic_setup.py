@@ -25,7 +25,7 @@ ATOM_PSTN_1 = np.array([0, 0])
 ATOM_PSTN_2 = np.array([2*A_0/np.sqrt(3), 0])
 
 
-def _set_moire_angle(n_moire: int)->float:
+def _set_moire_angle(n_moire:int)->float:
     """
     get the angle by defining the moire number `n_moire`
 
@@ -37,7 +37,7 @@ def _set_moire_angle(n_moire: int)->float:
     return np.arcsin(np.sqrt(3)*(2*n_moire+1)/(6*n_moire**2+6*n_moire+2))
 
 
-def _set_rt_mtrx(theta: float):
+def _set_rt_mtrx(theta:float):
     """
     create the rotation matrix
 
@@ -58,7 +58,7 @@ def _set_rt_mtrx(theta: float):
     return rt_mtrx
 
 
-def _set_moire_magnetic(n_moire: int, q: int)->tuple:
+def _set_moire_magnetic(n_moire:int, q:int)->tuple:
     """ 
     set up magnetic moire information 
 
@@ -96,7 +96,7 @@ def _set_moire_magnetic(n_moire: int, q: int)->tuple:
             mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s)
 
 
-def read_atom_pstn_list(path: str, n_moire: int)->list:
+def read_atom_pstn_list(path:str, n_moire:int)->list:
     """
     read the atom pstn list in a single moire lattice 
     """
@@ -105,7 +105,7 @@ def read_atom_pstn_list(path: str, n_moire: int)->list:
     return list(atom_pstn_list)
 
 
-def set_magnetic_atom_pstn(n_moire: int, q: int, path: str)->tuple:
+def set_magnetic_atom_pstn(n_moire:int, q:int, path:str)->tuple:
     """
     magnetic moire lattice is q times bigger than the original one, the enlarge
     magnetic moire lattice is 9 times bigger than the magnetic moire lattice and it
