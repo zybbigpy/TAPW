@@ -21,7 +21,7 @@ ax.set_xticklabels(["K1", "Γ", "M", "K2"])
 ax.set_xlim(0, kline[-1])
 
 # 7 bands
-for i in range(1):
+for i in range(4):
     plt.plot(kline, emesh[:, n_band//2+i])
     plt.plot(kline, emesh[:, n_band//2-i])
 
@@ -35,4 +35,4 @@ ax.axvline(x=kline[n_k-1], color="black")
 ax.axvline(x=kline[2*n_k-1], color="black")
 ax.axvline(x=kline[3*n_k-1], color="black")
 
-plt.savefig("../fig/nsymmg2_new_2_band_n_"+str(n_moire)+"_v_"+str(valley)+".png", dpi=500)
+plt.savefig("../fig/nsymmg2_new_7_band_n_"+str(n_moire)+"_v_"+str(valley)+".png", dpi=500)

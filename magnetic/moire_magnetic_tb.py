@@ -7,34 +7,13 @@ from itertools import product
 
 
 # eV
-VPI_0 = -2.81
+VPI_0 = -2.7
 # eV
 VSIGMA_0 = 0.48
-# flux quantum (SI unit in Wb)
-FLUX_QUANTUM = 2.067833848e-15
-
+# flux quantum (SI unit in Wb) h/e
+FLUX_QUANTUM = 2*2.067833848e-15
+# tb hopping cut off 
 R_RANGE = 0.184*magset.A_0 
-
-
-# older version code something wrong
-# def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int)->list:
-
-#     g_vec_list = []
-
-#     # construct a hexagon area by using three smallest g vectors 
-#     g_3 = -m_g_unitvec_1-m_g_unitvec_2
-    
-#     for (i, j) in product(range(n_g), range(n_g)):
-#         g_vec_list.append(i*m_g_unitvec_1 + j*m_g_unitvec_2)
-    
-#     for (i, j) in product(range(1, n_g), range(1, n_g)):
-#         g_vec_list.append(i*g_3 + j*m_g_unitvec_1)
-    
-#     for i in range(n_g):
-#         for j in range(1, n_g):
-#             g_vec_list.append(j*g_3 + i*m_g_unitvec_2)
-     
-#     return g_vec_list
 
 
 def _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int, q:int):
@@ -107,13 +86,13 @@ def _set_ab_phase(atom_pstn_2darray, atom_neighbour_2darray, mag):
 
     # B(x2+x1)(y2-y1)/2
     ab_phase = (mag/2)*(atom_neighbour_2darray[:,0]+atom_pstn_2darray[:,0])*(atom_neighbour_2darray[:,1]-atom_pstn_2darray[:,1])
-    ab_phase = np.exp(-2j*np.pi*ab_phase)
+    ab_phase = np.exp(2j*np.pi*ab_phase)
 
     return ab_phase
 
 
 def _set_const_mtrx(n_moire, m_g_unitvec_1,  m_g_unitvec_2, row, col, mm_atom_list,
-                    atom_pstn_2darray, atom_neighbour_2darray, g_vec_list,  valley, mag):
+                    atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag):
     """
     calculate two constant matrix
 
@@ -141,11 +120,78 @@ def _set_const_mtrx(n_moire, m_g_unitvec_1,  m_g_unitvec_2, row, col, mm_atom_li
     abphase = _set_ab_phase(atom_pstn_2darray, atom_neighbour_2darray, mag)
 
     hopping_mtrx = sparse.csr_matrix((hopping, (row, col)), shape=(n_atom, n_atom))
-    abphase_mtrx = sparse.csr_matrix((abphase, (row, col)), shape=(n_atom, n_atom))
+    hopping_mtrx_cc = (hopping_mtrx.transpose()).conjugate()
+    hopping_mtrx_delta = hopping_mtrx - hopping_mtrx_cc
 
+    if hopping_mtrx_delta.max()>1.0E-9:
+        print(hopping_mtrx_delta.max())
+        raise Exception("hopping matrix is not hermitian?!") 
+    
+    abphase_mtrx = sparse.csr_matrix((abphase, (row, col)), shape=(n_atom, n_atom))   
     tr_mtrx = abphase_mtrx.multiply(hopping_mtrx)
 
     return (gr_mtrx, tr_mtrx)
+
+
+def _set_ab_phase_periodic(num_pairs, B, atom_pstn_2darray_frac, atom_neighbour_2darray_frac):
+    import magnetic.periodic_guage as pg
+
+    ab_phase = pg.set_ab_phase_list(num_pairs, B, atom_pstn_2darray_frac, atom_neighbour_2darray_frac)
+    ab_phase = np.exp(2j*np.pi*ab_phase)
+
+    return ab_phase
+
+
+def _set_const_mtrx_periodic(n_moire, m_g_unitvec_1,  m_g_unitvec_2, row, col, mm_atom_list,
+                    atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag):
+    """
+    calculate two constant matrix in periodic guage
+
+    --------
+    Returns:
+    
+    1. gr_mtrx (4*n_g, n_atom) np.matrix
+
+    2. tr_mtrx (n_atom, n_atom) sparse matrix
+    """
+
+    n_g = len(g_vec_list)
+    n_atom = len(mm_atom_list)
+    n_pairs = atom_pstn_2darray.shape[0]
+
+    factor = 1/np.sqrt(n_atom/4)
+   
+    gr_mtrx = np.array([factor*np.exp(-1j*np.dot(g, r[:2]))
+                        for g in g_vec_list for r in mm_atom_list]).reshape(n_g, n_atom)
+
+    g1, g2, g3, g4 = np.hsplit(gr_mtrx, 4)
+    gr_mtrx = np.matrix(block_diag(g1, g2, g3, g4))
+
+    (atom_pstn_2darray_frac, atom_neighbour_2darray_frac) = magset.set_frac_coordinate(atom_pstn_2darray, atom_neighbour_2darray, 
+                                                                                       m_g_unitvec_1,     m_g_unitvec_2)
+    hopping = _set_sk_integral(atom_pstn_2darray, atom_neighbour_2darray)
+    abphase = _set_ab_phase_periodic(n_pairs, mag, atom_pstn_2darray_frac, atom_neighbour_2darray_frac)
+
+    hopping_mtrx = sparse.csr_matrix((hopping, (row, col)), shape=(n_atom, n_atom))
+    hopping_mtrx_cc = (hopping_mtrx.transpose()).conjugate()
+    hopping_mtrx_delta = hopping_mtrx - hopping_mtrx_cc
+
+    if hopping_mtrx_delta.max()>1.0E-9:
+        print(hopping_mtrx_delta.max())
+        raise Exception("hopping matrix is not hermitian?!") 
+    
+    abphase_mtrx = sparse.csr_matrix((abphase, (row, col)), shape=(n_atom, n_atom))
+    abphase_mtrx_cc = (abphase_mtrx.transpose()).conjugate()
+    abphase_mtrx_delta = abphase_mtrx - abphase_mtrx_cc
+
+    if abphase_mtrx_delta.max()>1.0E-10:
+        print(abphase_mtrx_delta.max())
+        raise Exception("abphase matrix is not hermitian?!")   
+    
+    tr_mtrx = abphase_mtrx.multiply(hopping_mtrx)
+
+    return (gr_mtrx, tr_mtrx)
+
 
 
 def _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom):
@@ -153,11 +199,53 @@ def _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, k_vec, gr_mtrx
     dr = (atom_pstn_2darray-atom_neighbour_2darray)[:,:2]
     tk_data = np.exp(-1j*np.dot(dr, k_vec))
     kr_mtrx = sparse.csr_matrix((tk_data, (row, col)), shape=(n_atom, n_atom))
+    
+    kr_mtrx_cc = (kr_mtrx.transpose()).conjugate()
+    kr_mtrx_delta = kr_mtrx - kr_mtrx_cc
+
+    if kr_mtrx_delta.max()>1.0E-9:
+        print(kr_mtrx_delta.max())
+        raise Exception("kr matrix is not hermitian?!")  
+
+
     hr_mtrx = kr_mtrx.multiply(tr_mtrx)
 
-    hamiltonian_k = gr_mtrx * (hr_mtrx * gr_mtrx.H)
+    hamk = gr_mtrx * (hr_mtrx * gr_mtrx.H)
+    err  = np.linalg.norm(hamk-hamk.T.conj())/np.linalg.norm(hamk+hamk.T.conj())
+    print("error in hamk construction is:", err)
+    hamk = 1/2*(hamk+hamk.T.conj())
 
-    return hamiltonian_k
+    return hamk
+
+
+# test use, check whether return to non mag case when p = 0, q = 0
+# def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
+#     """
+#     moire dispertion, this code is just modifield from Prof Dai's realization
+#     """
+
+#     num_sec = 4
+#     ksec = np.zeros((num_sec,2),  float)
+#     num_kpt = nk * (num_sec - 1)
+#     kline = np.zeros((num_kpt),  float)
+#     kmesh = np.zeros((num_kpt,2),float)
+
+#     # set k path (K1 - Gamma - M - K2)
+#     ksec[0] = m_k1_vec
+#     ksec[1] = m_gamma_vec
+#     ksec[2] = m_m_vec
+#     ksec[3] = m_k2_vec
+
+#     for i in range(num_sec-1):
+#         vec = ksec[i+1] - ksec[i]
+#         klen = np.sqrt(np.dot(vec,vec))
+#         step = klen/(nk)
+
+#         for ikpt in range(nk):
+#             kline[ikpt+i*nk] = kline[i*nk-1] + ikpt * step   
+#             kmesh[ikpt+i*nk] = vec*ikpt/(nk-1) + ksec[i]
+
+#     return (kline, kmesh)
 
 
 def mag_tb_solver(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int, disp=False):
@@ -176,6 +264,15 @@ def mag_tb_solver(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int, disp=
 
     mag = p/(q*s)
 
+    ###############################################################
+    # test use, check whether return to non mag case when p=0,q=1
+    # kline = 0
+    # m_gamma_vec = np.array([0, 0])
+    # m_k1_vec = (m_g_unitvec_1 + m_g_unitvec_2)/3 + m_g_unitvec_2/3
+    # m_k2_vec = (m_g_unitvec_1 + m_g_unitvec_2)/3 + m_g_unitvec_1/3
+    # m_m_vec = (m_k1_vec + m_k2_vec)/2
+    ###############################################################
+
     (mm_atom_list, enlarge_mm_atom_list) = magset.set_magnetic_atom_pstn(n_moire, q, "../data/")
     ind = magset.set_magnetic_atom_neighbour_list(mm_atom_list, enlarge_mm_atom_list)
 
@@ -183,6 +280,8 @@ def mag_tb_solver(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int, disp=
 
     if disp:
         kmesh = _set_kmesh_disp(mm_g_unitvec_1, n_k)
+        # test use, check whether return to non mag case when p=0,q=1
+        # (kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
     else:
         kmesh = _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k, q)
     
@@ -215,9 +314,160 @@ def mag_tb_solver(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int, disp=
         count += 1
         hamk = _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, kvec, gr_mtrx, tr_mtrx, row, col, n_atom)
         eigen_val, eigen_vec = np.linalg.eigh(hamk)
+        #print("hamk min val:", np.min(hamk))
+        #print("hamk max err:", np.max(hamk-hamk.T.conj()))
         #print(eigen_val)
         emesh.append(eigen_val)
         dmesh.append(eigen_vec)
     
     print("k sampling process finished.")
-    return (emesh, dmesh)
+    return (np.array(emesh), np.array(dmesh))
+
+
+def mag_tb_solver_periodic(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int, disp=False):
+    """
+    the magnetic tightbinding solver in periodic guage
+
+    -------
+    Returns:
+
+    (emesh, dmesh)
+    emesh: eigenvalues, dnmesh: eigen vectors
+    """
+    
+    (m_unitvec_1,    m_unitvec_2,  m_g_unitvec_1, m_g_unitvec_2, 
+     mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s) = magset._set_moire_magnetic(n_moire, q)
+
+    mag = p/q
+
+    ###############################################################
+    # test use, check whether return to non mag case when p=0,q=1
+    # kline = 0
+    # m_gamma_vec = np.array([0, 0])
+    # m_k1_vec = (m_g_unitvec_1 + m_g_unitvec_2)/3 + m_g_unitvec_2/3
+    # m_k2_vec = (m_g_unitvec_1 + m_g_unitvec_2)/3 + m_g_unitvec_1/3
+    # m_m_vec = (m_k1_vec + m_k2_vec)/2
+    ###############################################################
+
+    (mm_atom_list, enlarge_mm_atom_list) = magset.set_magnetic_atom_pstn(n_moire, q, "../data/")
+    ind = magset.set_magnetic_atom_neighbour_list(mm_atom_list, enlarge_mm_atom_list)
+
+    (atom_pstn_2darray, atom_neighbour_2darray, row, col) = magset.set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, ind)
+
+    if disp:
+        kmesh = _set_kmesh_disp(mm_g_unitvec_1, n_k)
+        # test use, check whether return to non mag case when p=0,q=1
+        # (kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
+    else:
+        kmesh = _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k, q)
+    
+    g_vec_list = _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley, q)
+    (gr_mtrx, tr_mtrx) = _set_const_mtrx_periodic(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
+                                         atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag)
+
+    n_atom = len(mm_atom_list)
+    n_band = len(g_vec_list)*4
+    n_kpts = len(kmesh)
+    mag_tesla = p*FLUX_QUANTUM*(10**20)/(q*s)
+    
+    print('='*100)
+    np.set_printoptions(6)
+    print("magnetic field (T)".ljust(35),":", mag_tesla, "(", "p =", p, ", q =", q, ")")
+    print("n moire is".ljust(35), ":", n_moire)
+    print("valley  is".ljust(35), ":", valley)
+    print("num of g vectors is".ljust(35), ":", n_g)
+    print("num of atoms in magnetic lattice".ljust(35), ":", n_atom) 
+    print("num of kpoints".ljust(35), ":", n_kpts)
+    print("num of bands".ljust(35), ":", n_band)
+    print('='*100)
+
+    dmesh = []
+    emesh = []
+    count = 1
+
+    for kvec in kmesh:
+        print("in k sampling process count =", count)
+        count += 1
+        hamk = _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, kvec, gr_mtrx, tr_mtrx, row, col, n_atom)
+        eigen_val, eigen_vec = np.linalg.eigh(hamk)
+        #print("hamk min val:", np.min(hamk))
+        #print("hamk max err:", np.max(hamk-hamk.T.conj()))
+        #print(eigen_val)
+        emesh.append(eigen_val)
+        dmesh.append(eigen_vec)
+    
+    print("k sampling process finished.")
+    return (np.array(emesh), np.array(dmesh))
+
+
+def mag_tb_project(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int):
+    """
+    project magnetic Hamiltonian on 2q flat bands, degenerate perturbation approximation
+    """
+
+    (m_unitvec_1,    m_unitvec_2,  m_g_unitvec_1, m_g_unitvec_2, 
+     mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s) = magset._set_moire_magnetic(n_moire, q)
+
+    mag = p/(q*s)
+    mag_tesla = p*FLUX_QUANTUM*(10**20)/(q*s)
+    print("(p, q):", (p, q), "mag field (T):", mag_tesla)
+    kmesh = _set_kmesh_disp(mm_g_unitvec_1, n_k)
+
+    (mm_atom_list, enlarge_mm_atom_list) = magset.set_magnetic_atom_pstn(n_moire, q, "../data/")
+    ind = magset.set_magnetic_atom_neighbour_list(mm_atom_list, enlarge_mm_atom_list)
+    (atom_pstn_2darray, atom_neighbour_2darray, row, col) = magset.set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, ind)
+
+
+    g_vec_list = _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley, q)
+    (gr_mtrx, tr_mtrx) = _set_const_mtrx(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
+                                         atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag)
+
+
+    n_kpts = len(kmesh)
+    n_atom = len(mm_atom_list)
+    dmesh_name = "../data/dmesh_n30_p0_q"+str(q)+"_v"+str(valley)+".npy"
+    dmesh_load = np.load(dmesh_name)
+    print("The dmesh loaded shape:", dmesh_name, dmesh_load.shape)
+
+    emesh = []
+    emesh_proj = []
+
+    for i in range(n_kpts):
+        hamk = _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, 
+                                  kmesh[i],  gr_mtrx, tr_mtrx, row, col, n_atom)
+        wffunc = dmesh_load[i]
+        # 2q flat bands
+        ind1 = wffunc.shape[0]//2-q
+        ind2 = wffunc.shape[0]//2+q
+
+        # print("ind1, ind2:", ind1, ind2)
+        # print("hamk shape:", hamk.shape)
+        # print("func shape:", func_proj.shape)
+        # print("hamk min val:", np.min(hamk))
+        # print("hamk max err:", np.max(hamk-hamk.T.conj()))
+
+        #func_proj = wffunc[:, ind1:ind2]
+        func_proj = wffunc[:, :]
+        
+        if np.max(hamk-hamk.T.conj())>1.0E-8:
+            raise Exception("Hamiltonian matrix is not hermitian?!")
+        
+        eigen_val, eigen_vec = np.linalg.eigh(hamk)
+        
+        emesh.append(eigen_val[ind1:ind2])
+        hamk_proj = (np.conjugate(np.transpose(func_proj)))@hamk@(func_proj)
+
+        if np.max(hamk_proj-hamk_proj.T.conj())>1.0E-8:
+            raise Exception("Hamiltonian matrix is not hermitian?!")        
+        # print("hamk proj min val:", np.min(hamk_proj))
+        # print("hamk proj max err:", np.max(hamk_proj-hamk_proj.T.conj())) 
+
+        eigen_val_proj, eigen_vec_proj = np.linalg.eigh(hamk_proj)
+        emesh_proj.append(eigen_val_proj[ind1:ind2])
+        print("eigen val hamk full:", eigen_val[ind1:ind2])
+        print("eigen val hamk proj:", eigen_val_proj[ind1:ind2])
+        # print("absolute err  (meV):", 1000*(eigen_val_proj-eigen_val[ind1:ind2]))
+        # print("relative err (100%):",  100*(eigen_val_proj-eigen_val[ind1:ind2])/eigen_val[ind1:ind2])
+        print("="*100)
+
+    return (np.array(emesh), np.array(emesh_proj))

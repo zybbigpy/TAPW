@@ -20,6 +20,16 @@ See the notes.
 This is an output of wanniertools (full tb solution)
 ![nmoire](fig/nmoire_angle.png)
 
+## Glist Construction
+
+for tight binding (nsymm case, specific valley 1)
+
+![](fig/glist_tb_v_1.png)
+
+for magnetic tight binding (specific valley 1)
+
+![](fig/glist_mtb_v_1.png)
+
 ## Example Output
 
 For `n_moire = 30, valley = 1`:

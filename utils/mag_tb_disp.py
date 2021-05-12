@@ -11,15 +11,12 @@ VALLEY_2 = -1
 
 n_moire = 30
 n_g = 5
-n_k = 90
+n_k = 10
 p = 1
-qlist = [i for i in range(2, 10)]
-q = 8
+qlist = [i for i in range(9, 10)]
 
 for q in qlist:
     (emesh, dmesh) = mgtb.mag_tb_solver(n_moire, n_g, n_k, VALLEY_2, p, q, disp=True)
-    emesh = np.array(emesh)
-    dmesh = np.array(dmesh)
     xmax  = emesh.shape[0]
     kline = np.arange(xmax)
 
@@ -27,12 +24,11 @@ for q in qlist:
     fig, ax = plt.subplots()
     ax.set_xlim(0, kline[-1])
 
-    # 7 bands
-    # for i in range(7):
-    #     plt.plot(kline, emesh[:, n_band//2+i])
-    #     plt.plot(kline, emesh[:, n_band//2-i])
-    plt.plot(kline, emesh[:, n_band//2])
-    plt.plot(kline, emesh[:, n_band//2-1])
+    for i in range(q):
+        plt.plot(kline, emesh[:, n_band//2+i])
+        plt.plot(kline, emesh[:, n_band//2-i])
+    #plt.plot(kline, emesh[:, n_band//2])
+    #plt.plot(kline, emesh[:, n_band//2-1])
 
     ax.set_ylabel("Engergy (eV)")
     ax.set_title("Band Structure of MTBG, Nmoire: "+str(n_moire)+", Valley: -1, p = 1, q = "+str(q))

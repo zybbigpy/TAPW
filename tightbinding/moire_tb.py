@@ -168,6 +168,13 @@ def _set_const_mtrx(n_moire,  dr,  dd,    m_g_unitvec_1,  m_g_unitvec_2,
     hopping = _sk_integral(dr, dd)
     tr_mtrx = sparse.csr_matrix((hopping, (row, col)), shape=(n_atom, n_atom))
 
+    tr_mtrx_cc = (tr_mtrx.transpose()).conjugate()
+    tr_mtrx_delta = tr_mtrx - tr_mtrx_cc
+    
+    if tr_mtrx_delta.max()>1.0E-9:
+        print(tr_mtrx_delta.max())
+        raise Exception("Hamiltonian matrix is not hermitian?!")     
+
     return (gr_mtrx, tr_mtrx)
 
 
@@ -175,7 +182,23 @@ def _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom):
     
     tk_data = np.exp(-1j*np.dot(dr, k_vec))
     kr_mtrx = sparse.csr_matrix((tk_data, (row, col)), shape=(n_atom, n_atom))
+
+    kr_mtrx_cc = (kr_mtrx.transpose()).conjugate()
+    kr_mtrx_delta = kr_mtrx - kr_mtrx_cc
+
+    if kr_mtrx_delta.max()>1.0E-9:
+        print(kr_mtrx_delta.max())
+        raise Exception("Hamiltonian matrix is not hermitian?!")  
+
+
     hr_mtrx = kr_mtrx.multiply(tr_mtrx)
+
+    hr_mtrx_cc = (hr_mtrx.transpose()).conjugate()
+    hr_mtrx_delta = hr_mtrx - hr_mtrx_cc
+    
+    if hr_mtrx_delta.max()>1.0E-9:
+        print(hr_mtrx_delta.max())
+        raise Exception("Hamiltonian matrix is not hermitian?!")  
 
     hamiltonian_k = gr_mtrx * (hr_mtrx * gr_mtrx.H)
 

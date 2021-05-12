@@ -34,7 +34,10 @@ def _set_moire_angle(n_moire:int)->float:
 
     moire angle in radius
     """
-    return np.arcsin(np.sqrt(3)*(2*n_moire+1)/(6*n_moire**2+6*n_moire+2))
+    angle_r = np.arcsin(np.sqrt(3)*(2*n_moire+1)/(6*n_moire**2+6*n_moire+2))
+    print("n_moire:", n_moire, ", equals anlgle (degree)", angle_r/np.pi*180)
+    
+    return angle_r
 
 
 def _set_rt_mtrx(theta:float):
@@ -209,3 +212,22 @@ def set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, atom_neighbour_
     assert len(row) == len(col)
 
     return (atom_pstn_2darray, atom_neighbour_2darray, row, col)
+
+
+def set_frac_coordinate(atom_pstn_2darray, atom_neighbour_2darray, m_g_univec_1, m_g_univec_2):
+    """
+    set the fractional coordinates (in the original non mag lattice)
+    """
+
+    num_pairs = atom_pstn_2darray.shape[0]
+    atom_pstn_2darray_fracx = atom_pstn_2darray[:,:2]@(m_g_univec_1.T)/(2*np.pi)
+    atom_pstn_2darray_fracy = atom_pstn_2darray[:,:2]@(m_g_univec_2.T)/(2*np.pi)
+    atom_neighbour_2darray_fracx = atom_neighbour_2darray[:,:2]@(m_g_univec_1.T)/(2*np.pi)
+    atom_neighbour_2darray_fracy = atom_neighbour_2darray[:,:2]@(m_g_univec_2.T)/(2*np.pi)
+
+    atom_pstn_2darray_frac = np.dstack((atom_pstn_2darray_fracx, atom_pstn_2darray_fracy)).reshape(num_pairs,2)
+    atom_neighbour_2darray_frac = np.dstack((atom_neighbour_2darray_fracx, atom_neighbour_2darray_fracy)).reshape(num_pairs, 2)
+
+    print(atom_pstn_2darray_frac.shape)
+    print(atom_neighbour_2darray_frac.shape)
+    return (atom_pstn_2darray_frac, atom_neighbour_2darray_frac)
