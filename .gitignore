@@ -1,6 +1,6 @@
 # test fugs
 test/test_fig/
-
+test/test_log/
 # Mac
 .DS_Store
 #

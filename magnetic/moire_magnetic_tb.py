@@ -449,106 +449,101 @@ def mag_tb_project(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int):
 
 #     return (gr_mtrx, tr_mtrx)
 
-# def mag_tb_solver(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int, disp=False):
-#     """
-#     the magnetic tightbinding solver
+def mag_tb_solver_test(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int):
+    """
+    the magnetic tightbinding solver (test use)
 
-#     -------
-#     Returns:
+    -------
+    Returns:
 
-#     (emesh, dmesh)
-#     emesh: eigenvalues, dnmesh: eigen vectors
-#     """
+    (emesh, dmesh)
+    emesh: eigenvalues, dnmesh: eigen vectors
+    """
     
-#     (m_unitvec_1,    m_unitvec_2,  m_g_unitvec_1, m_g_unitvec_2, 
-#      mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s) = magset._set_moire_magnetic(n_moire, q)
+    (m_unitvec_1,    m_unitvec_2,  m_g_unitvec_1, m_g_unitvec_2, 
+     mm_unitvec_1, mm_unitvec_2,   mm_g_unitvec_1, mm_g_unitvec_2, s) = magset._set_moire_magnetic(n_moire, q)
 
-#     mag = p/(q*s)
+    mag = p/(q*s)
 
-#     ###############################################################
-#     # test use, check whether return to non mag case when p=0,q=1
-#     # kline = 0
-#     # m_gamma_vec = np.array([0, 0])
-#     # m_k1_vec = (m_g_unitvec_1 + m_g_unitvec_2)/3 + m_g_unitvec_2/3
-#     # m_k2_vec = (m_g_unitvec_1 + m_g_unitvec_2)/3 + m_g_unitvec_1/3
-#     # m_m_vec = (m_k1_vec + m_k2_vec)/2
-#     ###############################################################
+    ###############################################################
+    # test use, check whether return to non mag case when p=0,q=1
+    kline = 0
+    m_gamma_vec = np.array([0, 0])
+    m_k1_vec = (m_g_unitvec_1 + m_g_unitvec_2)/3 + m_g_unitvec_2/3
+    m_k2_vec = (m_g_unitvec_1 + m_g_unitvec_2)/3 + m_g_unitvec_1/3
+    m_m_vec = (m_k1_vec + m_k2_vec)/2
+    ###############################################################
 
-#     (mm_atom_list, enlarge_mm_atom_list) = magset.set_magnetic_atom_pstn(n_moire, q, "../data/")
-#     ind = magset.set_magnetic_atom_neighbour_list(mm_atom_list, enlarge_mm_atom_list)
+    (mm_atom_list, enlarge_mm_atom_list) = magset.set_magnetic_atom_pstn(n_moire, q, "../data/")
+    ind = magset.set_magnetic_atom_neighbour_list(mm_atom_list, enlarge_mm_atom_list)
 
-#     (atom_pstn_2darray, atom_neighbour_2darray, row, col) = magset.set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, ind)
+    (atom_pstn_2darray, atom_neighbour_2darray, row, col) = magset.set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, ind)
 
-#     if disp:
-#         kmesh = _set_kmesh_disp(mm_g_unitvec_1, n_k)
-#         # test use, check whether return to non mag case when p=0,q=1
-#         # (kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
-#     else:
-#         kmesh = _set_kmesh(mm_g_unitvec_1, mm_g_unitvec_2, n_k, q)
+
+    (kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
+
     
-#     g_vec_list = _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley, q)
-#     (gr_mtrx, tr_mtrx) = _set_const_mtrx(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
-#                                          atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag)
+    g_vec_list = _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley, q)
+    (gr_mtrx, tr_mtrx) = _set_const_mtrx_periodic2(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
+                                         atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag)
 
-#     n_atom = len(mm_atom_list)
-#     n_band = len(g_vec_list)*4
-#     n_kpts = len(kmesh)
-#     mag_tesla = p*FLUX_QUANTUM*(10**20)/(q*s)
+    n_atom = len(mm_atom_list)
+    n_band = len(g_vec_list)*4
+    n_kpts = len(kmesh)
+    mag_tesla = p*FLUX_QUANTUM*(10**20)/(q*s)
     
-#     print('='*100)
-#     np.set_printoptions(6)
-#     print("magnetic field (T)".ljust(35),":", mag_tesla, "(", "p =", p, ", q =", q, ")")
-#     print("n moire is".ljust(35), ":", n_moire)
-#     print("valley  is".ljust(35), ":", valley)
-#     print("num of g vectors is".ljust(35), ":", n_g)
-#     print("num of atoms in magnetic lattice".ljust(35), ":", n_atom) 
-#     print("num of kpoints".ljust(35), ":", n_kpts)
-#     print("num of bands".ljust(35), ":", n_band)
-#     print('='*100)
+    print('='*100)
+    np.set_printoptions(6)
+    print("magnetic field (T)".ljust(35),":", mag_tesla, "(", "p =", p, ", q =", q, ")")
+    print("n moire is".ljust(35), ":", n_moire)
+    print("valley  is".ljust(35), ":", valley)
+    print("num of g vectors is".ljust(35), ":", n_g)
+    print("num of atoms in magnetic lattice".ljust(35), ":", n_atom) 
+    print("num of kpoints".ljust(35), ":", n_kpts)
+    print("num of bands".ljust(35), ":", n_band)
+    print('='*100)
 
-#     dmesh = []
-#     emesh = []
-#     count = 1
+    dmesh = []
+    emesh = []
+    count = 1
 
-#     for kvec in kmesh:
-#         print("in k sampling process count =", count)
-#         count += 1
-#         hamk = _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, kvec, gr_mtrx, tr_mtrx, row, col, n_atom)
-#         eigen_val, eigen_vec = np.linalg.eigh(hamk)
-#         #print("hamk min val:", np.min(hamk))
-#         #print("hamk max err:", np.max(hamk-hamk.T.conj()))
-#         #print(eigen_val)
-#         emesh.append(eigen_val)
-#         dmesh.append(eigen_vec)
+    for kvec in kmesh:
+        print("in k sampling process count =", count)
+        count += 1
+        hamk = _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, kvec, gr_mtrx, tr_mtrx, row, col, n_atom)
+        eigen_val, eigen_vec = np.linalg.eigh(hamk)
+
+        emesh.append(eigen_val)
+        dmesh.append(eigen_vec)
     
-#     print("k sampling process finished.")
-#     return (np.array(emesh), np.array(dmesh))
+    print("k sampling process finished.")
+    return (np.array(emesh), np.array(dmesh), kline)
 
 # test use, check whether return to non mag case when p = 0, q = 0
-# def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
-#     """
-#     moire dispertion, this code is just modifield from Prof Dai's realization
-#     """
+def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
+    """
+    moire dispertion, this code is just modifield from Prof Dai's realization
+    """
 
-#     num_sec = 4
-#     ksec = np.zeros((num_sec,2),  float)
-#     num_kpt = nk * (num_sec - 1)
-#     kline = np.zeros((num_kpt),  float)
-#     kmesh = np.zeros((num_kpt,2),float)
+    num_sec = 4
+    ksec = np.zeros((num_sec,2),  float)
+    num_kpt = nk * (num_sec - 1)
+    kline = np.zeros((num_kpt),  float)
+    kmesh = np.zeros((num_kpt,2),float)
 
-#     # set k path (K1 - Gamma - M - K2)
-#     ksec[0] = m_k1_vec
-#     ksec[1] = m_gamma_vec
-#     ksec[2] = m_m_vec
-#     ksec[3] = m_k2_vec
+    # set k path (K1 - Gamma - M - K2)
+    ksec[0] = m_k1_vec
+    ksec[1] = m_gamma_vec
+    ksec[2] = m_m_vec
+    ksec[3] = m_k2_vec
 
-#     for i in range(num_sec-1):
-#         vec = ksec[i+1] - ksec[i]
-#         klen = np.sqrt(np.dot(vec,vec))
-#         step = klen/(nk)
+    for i in range(num_sec-1):
+        vec = ksec[i+1] - ksec[i]
+        klen = np.sqrt(np.dot(vec,vec))
+        step = klen/(nk)
 
-#         for ikpt in range(nk):
-#             kline[ikpt+i*nk] = kline[i*nk-1] + ikpt * step   
-#             kmesh[ikpt+i*nk] = vec*ikpt/(nk-1) + ksec[i]
+        for ikpt in range(nk):
+            kline[ikpt+i*nk] = kline[i*nk-1] + ikpt * step   
+            kmesh[ikpt+i*nk] = vec*ikpt/(nk-1) + ksec[i]
 
-#     return (kline, kmesh)
+    return (kline, kmesh)

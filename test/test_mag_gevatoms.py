@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 __author__ = 'Wangqian Miao'
 
-
+print("="*100)
 n_moire  = 30
 q        = 3
 n_g      = 5   
@@ -57,4 +57,5 @@ print("non mag atom numbers:", len(mm_atom_list)/q)
 print("mm atom numbers:", len(mm_atom_list))
 print("enlarge mm atom numbers:", len(enlarge_mm_atom_list))
 
-print("=====finish running test mag moire setup, check fig folder.=====")
+print("===== finish running test mag moire setup, check fig folder =====")
+print("="*100)

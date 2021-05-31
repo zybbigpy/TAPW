@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 __author__ = 'Wangqian Miao'
 
-
+print("="*100)
 n_moire  = 30
 q        = 1
 n_g      = 5   
@@ -53,4 +53,5 @@ assert(all_nns.shape == all_nns_mag.shape)
 for i in range(len(mm_atom_list)):
     assert np.array_equal(all_nns[i], all_nns_mag[i])==True
 
-print("=====finish all assertation in mag moire set up =====")
+print("===== finish all assertation in mag moire set up =====")
+print("="*100)

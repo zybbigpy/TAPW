@@ -7,6 +7,7 @@ import magnetic.periodic_guage as pg
 
 from scipy import sparse
 
+print("="*100)
 n_moire = 30
 q = 2
 B = 1/q
@@ -35,4 +36,5 @@ for i in range(num_pairs):
 
     assert np.linalg.norm(m_unitvec_1*x+m_unitvec_2*y-atom_pstn_2darray[i][:2])<1E-10
 
-print("======finish assertation in fraction coordinates test======")
+print("===== finish assertation in fraction coordinates test =====")
+print("="*100)

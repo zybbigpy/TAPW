@@ -14,7 +14,7 @@ valley = 1
 p = 0
 q = 1
 
-(emesh, dmesh, kline) = magtb.mag_tb_solver(n_moire, n_g, n_k, valley, p, q, disp=True)
+(emesh, dmesh, kline) = magtb.mag_tb_solver_test(n_moire, n_g, n_k, valley, p, q)
 n_band = emesh[0].shape[0]
 
 fig, ax = plt.subplots()
@@ -37,4 +37,4 @@ ax.axvline(x=kline[n_k-1], color="black")
 ax.axvline(x=kline[2*n_k-1], color="black")
 ax.axvline(x=kline[3*n_k-1], color="black")
 
-plt.savefig("../test_fig/mag_p0q1_2bands_n_"+str(n_moire)+"_v_"+str(valley)+".png", dpi=500)
+plt.savefig("./test_fig/mag_p0q1_2bands_n_"+str(n_moire)+"_v_"+str(valley)+".png", dpi=500)

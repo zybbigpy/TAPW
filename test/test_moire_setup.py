@@ -14,9 +14,11 @@ n_k     = 3
 n_g     = 5
 valley  = -1
 
+
+print("="*100)
 # test innder product between unit vec and reciprocal vec
-print(np.dot(tbset.A_UNITVEC_1, tbset.A_G_UNITVEC_1)/np.pi)
-print(np.dot(tbset.A_UNITVEC_2, tbset.A_G_UNITVEC_2)/np.pi)
+assert(np.dot(tbset.A_UNITVEC_1, tbset.A_G_UNITVEC_1)/np.pi-2<1E-10)
+assert(np.dot(tbset.A_UNITVEC_2, tbset.A_G_UNITVEC_2)/np.pi-2<1E-10)
 
 # test infor log
 tbset.system_info_log(n_moire)
@@ -91,7 +93,7 @@ flag = 0
 for i in g_list_1:
     for j in g_list_2:
         if np.array_equal(i, j):
-            print(i, j)
+            #print(i, j)
             flag+= 1
 
 print("the number of same gvec is",flag)
@@ -99,4 +101,7 @@ print("m g univec 1:", m_g_unitvec_1)
 print("m g univec 2:", m_g_unitvec_2)
 plt.scatter(g_list_1[:, 0], g_list_1[:, 1], c='blue', marker='v')
 plt.scatter(g_list_2[:, 0], g_list_2[:, 1], c='red')
-plt.savefig("../fig/glist_tb_v_"+str(valley)+".png", dpi=600)
+plt.savefig("./test_fig/glist_tb_v_"+str(valley)+".png", dpi=600)
+
+print("finish assertation in moire tb set up")
+print("="*100)
