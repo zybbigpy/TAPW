@@ -11,12 +11,12 @@ VALLEY_2 = -1
 n_moire = 30
 n_g = 5
 n_k = 10
-p   = 0
+p   = 1
 q   = 5
 
 # emesh = np.load("/Users/wqmiao/Workspace/TBG/data/emesh_n30_p1_q6_v-1.npy")
 
-emesh, dmesh = magtb.mag_tb_solver_periodic(n_moire, n_g, n_k, VALLEY_1, p, q, disp=True)
+emesh, dmesh = magtb.mag_tb_solver_periodic(n_moire, n_g, n_k, VALLEY_1, p, q, type=2, disp=True)
 xmax  = emesh.shape[0]
 kline = np.arange(xmax)
 

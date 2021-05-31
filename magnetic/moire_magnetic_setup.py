@@ -214,7 +214,7 @@ def set_relative_dis_ndarray(mm_atom_list, enlarge_mm_atom_list, atom_neighbour_
     return (atom_pstn_2darray, atom_neighbour_2darray, row, col)
 
 
-def set_frac_coordinate(atom_pstn_2darray, atom_neighbour_2darray, m_g_univec_1, m_g_univec_2):
+def set_frac_coordinate1(atom_pstn_2darray, atom_neighbour_2darray, m_g_univec_1, m_g_univec_2):
     """
     set the fractional coordinates (in the original non mag lattice)
     """
@@ -228,6 +228,21 @@ def set_frac_coordinate(atom_pstn_2darray, atom_neighbour_2darray, m_g_univec_1,
     atom_pstn_2darray_frac = np.dstack((atom_pstn_2darray_fracx, atom_pstn_2darray_fracy)).reshape(num_pairs,2)
     atom_neighbour_2darray_frac = np.dstack((atom_neighbour_2darray_fracx, atom_neighbour_2darray_fracy)).reshape(num_pairs, 2)
 
-    print(atom_pstn_2darray_frac.shape)
-    print(atom_neighbour_2darray_frac.shape)
+    return (atom_pstn_2darray_frac, atom_neighbour_2darray_frac)
+
+
+def set_frac_coordinate2(atom_pstn_2darray, atom_neighbour_2darray, m_g_univec_1, m_g_univec_2):
+    """
+    set the fractional coordinates (in the original non mag lattice)
+    """
+
+    num_pairs = atom_pstn_2darray.shape[0]
+    atom_pstn_2darray_fracx = atom_pstn_2darray[:,:2]@(m_g_univec_1.T)/(2*np.pi)
+    atom_pstn_2darray_fracy = atom_pstn_2darray[:,:2]@(m_g_univec_2.T)/(2*np.pi)
+    atom_neighbour_2darray_fracx = atom_neighbour_2darray[:,:2]@(m_g_univec_1.T)/(2*np.pi)
+    atom_neighbour_2darray_fracy = atom_neighbour_2darray[:,:2]@(m_g_univec_2.T)/(2*np.pi)
+
+    atom_pstn_2darray_frac = np.dstack((atom_pstn_2darray_fracy, atom_pstn_2darray_fracx)).reshape(num_pairs,2)
+    atom_neighbour_2darray_frac = np.dstack((atom_neighbour_2darray_fracy, atom_neighbour_2darray_fracx)).reshape(num_pairs, 2)
+    
     return (atom_pstn_2darray_frac, atom_neighbour_2darray_frac)
