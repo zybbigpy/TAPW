@@ -42,7 +42,7 @@ print(g_vec_list.shape)
 print(g_vec_list[:,0].shape)
 plt.scatter(g_vec_list[:, 0], g_vec_list[:, 1])
 plt.scatter(g_vec_list_1[:, 0], g_vec_list_1[:, 1], c='red', marker='v')
-plt.savefig("../fig/glist_mtb_v_"+str(valley)+".png", dpi=600)
+plt.savefig("./test_fig/glist_mtb_v_"+str(valley)+".png", dpi=600)
 plt.cla()
 
 
@@ -51,7 +51,7 @@ atom_pstn_list = np.array(tbset.read_atom_pstn_list("../data/", n_moire))
 plt.scatter(enlarge_mm_atom_list[:,0], enlarge_mm_atom_list[:,1])
 plt.scatter(mm_atom_list[:,0], mm_atom_list[:,1],c='red')
 plt.scatter(atom_pstn_list[:,0], atom_pstn_list[:,1], c='green')
-plt.savefig("../fig/atoms_mag.png", dpi=600)
+plt.savefig("./test_fig/atoms_mag.png", dpi=600)
 
 print("non mag atom numbers:", len(mm_atom_list)/q)
 print("mm atom numbers:", len(mm_atom_list))

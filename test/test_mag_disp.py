@@ -37,4 +37,4 @@ ax.axvline(x=kline[n_k-1], color="black")
 ax.axvline(x=kline[2*n_k-1], color="black")
 ax.axvline(x=kline[3*n_k-1], color="black")
 
-plt.savefig("../fig/mag_p0q1_2bands_n_"+str(n_moire)+"_v_"+str(valley)+".png", dpi=500)
+plt.savefig("../test_fig/mag_p0q1_2bands_n_"+str(n_moire)+"_v_"+str(valley)+".png", dpi=500)
