@@ -1,8 +1,8 @@
-# Tight Binding Method for Twist Bilayer Graphene
+# Plane Wave Basis Sets for Twist Bilayer Graphene
 
 ## Graphene Coordinates
 
-See the notes.
+For TB model, see the notes in `/notes` folder. For continuum model, refer to [this PRX paper by Koshino](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.8.031087)
 
 ## Code Structures
 
@@ -14,8 +14,7 @@ See the notes.
 
 ## Dependent Module
 
-1. Numpy
-2. Scipy
+See `requirements.txt`. You can refer to `.github/workflows/main.yml` I provide to set up the environment.
 
 ## Relationship between n_moire and angle
 

@@ -5,7 +5,7 @@ from itertools import product
 
 
 """
-Reference:
+Reference: Continuum Model Derived By Koshino
 1. PhysRevX.8.031087
 2. New J. Phys. 17 015014
 """
@@ -77,7 +77,6 @@ def _set_kpt(rotmat):
     kpt1 = -(2*A_G_UNITVEC_1@rotmat.T+A_G_UNITVEC_2@rotmat.T)/3
     kpt2 = -(2*A_G_UNITVEC_1@rotmat  +A_G_UNITVEC_2@rotmat  )/3
 
-    print(kpt1, kpt2)
     return (kpt1, kpt2)
 
 
@@ -106,7 +105,7 @@ def _make_glist(n_g, n_moire, m_g_unitvec_1, m_g_unitvec_2, valley):
         glist.append(i*g_3 + j*m_g_unitvec_1)
     
     for (i, j) in product(range(n_g), range(n_g)):
-            glist.append(j*g_3 + i*m_g_unitvec_2)
+        glist.append(j*g_3 + i*m_g_unitvec_2)
 
     # remove repeated gvecs in glist
     glist = np.unique(np.array(glist), axis=0) + offset*valley
@@ -180,7 +179,7 @@ def _make_h2(glist, k, kpt2, rotmat, valley):
     
     for i in range(glist_size):
         q = k + glist[i] - valley*kpt2
-        dirac = -HBARVF*(valley*SIGMA_X*q[0]+SIGMA_Y*q[1])
+        dirac = -HBARVF*(valley*SIGMA_X*q[0]+ SIGMA_Y*q[1])
         h2mat[2*i:2*i+2, 2*i:2*i+2] = dirac
         
     return h2mat
@@ -222,7 +221,7 @@ def _set_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
         step = klen/(nk)
 
         for ikpt in range(nk):
-            kline[ikpt+i*nk] = kline[i*nk-1] + ikpt * step   
+            kline[ikpt+i*nk] = kline[i*nk-1] + ikpt*step   
             kmesh[ikpt+i*nk] = vec*ikpt/(nk-1) + ksec[i]
 
     return (kline, kmesh)
