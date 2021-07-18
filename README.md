@@ -8,7 +8,9 @@ See the notes.
 
 - [x] Tight Binding Model (CPU)
 
-- [x] Tight Binding Model in Magnetic Field
+- [x] Tight Binding Model in Magnetic Field (Periodic Landau Gauge)
+
+- [x] Continuum Model
 
 ## Dependent Module
 
@@ -32,6 +34,8 @@ for magnetic tight binding (specific valley 1)
 
 ## Example Output
 
+### Tight Binding
+
 For `n_moire = 30, valley = 1`:
 
 ![eg1](fig/band_n_30_v_1.png)
@@ -39,3 +43,13 @@ For `n_moire = 30, valley = 1`:
 For `n_moire = 30, valley = -1`:
 
 ![eg2](fig/band_n_30_v_-1.png)
+
+### Continuum
+
+For `n_moire = 30, valley = 1`:
+
+![eg3](fig/continuum.png)
+
+For `n_moire = 30, valley = -1`:
+
+![eg4](fig/continuum-1.png)

@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 
 from itertools import product
 
+
 """
 Reference:
 1. PhysRevX.8.031087
 2. New J. Phys. 17 015014
 """
-
 
 
 # lattice constant
@@ -20,8 +20,8 @@ A_G_UNITVEC_2 = np.array([0,           4*np.pi/(A0*np.sqrt(3))])
 A_UNITVEC_1 = np.array([A0,     0])
 A_UNITVEC_2 = np.array([A0/2,  np.sqrt(3)*A0/2])
 # fermi velocity 2.1354eV*a
-hbarvf = 2.1354*A0
-# two paramters, unit eV (chiral limit u1=u2)
+HBARVF = 2.1354*A0
+# two paramters, unit eV (chiral limit U1 = U2)
 U1 = 0.0797
 U2 = 0.0975
 # pauli matrices
@@ -67,7 +67,6 @@ def _set_moire(n_moire:int)->tuple:
     m_k2_vec = (m_g_unitvec_1 + m_g_unitvec_2)/3 + m_g_unitvec_1/3
     m_m_vec = (m_k1_vec + m_k2_vec)/2
 
-    print("mg",m_g_unitvec_1, m_g_unitvec_2)
     return (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
             m_g_unitvec_2, m_gamma_vec, m_k1_vec,    
             m_k2_vec,      m_m_vec,     rt_mtrx_half)
@@ -86,10 +85,11 @@ def _check_eq(vec1, vec2):
 
     assert vec1.shape==vec2.shape
     
-    if np.linalg.norm(vec1-vec2) <1E-9:
+    if np.linalg.norm(vec1-vec2)<1E-9:
         return True
     else:
         return False
+
 
 def _make_glist(n_g, n_moire, m_g_unitvec_1, m_g_unitvec_2, valley):
     
@@ -132,6 +132,10 @@ def _make_transfer_const(m_g_unitvec_1, m_g_unitvec_2, valley):
 
 
 def _make_t(glist, m_g_unitvec_1, m_g_unitvec_2, valley):
+    """
+    calculate interlayer interaction hamiltonian element
+    """
+
     glist_size = np.shape(glist)[0]
     tmat = np.zeros((2*glist_size, 2*glist_size), complex)
     (g1, g2, g3, t1, t2, t3) =_make_transfer_const(m_g_unitvec_1, m_g_unitvec_2, valley)
@@ -140,7 +144,6 @@ def _make_t(glist, m_g_unitvec_1, m_g_unitvec_2, valley):
         for j in range(glist_size):
             delta_k = glist[j] - glist[i]
             # matrix element in three cases:
-            #print(delta_k, g1)
             if _check_eq(delta_k, g1):
                 tmat[2*i:2*i+2,2*j:2*j+2] = t1
             if _check_eq(delta_k, g2):
@@ -149,37 +152,45 @@ def _make_t(glist, m_g_unitvec_1, m_g_unitvec_2, valley):
                 tmat[2*i:2*i+2,2*j:2*j+2] = t3
 
     return tmat 
-    
-# first layer hamitonian
+
+
 def _make_h1(glist, k, kpt1, rotmat, valley):
+    """
+    calculate first layer hamiltonian, approximated by dirac hamiltonian
+    """
+
     glist_size = np.shape(glist)[0]
     h1mat = np.zeros((2*glist_size, 2*glist_size), complex)
     
     for i in range(glist_size):
-        q = k + glist[i]- valley*kpt1
-        #print("q:",q)
-        dirac = -hbarvf*(valley*SIGMA_X*q[0]+SIGMA_Y*q[1])
+        q = k + glist[i] - valley*kpt1
+        dirac = -HBARVF*(valley*SIGMA_X*q[0]+SIGMA_Y*q[1])
         h1mat[2*i:2*i+2, 2*i:2*i+2] = dirac
         
     return h1mat
 
-# second layer hamiltonian
+
 def _make_h2(glist, k, kpt2, rotmat, valley):
+    """
+    calculate second layer hamiltonian, approximated by dirac hamiltonian
+    """
+
     glist_size = np.shape(glist)[0]
     h2mat = np.zeros((2*glist_size, 2*glist_size), complex)
     
     for i in range(glist_size):
-        q = k + glist[i]- valley*kpt2
-        dirac = -hbarvf*(valley*SIGMA_X*q[0]+SIGMA_Y*q[1])
+        q = k + glist[i] - valley*kpt2
+        dirac = -HBARVF*(valley*SIGMA_X*q[0]+SIGMA_Y*q[1])
         h2mat[2*i:2*i+2, 2*i:2*i+2] = dirac
         
     return h2mat
 
 
-
-# total hamiltonian
 def _make_hamk(k, kpt1, kpt2, m_g_unitvec_1, m_g_unitvec_2, glist, rt_mtrx_half, tmat, valley):
-    
+    """
+    generate total hamiltonian 
+    """
+
     h1mat  = _make_h1(glist, k, kpt1, rt_mtrx_half, valley)
     h2mat  = _make_h2(glist, k, kpt2, rt_mtrx_half.T, valley)
     hamk   = np.block([[h1mat,                      tmat], 
@@ -216,7 +227,12 @@ def _set_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
 
     return (kline, kmesh)
 
-def solver(n_moire, n_g, n_k, valley):
+
+def cont_solver(n_moire, n_g, n_k, valley):
+    """
+    continuum model solver for TBG system
+    """
+
     (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
      m_g_unitvec_2, m_gamma_vec, m_k1_vec,    
      m_k2_vec,      m_m_vec,     rt_mtrx_half) = _set_moire(n_moire)
@@ -231,16 +247,11 @@ def solver(n_moire, n_g, n_k, valley):
     count = 1
 
     for k in kmesh:
-        #print("k sampling process, counter:", count)
+        print("k sampling process, counter:", count)
         count += 1
         hamk = _make_hamk(k, kpt1, kpt2, m_g_unitvec_1, m_g_unitvec_2, 
                           glist,   rt_mtrx_half,  tmat, valley)
         eigen_val, eigen_vec = np.linalg.eigh(hamk)
-        # if np.max(eigen_val) > emax:
-        #     emax = np.max(eigen_val)
-        # if np.min(eigen_val) < emin:
-        #     emin = np.min(eigen_val)
-        #print(eigen_val)
         emesh.append(eigen_val)
         dmesh.append(eigen_vec)
     
@@ -251,9 +262,9 @@ if __name__ == "__main__":
     n_moire = 30
     n_g = 5
     n_k = 30
-    valley = 1
+    valley = -1
 
-    (emesh, dmesh, kline) = solver(n_moire, n_g, n_k, valley)
+    (emesh, dmesh, kline) = cont_solver(n_moire, n_g, n_k, valley)
     n_band = emesh[0].shape[0]
 
     fig, ax = plt.subplots()
@@ -276,4 +287,4 @@ if __name__ == "__main__":
     ax.axvline(x=kline[2*n_k-1], color="black")
     ax.axvline(x=kline[3*n_k-1], color="black")
 
-    plt.savefig("../fig/continuum.png", dpi=500)
+    plt.savefig("../fig/continuum-1.png", dpi=500)
