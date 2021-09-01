@@ -272,7 +272,7 @@ if __name__ == "__main__":
     ax.set_xlim(0, kline[-1])
 
     # 7 bands
-    for i in range(6):
+    for i in range(1):
         plt.plot(kline, emesh[:, n_band//2+i])
         plt.plot(kline, emesh[:, n_band//2-i])
 
@@ -286,4 +286,4 @@ if __name__ == "__main__":
     ax.axvline(x=kline[2*n_k-1], color="black")
     ax.axvline(x=kline[3*n_k-1], color="black")
 
-    plt.savefig("../fig/continuum-1.png", dpi=500)
+    plt.savefig("../fig/continuum.png", dpi=500)

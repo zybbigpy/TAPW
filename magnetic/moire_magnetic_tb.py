@@ -254,7 +254,7 @@ def _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, k_vec, gr_mtrx
     return hamk
 
 
-def mag_tb_solver_periodic(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int, type=2, disp=False):
+def mag_tb_solver_periodic(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int, type=1, disp=False):
     """
     the magnetic tightbinding solver in periodic guage
 
@@ -293,7 +293,7 @@ def mag_tb_solver_periodic(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:i
     
     g_vec_list = _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley, q)
 
-    if type == 2:
+    if type == 2: ## something wrong, may not use
         (gr_mtrx, tr_mtrx) = _set_const_mtrx_periodic2(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
                                          atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag)
     elif type == 1:
@@ -316,23 +316,26 @@ def mag_tb_solver_periodic(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:i
     print("num of bands".ljust(35), ":", n_band)
     print('='*100)
 
-    dmesh = []
-    emesh = []
-    count = 1
+    # dmesh = []
+    # emesh = []
+    # count = 1
 
-    for kvec in kmesh:
-        print("in k sampling process count =", count)
-        count += 1
-        hamk = _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, kvec, gr_mtrx, tr_mtrx, row, col, n_atom)
-        eigen_val, eigen_vec = np.linalg.eigh(hamk)
-        #print("hamk min val:", np.min(hamk))
-        #print("hamk max err:", np.max(hamk-hamk.T.conj()))
-        #print(eigen_val)
-        emesh.append(eigen_val)
-        dmesh.append(eigen_vec)
+    # for kvec in kmesh:
+    #     print("in k sampling process count =", count)
+    #     count += 1
+    #     hamk = _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, kvec, gr_mtrx, tr_mtrx, row, col, n_atom)
+    #     eigen_val, eigen_vec = np.linalg.eigh(hamk)
+    #     #print("hamk min val:", np.min(hamk))
+    #     #print("hamk max err:", np.max(hamk-hamk.T.conj()))
+    #     #print(eigen_val)
+    #     emesh.append(eigen_val)
+    #     dmesh.append(eigen_vec)
     
-    print("k sampling process finished.")
-    return (np.array(emesh), np.array(dmesh))
+    # print("k sampling process finished.")
+    hamk = _cal_hamiltonian_k(atom_pstn_2darray, atom_neighbour_2darray, np.array([0,0]), gr_mtrx, tr_mtrx, row, col, n_atom)
+    eigen_val, eigen_vec = np.linalg.eigh(hamk)
+
+    return (eigen_val, eigen_vec)
 
 
 def mag_tb_project(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int):
@@ -484,7 +487,7 @@ def mag_tb_solver_test(n_moire:int, n_g:int, n_k:int, valley:int, p:int, q:int):
 
     
     g_vec_list = _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley, q)
-    (gr_mtrx, tr_mtrx) = _set_const_mtrx_periodic2(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
+    (gr_mtrx, tr_mtrx) = _set_const_mtrx_periodic1(n_moire, m_g_unitvec_1, m_g_unitvec_2, row, col, mm_atom_list, 
                                          atom_pstn_2darray, atom_neighbour_2darray, g_vec_list, valley, mag)
 
     n_atom = len(mm_atom_list)
