@@ -20,7 +20,7 @@ print("="*100)
 assert(np.dot(tbset.A_UNITVEC_1, tbset.A_G_UNITVEC_1)/np.pi-2<1E-10)
 assert(np.dot(tbset.A_UNITVEC_2, tbset.A_G_UNITVEC_2)/np.pi-2<1E-10)
 
-# test infor log
+# test info log
 tbset.system_info_log(n_moire)
 
 # test atom pstn list construction
