@@ -12,7 +12,7 @@ n_g = 5
 n_k = 30
 valley = 1
 
-(emesh, dmesh, kline) = tbtb.tightbinding_solver(n_moire, n_g, n_k, valley, disp=True, symm=True)
+(emesh, dmesh, kline, _, _) = tbtb.tightbinding_solver(n_moire, n_g, n_k, valley, disp=True, symm=True)
 n_band = emesh[0].shape[0]
 
 fig, ax = plt.subplots()
@@ -29,7 +29,7 @@ for i in range(nband):
 #plt.plot(kline, emesh[:, n_band//2-1],'-b')
 #plt.plot(kline, emesh[:, n_band//2-2])
 
-(emesh, dmesh, kline) = tbtb.tightbinding_solver(n_moire, n_g, n_k, -valley, disp=True, symm=True)
+(emesh, dmesh, kline, _, _) = tbtb.tightbinding_solver(n_moire, n_g, n_k, -valley, disp=True, symm=True)
 
 for i in range(1):
     plt.plot(kline, emesh[:, n_band//2+i],'--r')

@@ -7,3 +7,5 @@ echo 'test tb moire set up, tb gvector set up'
 python test_moire_setup.py
 echo 'test tb moire plot'
 python test_disp.py
+echo 'test tb chern number'
+python test_chern.py
