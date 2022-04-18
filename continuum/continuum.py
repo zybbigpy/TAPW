@@ -258,7 +258,7 @@ def cont_solver(n_moire, n_g, n_k, valley):
 
 
 if __name__ == "__main__":
-    n_moire = 30
+    n_moire = 31
     n_g = 5
     n_k = 30
     valley = -1

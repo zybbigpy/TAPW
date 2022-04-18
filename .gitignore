@@ -5,6 +5,7 @@ test/test_log/
 .DS_Store
 #
 data/*.npy
+*.npy
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

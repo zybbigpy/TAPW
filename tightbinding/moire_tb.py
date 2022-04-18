@@ -1,5 +1,7 @@
 import numpy as np
 import tightbinding.moire_setup as mset
+import matplotlib.pyplot as plt
+import scipy.linalg as la
 
 from scipy.linalg import block_diag
 from scipy import sparse
@@ -13,7 +15,7 @@ VSIGMA_0 = 0.48
 R_RANGE = 0.184*mset.A_0
 
 
-def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int)->list:
+def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
     """
     old version code, aborted.
     """
@@ -22,17 +24,31 @@ def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int)->list:
     # construct a hexagon area by using three smallest g vectors (with symmetry)
     g_3 = -m_g_unitvec_1-m_g_unitvec_2
     
-    for (i, j) in product(range(n_g), range(n_g)):
-        g_vec_list.append(i*m_g_unitvec_1 + j*m_g_unitvec_2)
+    # for (i, j) in product(range(n_g), range(n_g)):
+    #     g_vec_list.append(i*m_g_unitvec_1 + j*m_g_unitvec_2)
     
-    for (i, j) in product(range(1, n_g), range(1, n_g)):
-        g_vec_list.append(i*g_3 + j*m_g_unitvec_1)
+    # for (i, j) in product(range(1, n_g), range(1, n_g)):
+    #     g_vec_list.append(i*g_3 + j*m_g_unitvec_1)
+    
+    # for i in range(n_g):
+    #     for j in range(1, n_g):
+    #         g_vec_list.append(j*g_3 + i*m_g_unitvec_2)
+
+    for i in range(n_g):
+        for j in range(n_g):
+            g_vec_list.append(i*m_g_unitvec_1+j*m_g_unitvec_2)
     
     for i in range(n_g):
         for j in range(1, n_g):
-            g_vec_list.append(j*g_3 + i*m_g_unitvec_2)
+            g_vec_list.append(-j*m_g_unitvec_1+(i-j)*m_g_unitvec_2)
+
+    for i in range(1, n_g):
+        for j in range(1, n_g):
+            g_vec_list.append(-i*m_g_unitvec_2+(j-i)*m_g_unitvec_1)
+    
+    offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
      
-    return g_vec_list
+    return np.array(g_vec_list)+offset*valley
 
 
 def _set_g_vec_list_symm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
@@ -234,7 +250,42 @@ def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
     return (kline, kmesh)
 
 
-def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, symm=True)->tuple:
+def _set_kmesh_neighbour(g_vec_list, n_k, m_g_unitvec_1, m_g_unitvec_2, n_moire, valley):
+    
+    offset = valley*(n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2)
+    g_vec_list = g_vec_list - offset
+    print("check here!!!!!",g_vec_list[0])
+    num_g = g_vec_list.shape[0]
+    err = 0.02*np.dot(m_g_unitvec_1, m_g_unitvec_1)
+
+    transmat_list = []
+    for m in range(num_g):
+        mat = np.zeros((num_g, num_g), float)
+        q_vec = g_vec_list[m]
+        for (i, j) in product(range(num_g), range(num_g)):
+            diff_vec = g_vec_list[i] + q_vec - g_vec_list[j]
+            diff = np.sqrt(np.dot(diff_vec, diff_vec))
+            if diff<err:
+                mat[j, i] = 1.0
+        transmat = block_diag(mat, mat, mat, mat)
+        transmat_list.append(transmat)
+
+    neighbor_map = np.zeros((num_g, 2, 2), int)
+    for m in range(num_g):
+        q_vec = g_vec_list[m]
+        for (i, j) in product(range(2), range(2)):
+            neighbor_map[m, i, j] = -1
+            neighbor_vec = i*m_g_unitvec_1+j*m_g_unitvec_2+q_vec
+            for n in range(num_g):
+                diff_vec = g_vec_list[n]-neighbor_vec
+                diff = np.sqrt(np.dot(diff_vec, diff_vec))
+                if diff<err:
+                    neighbor_map[m, i, j] = n
+    
+    return transmat_list, neighbor_map
+
+
+def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, symm=True, relax=False)->tuple:
     """  
     Tight binding solver for moire system
 
@@ -258,7 +309,7 @@ def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, s
     emin = 1000
     count = 1
 
-    atom_pstn_list = mset.read_atom_pstn_list("../data/", n_moire)
+    atom_pstn_list = mset.read_atom_pstn_list(n_moire, relax)
 
     # old solution 
     # atom_neighbour_list = mset.read_atom_neighbour_list("../data/", n_moire)
@@ -277,14 +328,18 @@ def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, s
     
     #g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
     # symmetry G list or non symmetry
-    if symm:
-        g_vec_list = _set_g_vec_list_symm(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
-    else:
-        print("nsymm2 g list construction.")
-        g_vec_list = _set_g_vec_list_nsymm_2(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
+    # if symm:
+    #     g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
+    # else:
+    #     print("nsymm2 g list construction.")
+    #     g_vec_list = _set_g_vec_list_nsymm_2(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
 
+    g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
     gr_mtrx, tr_mtrx = _set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
                                        row, col, g_vec_list, atom_pstn_list, valley)
+    
+    transmat_list, neighbor_map = _set_kmesh_neighbour(g_vec_list, n_k, m_g_unitvec_1, m_g_unitvec_2, n_moire, valley)
+
     n_atom = len(atom_pstn_list)
     n_band = len(g_vec_list)*4
     n_kpts = len(kmesh)
@@ -316,4 +371,103 @@ def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, s
     print("emax =", emax, "emin =", emin)
     print('='*100)
 
-    return (np.array(emesh), np.array(dmesh), kline)
+    return (np.array(emesh), np.array(dmesh), kline, transmat_list, neighbor_map)
+
+
+def tightbinding_plot(n_moire:int, n_g:int, n_k:int, band:int, symm:bool, name:str, relax:bool):
+
+    emesh, dmesh, kline, _, _ = tightbinding_solver(n_moire, n_g, n_k, 1, True, symm, relax)
+    n_band = emesh[0].shape[0]
+
+    fig, ax = plt.subplots()
+    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k-1], kline[3*n_k-1]])
+    ax.set_xticklabels([r'$\bar{K}$',  r'$\bar{\Gamma}$',  r'$\bar{M}$', r'$\bar{K}^\prime$'])
+    ax.set_xlim(0, kline[-1])
+
+    for i in range(band):
+        plt.plot(kline, emesh[:, n_band//2+i],'-b')
+        plt.plot(kline, emesh[:, n_band//2-1-i],'-b')
+
+    #plt.plot(kline, emesh[:, n_band//2-1],'-b')
+    #plt.plot(kline, emesh[:, n_band//2-2])
+
+    emesh, dmesh, kline, _, _ = tightbinding_solver(n_moire, n_g, n_k, -1, True, symm, relax)
+
+    for i in range(band):
+        plt.plot(kline, emesh[:, n_band//2+i],'--r')
+        plt.plot(kline, emesh[:, n_band//2-1-i],'--r')
+
+    #plt.plot(kline, emesh[:, n_band//2-1],'--r')
+    #plt.plot(kline, emesh[:, n_band//2-2])
+
+    ax.set_ylabel("Engergy (eV)")
+    ax.set_title("Tight Binding Band Structure of TBG"+" Nmoire "+str(n_moire))
+    ax.axvline(x=kline[0], color="black")
+    ax.axvline(x=kline[n_k-1], color="black")
+    ax.axvline(x=kline[2*n_k-1], color="black")
+    ax.axvline(x=kline[3*n_k-1], color="black")
+
+    if relax:
+        plt.savefig("../output/relaxbands"+str(n_moire)+name+".png", dpi=500)
+    else:
+        plt.savefig("../output/tbbands"+str(n_moire)+name+".png", dpi=500)
+
+
+def index(x, y, n_k):
+    return (x%n_k)*n_k+(y%n_k)
+
+
+def d(x, y, n_k):
+
+    dx, dy = 0, 0
+    if x == n_k:
+        dx = 1
+    if y == n_k:
+        dy = 1
+
+    return (dx, dy)
+
+
+def braket_norm(phi1, phi2, x1, y1, x2, y2, n_k, trans, nmap):
+
+    dx1,dy1 = d(x1,y1,n_k)
+    dx2,dy2 = d(x2,y2,n_k)
+    amat1 = trans[nmap[0, dx1, dy1]]
+    amat2 = trans[nmap[0, dx2, dy2]]
+    braket = ((amat1.T)@phi1).transpose().conj().dot(amat2.T@phi2)
+    res_det = la.det(braket)
+
+    return res_det/la.norm(res_det)
+
+
+def ux(bands, x, y, n_k, init, last, transmat_list, neighbor_map):
+    phi1 = bands[index(x,   y, n_k)][:, init:last+1]
+    phi2 = bands[index(x+1, y, n_k)][:, init:last+1]
+
+    return braket_norm(phi1, phi2, x, y, x+1, y, n_k, transmat_list, neighbor_map)
+
+
+def uy(bands, x, y, n_k, init, last, transmat_list, neighbor_map):
+    phi1 = bands[index(x,   y, n_k)][:, init:last+1]
+    phi2 = bands[index(x, y+1, n_k)][:, init:last+1]
+
+    return braket_norm(phi1, phi2, x, y, x, y+1, n_k, transmat_list, neighbor_map)
+
+
+def small_loop(bands, m, n, n_k, init, last, transmat_list, neighbor_map):
+
+    return np.log(ux(bands, m,   n, n_k, init, last, transmat_list, neighbor_map)
+                * uy(bands, m+1, n, n_k, init, last, transmat_list, neighbor_map)
+                / ux(bands, m, n+1, n_k, init, last, transmat_list, neighbor_map)
+                / uy(bands, m,   n, n_k, init, last, transmat_list, neighbor_map))
+
+
+def cal_chern(bands, n_k, init, last, transmat_list, neighbor_map):
+
+    ret = 0
+
+    for m in range(n_k):
+        for n in range(n_k):
+            ret += small_loop(bands, m, n, n_k, init, last, transmat_list, neighbor_map)
+        
+    return ret/(2*np.pi*1j)

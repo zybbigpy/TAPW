@@ -4,7 +4,7 @@ from itertools import product
 from sklearn.neighbors import KDTree
 
 # lattice constant (angstrom)
-A_0 = 2.46
+A_0 = 2.4683456
 A_EDGE = A_0 / np.sqrt(3)
 
 # moire information (angstrom)
@@ -311,8 +311,11 @@ def read_atom_neighbour_list(path:str, n_moire:int)->list:
     return atom_neighbour_list
 
 
-def read_atom_pstn_list(path:str, n_moire:int)->list:
+def read_atom_pstn_list(n_moire:int, relax:bool)->list:
 
-    atom_pstn_list = np.loadtxt(path+"atom"+str(n_moire)+".csv", delimiter=',', comments='#')
+    if relax:
+        atom_pstn_list = np.loadtxt("../relax/relaxatom"+str(n_moire)+".csv", delimiter=',', comments='#')        
+    else:
+        atom_pstn_list = np.loadtxt("../data/atom"+str(n_moire)+".csv", delimiter=',', comments='#')
 
     return list(atom_pstn_list)

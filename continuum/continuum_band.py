@@ -283,7 +283,8 @@ if __name__ == "__main__":
     n_moire = 31
     n_g = 5
     n_k = 30
-    valley = -1
+    valley = 1
+    band = 5
 
     (emesh, dmesh, kline) = cont_solver(n_moire, n_g, n_k, valley)
     n_band = emesh[0].shape[0]
@@ -294,7 +295,7 @@ if __name__ == "__main__":
     ax.set_xlim(0, kline[-1])
 
     # 7 bands
-    for i in range(1):
+    for i in range(band):
         plt.plot(kline, emesh[:, n_band//2+i],'-b')
         plt.plot(kline, emesh[:, n_band//2-i],'-b')
 
@@ -302,7 +303,7 @@ if __name__ == "__main__":
     #plt.plot(kline, emesh[:, n_band//2-2])
 
     (emesh, dmesh, kline) = cont_solver(n_moire, n_g, n_k, -valley)
-    for i in range(1):
+    for i in range(band):
         plt.plot(kline, emesh[:, n_band//2+i],'--r')
         plt.plot(kline, emesh[:, n_band//2-i],'--r')
 
@@ -315,4 +316,4 @@ if __name__ == "__main__":
     ax.axvline(x=kline[2*n_k-1], color="black")
     ax.axvline(x=kline[3*n_k-1], color="black")
 
-    plt.savefig("good_continuum.png", dpi=500)
+    plt.savefig("continuum.png", dpi=500)
