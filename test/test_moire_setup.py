@@ -29,7 +29,7 @@ tbset.save_atom_pstn_list(atoms, "../data/", n_moire)
 
 # test load neighour list, atom position list
 atom_neighbour_list = tbset.read_atom_neighbour_list("../data/", n_moire)
-atom_pstn_list = tbset.read_atom_pstn_list("../data/", n_moire)
+atom_pstn_list = tbset.read_atom_pstn_list(n_moire, False)
 num_atoms = len(atom_pstn_list)
 print("num of atoms:", num_atoms)
 
