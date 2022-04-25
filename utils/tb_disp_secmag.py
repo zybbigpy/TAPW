@@ -11,6 +11,6 @@ n_k = 30
 # Control band plotted
 band = 5
 
-for n_moire in range(55, 58):
-    tbtb.tightbinding_plot(n_moire, n_g, n_k, band, True, relax=False)
-    tbtb.tightbinding_plot(n_moire, n_g, n_k, band, True, relax=True)
+for n_moire in range(30, 45, 2):
+    tbtb.tightbinding_plot(n_moire, n_g, n_k, band, True, "_unrelax", relax=False)
+    tbtb.tightbinding_plot(n_moire, n_g, n_k, band, True, "_relax", relax=True)

@@ -8,7 +8,7 @@ import numpy as np
 
 __author__ = 'Wangqian Miao'
 
-n_moire = [i for i in range(16, 41)]
+n_moire = [i for i in range(40, 45)]
 
 # print("="*100)
 # test innder product between unit vec and reciprocal vec

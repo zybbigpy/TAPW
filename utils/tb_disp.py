@@ -6,7 +6,7 @@ import numpy as np
 import tightbinding.moire_tb as tbtb
 
 
-n_moire = 30
+n_moire = 29
 n_g = 5
 n_k = 10
 # Control band plotted
