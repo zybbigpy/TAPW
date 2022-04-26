@@ -247,14 +247,14 @@ def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
             kline[ikpt+i*nk] = kline[i*nk-1] + ikpt * step   
             kmesh[ikpt+i*nk] = vec*ikpt/(nk-1) + ksec[i]
 
-    return (kline, kmesh)
+    return (ksec, kline, kmesh)
 
 
 def _set_kmesh_neighbour(g_vec_list, n_k, m_g_unitvec_1, m_g_unitvec_2, n_moire, valley):
     
     offset = valley*(n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2)
     g_vec_list = g_vec_list - offset
-    print("check here!!!!!",g_vec_list[0])
+    print("Gvec list[0] should be zero:", g_vec_list[0])
     num_g = g_vec_list.shape[0]
     err = 0.02*np.dot(m_g_unitvec_1, m_g_unitvec_1)
 
@@ -321,7 +321,7 @@ def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, s
     (dr, dd, row, col) = mset.set_relative_dis_ndarray_new(atom_pstn_list, enlarge_atom_pstn_list, all_nns)
 
     if(disp): # k-path sampling
-        (kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
+        (ksec, kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
     else:     # uniform sampling
         kmesh = _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k)
     
@@ -413,61 +413,79 @@ def tightbinding_plot(n_moire:int, n_g:int, n_k:int, band:int, symm:bool, name:s
         plt.savefig("../output/tbbands"+str(n_moire)+name+".png", dpi=500)
 
 
-def index(x, y, n_k):
-    return (x%n_k)*n_k+(y%n_k)
+def _set_moire_potential(hamk):
+    dim1 = int(hamk.shape[0]/2)
+    dim2 = 2*dim1
+    h1 = hamk[0:dim1   , 0:dim1   ]
+    h2 = hamk[0:dim1   , dim1:dim2]
+    h3 = hamk[dim1:dim2, 0:dim1   ]
+    h4 = hamk[dim1:dim2, dim1:dim2]
+    u  = h2
+    
+    return u
 
 
-def d(x, y, n_k):
-
-    dx, dy = 0, 0
-    if x == n_k:
-        dx = 1
-    if y == n_k:
-        dy = 1
-
-    return (dx, dy)
-
-
-def braket_norm(phi1, phi2, x1, y1, x2, y2, n_k, trans, nmap):
-
-    dx1,dy1 = d(x1,y1,n_k)
-    dx2,dy2 = d(x2,y2,n_k)
-    amat1 = trans[nmap[0, dx1, dy1]]
-    amat2 = trans[nmap[0, dx2, dy2]]
-    braket = ((amat1.T)@phi1).transpose().conj().dot(amat2.T@phi2)
-    res_det = la.det(braket)
-
-    return res_det/la.norm(res_det)
+def _analyze_moire_potential(u):
+    dim1 = int(u.shape[0]/2)
+    dim2 = 2*dim1
+    print("dim1", dim1)
+    u1 = u[0:dim1   , 0:dim1   ]
+    u2 = u[0:dim1   , dim1:dim2]
+    u3 = u[dim1:dim2, 0:dim1   ]
+    u4 = u[dim1:dim2, dim1:dim2]
+    moire_potential = u1+u2+u3+u4
+    print(u1.shape)
+    
+    return moire_potential
 
 
-def ux(bands, x, y, n_k, init, last, transmat_list, neighbor_map):
-    phi1 = bands[index(x,   y, n_k)][:, init:last+1]
-    phi2 = bands[index(x+1, y, n_k)][:, init:last+1]
-
-    return braket_norm(phi1, phi2, x, y, x+1, y, n_k, transmat_list, neighbor_map)
-
-
-def uy(bands, x, y, n_k, init, last, transmat_list, neighbor_map):
-    phi1 = bands[index(x,   y, n_k)][:, init:last+1]
-    phi2 = bands[index(x, y+1, n_k)][:, init:last+1]
-
-    return braket_norm(phi1, phi2, x, y, x, y+1, n_k, transmat_list, neighbor_map)
+def moire_analyze(n_moire:int, n_g:int, valley:int, relax=False)->tuple:
+    
+    
+    (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
+     m_g_unitvec_2, m_gamma_vec, m_k1_vec,    
+     m_k2_vec,      m_m_vec,     rt_mtrx_half) = mset._set_moire(n_moire)
 
 
-def small_loop(bands, m, n, n_k, init, last, transmat_list, neighbor_map):
-
-    return np.log(ux(bands, m,   n, n_k, init, last, transmat_list, neighbor_map)
-                * uy(bands, m+1, n, n_k, init, last, transmat_list, neighbor_map)
-                / ux(bands, m, n+1, n_k, init, last, transmat_list, neighbor_map)
-                / uy(bands, m,   n, n_k, init, last, transmat_list, neighbor_map))
+    atom_pstn_list = mset.read_atom_pstn_list(n_moire, relax)
 
 
-def cal_chern(bands, n_k, init, last, transmat_list, neighbor_map):
+    (all_nns, enlarge_atom_pstn_list) = mset.set_atom_neighbour_list(atom_pstn_list, m_unitvec_1, m_unitvec_2)
+    (dr, dd, row, col) = mset.set_relative_dis_ndarray_new(atom_pstn_list, enlarge_atom_pstn_list, all_nns)
 
-    ret = 0
+ 
+    (ksec, kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, 10)
 
-    for m in range(n_k):
-        for n in range(n_k):
-            ret += small_loop(bands, m, n, n_k, init, last, transmat_list, neighbor_map)
-        
-    return ret/(2*np.pi*1j)
+    
+
+    g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
+    gr_mtrx, tr_mtrx = _set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
+                                       row, col, g_vec_list, atom_pstn_list, valley)
+
+
+    n_atom = len(atom_pstn_list)
+    n_band = len(g_vec_list)*4
+    potential = []
+
+    print('='*100)
+    np.set_printoptions(6)
+    print("atom unit vector".ljust(30), ":", mset.A_UNITVEC_1, mset.A_UNITVEC_2)
+    print("atom reciprotocal unit vector".ljust(30), ":", mset.A_G_UNITVEC_1, mset.A_G_UNITVEC_2)
+    print("moire unit vector".ljust(30), ":", m_unitvec_1, m_unitvec_2)
+    print("moire recoprotocal unit vector".ljust(30), ":", m_g_unitvec_1, m_g_unitvec_2)
+    print("num of atoms".ljust(30), ":", n_atom) 
+    print("num of bands".ljust(30), ":", n_band)
+    print('='*100)
+
+    for kpts in ksec:
+        hamk = _cal_hamiltonian_k(dr, kpts, gr_mtrx, tr_mtrx, row, col, n_atom)
+        u    = _set_moire_potential(hamk)
+        print("max u", np.max(u))
+        pot  = _analyze_moire_potential(u)
+        potential.append(pot)
+
+    offset = valley*(n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2)
+    g_vec_list = g_vec_list - offset
+    print("Gvec list[0] should be zero:", g_vec_list[0])
+
+    return ksec, g_vec_list, np.array(potential)

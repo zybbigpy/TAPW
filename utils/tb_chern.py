@@ -4,6 +4,7 @@ sys.path.append("..")
 
 import numpy as np
 import tightbinding.moire_tb as tbtb
+import tightbinding.moire_chern as tbchern
 
 
 n_moire = 30
@@ -30,5 +31,5 @@ print(dmesh.shape, trans.shape, nmap.shape)
 nband = dmesh.shape[2]
 dmesh = dmesh[:,:,(nband//2-3):(nband//2+3)]
 for i in range(6):
-    print(tbtb.cal_chern(dmesh, n_k, i, i, trans, nmap))
+    print(tbchern.cal_chern(dmesh, n_k, i, i, trans, nmap))
    

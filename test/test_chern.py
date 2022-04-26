@@ -4,6 +4,7 @@ sys.path.append("..")
 
 import numpy as np
 import tightbinding.moire_tb as tbtb
+import tightbinding.moire_chern as tbchern
 
 
 n_moire = 30
@@ -31,8 +32,8 @@ nband = dmesh.shape[2]
 nchern = 5
 dmesh = dmesh[:,:,(nband//2-nchern):(nband//2+nchern)]
 for i in range(2*nchern):
-    chern = tbtb.cal_chern(dmesh, n_k, i, i, trans, nmap)
+    chern = tbchern.cal_chern(dmesh, n_k, i, i, trans, nmap)
     assert np.imag(chern)<1E-9
     print("band i:", i, "chern number:", np.rint(np.real(chern)))
 
-print("finish test chern")
+print("="*50, "finish test chern", "="*50)
