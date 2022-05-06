@@ -6,7 +6,7 @@ test/test_log/
 #
 data/*.npy
 *.npy
-
+output/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

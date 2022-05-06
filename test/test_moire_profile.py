@@ -8,11 +8,11 @@ from pstats import Stats
 __author__ = 'Wangqian Miao'
 
 
-def test_profile(n_moire, n_g, n_k, valley):
-    tbtb.tightbinding_solver(n_moire, n_g, n_k, valley)
+def test_profile(n_moire, n_g, n_k):
+    tbtb.tightbinding_solver(n_moire, n_g, n_k, 'atom', '+1', False, False)
 
 def main():
-    test_profile(30, 5, 3, 1)
+    test_profile(30, 5, 3)
 
 if __name__=='__main__':
     profiler = Profile() 

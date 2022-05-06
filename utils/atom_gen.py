@@ -8,7 +8,7 @@ import numpy as np
 
 __author__ = 'Wangqian Miao'
 
-n_moire = [i for i in range(40, 45)]
+n_moire = [i for i in range(2, 70)]
 
 # print("="*100)
 # test innder product between unit vec and reciprocal vec
@@ -21,4 +21,4 @@ for n in n_moire:
     tbset.system_info_log(n)
     # test atom pstn list construction
     atoms = tbset.set_atom_pstn_list(n)
-    tbset.save_atom_pstn_list(atoms, "../data/", n)
+    tbset.save_atom_pstn_list(atoms, "../data/atom/", n)

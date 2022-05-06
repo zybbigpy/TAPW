@@ -280,9 +280,9 @@ def cont_solver(n_moire, n_g, n_k, valley):
 
 
 if __name__ == "__main__":
-    n_moire = 31
-    n_g = 5
-    n_k = 30
+    n_moire = 10
+    n_g = 4
+    n_k = 60
     valley = 1
     band = 5
 
@@ -296,24 +296,19 @@ if __name__ == "__main__":
 
     # 7 bands
     for i in range(band):
-        plt.plot(kline, emesh[:, n_band//2+i],'-b')
-        plt.plot(kline, emesh[:, n_band//2-i],'-b')
-
-    plt.plot(kline, emesh[:, n_band//2-1],'-b')
-    #plt.plot(kline, emesh[:, n_band//2-2])
+        plt.plot(kline, emesh[:, n_band//2+i],'-', c='blue', alpha=0.7, lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i],'-', c='blue', alpha=0.7, lw=1)
 
     (emesh, dmesh, kline) = cont_solver(n_moire, n_g, n_k, -valley)
     for i in range(band):
-        plt.plot(kline, emesh[:, n_band//2+i],'--r')
-        plt.plot(kline, emesh[:, n_band//2-i],'--r')
-
-    plt.plot(kline, emesh[:, n_band//2-1], '--r')
+        plt.plot(kline, emesh[:, n_band//2+i],'-', c='blue', alpha=0.7, lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i],'-', c='blue', alpha=0.7, lw=1)
 
     ax.set_ylabel("Engergy (eV)")
-    ax.set_title("Continuum Model, Flat Bands of TBG")
+    #ax.set_title("Continuum Model, Flat Bands of TBG")
     ax.axvline(x=kline[0], color="black")
     ax.axvline(x=kline[n_k-1], color="black")
     ax.axvline(x=kline[2*n_k-1], color="black")
     ax.axvline(x=kline[3*n_k-1], color="black")
-
-    plt.savefig("continuum.png", dpi=500)
+    plt.tight_layout()
+    plt.savefig("./continuum10.png", dpi=500)

@@ -304,6 +304,27 @@ def system_info_log(n_moire:int):
     print("moire recoprotocal unit vector".ljust(30), ":", m_g_unitvec_1, m_g_unitvec_2)
 
 
+def read_atom_pstn_list(n_moire:int, datatype:str)->list:
+
+    if datatype == 'symm_relax':
+        print("Load relaxed data after symmetrized.")
+        atom_pstn_list = np.loadtxt("../data/relaxsymm/symmatom"+str(n_moire)+".csv", delimiter=',', comments='#')
+    elif datatype == 'relax':
+        print("Load relaxed data.")
+        atom_pstn_list = np.loadtxt("../data/relax/relaxatom"+str(n_moire)+".csv", delimiter=',', comments='#')
+    elif datatype == 'corrugation':
+        print("Load corruagtion data.")
+        atom_pstn_list = np.loadtxt("../data/corrugation/atom"+str(n_moire)+".csv", delimiter=',', comments='#')
+    elif datatype == 'atom':
+        print("Load atomic data.")
+        atom_pstn_list = np.loadtxt("../data/atom/atom"+str(n_moire)+".csv", delimiter=',', comments='#')
+    else:
+        print("Default! Load corrugation data.")
+        atom_pstn_list = np.loadtxt("../data/corrugation/atom"+str(n_moire)+".csv", delimiter=',', comments='#')
+
+    return list(atom_pstn_list)
+
+
 def save_atom_pstn_list(atom_pstn_list:list, path:str, n_moire:int):
     
     atoms = np.array(atom_pstn_list)
@@ -325,13 +346,3 @@ def read_atom_neighbour_list(path:str, n_moire:int)->list:
             atom_neighbour_list.append(data)
 
     return atom_neighbour_list
-
-
-def read_atom_pstn_list(n_moire:int, relax:bool)->list:
-
-    if relax:
-        atom_pstn_list = np.loadtxt("../relax/relaxatom"+str(n_moire)+".csv", delimiter=',', comments='#')        
-    else:
-        atom_pstn_list = np.loadtxt("../data/atom"+str(n_moire)+".csv", delimiter=',', comments='#')
-
-    return list(atom_pstn_list)

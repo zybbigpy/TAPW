@@ -17,12 +17,12 @@ R_RANGE = 0.184*mset.A_0
 
 def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
     """
-    old version code, aborted.
+    old version code, but it makes sure G[0]-offset=[0, 0].
     """
     g_vec_list = []
 
     # construct a hexagon area by using three smallest g vectors (with symmetry)
-    g_3 = -m_g_unitvec_1-m_g_unitvec_2
+    # g_3 = -m_g_unitvec_1-m_g_unitvec_2
     
     # for (i, j) in product(range(n_g), range(n_g)):
     #     g_vec_list.append(i*m_g_unitvec_1 + j*m_g_unitvec_2)
@@ -51,8 +51,38 @@ def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:i
     return np.array(g_vec_list)+offset*valley
 
 
-def _set_g_vec_list_symm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
+def _set_g_vec_list_comb_valley(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int):
+    """
+    Glist constructed by combining two valleys
+    """
+    g_vec_list = []
 
+    # construct a hexagon area by using three smallest g vectors (with symmetry)
+    g_3 = -m_g_unitvec_1-m_g_unitvec_2
+    
+    for i in range(n_g):
+        for j in range(n_g):
+            g_vec_list.append(i*m_g_unitvec_1+j*m_g_unitvec_2)
+    
+    for i in range(n_g):
+        for j in range(1, n_g):
+            g_vec_list.append(-j*m_g_unitvec_1+(i-j)*m_g_unitvec_2)
+
+    for i in range(1, n_g):
+        for j in range(1, n_g):
+            g_vec_list.append(-i*m_g_unitvec_2+(j-i)*m_g_unitvec_1)
+    
+    offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
+    v1 = np.array(g_vec_list) + offset
+    v2 = np.array(g_vec_list) - offset
+     
+    return np.append(v1, v2, axis=0)
+
+
+def _set_g_vec_list_symm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
+    """
+    new version code, but not in use, it cannot make sure G[0]-offset=[0, 0]
+    """
     g_vec_list = []
     offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
 
@@ -72,62 +102,6 @@ def _set_g_vec_list_symm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, val
     g_vec_list = np.unique(np.array(g_vec_list), axis=0) + offset*valley
 
     return g_vec_list
-
-
-def _set_g_vec_list_nsymm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
-
-    g_vec_list = []
-    offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
-
-    g_1 = m_g_unitvec_1
-    g_2 = m_g_unitvec_2
-    g_3 = -m_g_unitvec_1
-    g_4 = -m_g_unitvec_2
-
-    for (i, j) in product(range(n_g), range(n_g)):
-        g_vec_list.append(i*g_1 + j*g_2)
-
-    for (i, j) in product(range(n_g), range(n_g)):
-        g_vec_list.append(i*g_1 + j*g_4)
-
-    for (i, j) in product(range(n_g), range(n_g)):
-        g_vec_list.append(i*g_2 + j* g_3)
-
-    for (i, j) in product(range(n_g), range(n_g)):
-        g_vec_list.append(i*g_3 + j*g_4)
-    
-
-    print("G list shape before unique:", len(g_vec_list))
-
-    g_vec_list = np.unique(np.array(g_vec_list), axis=0) + offset*valley
-
-    print("G list shape after unique:", g_vec_list.shape)
-
-    return g_vec_list
-
-
-def _set_g_vec_list_nsymm_2(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
-
-    g_vec_list = []
-    g_3 = -m_g_unitvec_1-m_g_unitvec_2
-    offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
-    start_pnt = g_3*(n_g-1) + offset*valley
-
-    for (i, j) in product(range(2*n_g), range(2*n_g)):
-        g_vec_list.append(i*m_g_unitvec_1 + j*m_g_unitvec_2)
-    
-    g_vec_list = np.array(g_vec_list) + start_pnt
-
-    return g_vec_list
-
-
-def _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k:int)->list:
-    
-    k_step = 1/n_k
-    kmesh = [i*k_step*m_g_unitvec_1 + j*k_step*m_g_unitvec_2 
-             for (i, j) in product(range(n_k), range(n_k))]
-
-    return kmesh
 
 
 def _sk_integral(dr, dd):
@@ -159,17 +133,17 @@ def _set_const_mtrx(n_moire,  dr,  dd,    m_g_unitvec_1,  m_g_unitvec_2,
     Returns:
     
     1. gr_mtrx (4*n_g, n_atom) np.matrix
-
     2. tr_mtrx (n_atom, n_atom) sparse matrix
+    3. sr_mtrx (4*n_g, 4*n_g)  np.matrix
     """
 
     n_g = len(g_vec_list)
     n_atom = len(atom_pstn_list)
     
     factor = 1/np.sqrt(n_atom/4)
-    offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
 
     # in old version code, offset of Glist realized here
+    # offset = n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2
     # gr_mtrx = np.array([factor*np.exp(-1j*np.dot(g + valley*offset, r[:2]))
     #                     for g in g_vec_list for r in atom_pstn_list]).reshape(n_g, n_atom)
 
@@ -189,41 +163,69 @@ def _set_const_mtrx(n_moire,  dr,  dd,    m_g_unitvec_1,  m_g_unitvec_2,
     
     if tr_mtrx_delta.max()>1.0E-9:
         print(tr_mtrx_delta.max())
-        raise Exception("Hamiltonian matrix is not hermitian?!")     
+        raise Exception("Tr matrix is not hermitian?!")    
 
-    return (gr_mtrx, tr_mtrx)
+    diag_ones = sparse.diags([1 for i in range(n_atom)])
+    sr_mtrx = gr_mtrx * (diag_ones * gr_mtrx.H)
+
+    sr_mtrx_cc = (sr_mtrx.transpose()).conjugate()
+    sr_mtrx_delta = sr_mtrx - sr_mtrx_cc
+    
+    if sr_mtrx_delta.max()>1.0E-9:
+        print(sr_mtrx_delta.max())
+        raise Exception("Overlap matrix is not hermitian?!")  
+    
+
+    return (gr_mtrx, tr_mtrx, sr_mtrx)
 
 
-def _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom):
+def _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom, fulltb):
+    """
+    Calculate H(k), we project the sparse hopping matrix on planewaves or fullTB
+    """
     
     tk_data = np.exp(-1j*np.dot(dr, k_vec))
     kr_mtrx = sparse.csr_matrix((tk_data, (row, col)), shape=(n_atom, n_atom))
-
     kr_mtrx_cc = (kr_mtrx.transpose()).conjugate()
     kr_mtrx_delta = kr_mtrx - kr_mtrx_cc
 
     if kr_mtrx_delta.max()>1.0E-9:
         print(kr_mtrx_delta.max())
-        raise Exception("Hamiltonian matrix is not hermitian?!")  
+        raise Exception("kr matrix is not hermitian?!")  
 
-
+    # Full tight binding spectrum can be calculated by directly diagonalized `hr_mtrx``
     hr_mtrx = kr_mtrx.multiply(tr_mtrx)
-
     hr_mtrx_cc = (hr_mtrx.transpose()).conjugate()
     hr_mtrx_delta = hr_mtrx - hr_mtrx_cc
     
     if hr_mtrx_delta.max()>1.0E-9:
         print(hr_mtrx_delta.max())
-        raise Exception("Hamiltonian matrix is not hermitian?!")  
+        raise Exception("Hopping matrix is not hermitian?!")  
 
-    hamiltonian_k = gr_mtrx * (hr_mtrx * gr_mtrx.H)
+    if fulltb:
+        # full TB
+        hamk = hr_mtrx.todense()
+    else:
+        # planewave projection
+        hamk = gr_mtrx * (hr_mtrx * gr_mtrx.H)
 
-    return hamiltonian_k
+    print("check H(k) shape:", hamk.shape)
+    return hamk
+    
+
+def _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k:int)->list:
+    
+    k_step = 1/n_k
+    kmesh = [i*k_step*m_g_unitvec_1 + j*k_step*m_g_unitvec_2 
+             for (i, j) in product(range(n_k), range(n_k))]
+
+    return kmesh
 
 
 def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
     """
-    moire dispertion, this code is just modifield from Prof Dai's realization
+    moire dispertion, this code is just modifield from Prof Dai's realization.
+    Note that, it is not a normal sampling on the kline.
     """
 
     num_sec = 4
@@ -250,12 +252,24 @@ def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
     return (ksec, kline, kmesh)
 
 
-def _set_kmesh_neighbour(g_vec_list, n_k, m_g_unitvec_1, m_g_unitvec_2, n_moire, valley):
+def _set_kmesh_neighbour(n_g, m_g_unitvec_1, m_g_unitvec_2):
     
-    offset = valley*(n_moire*m_g_unitvec_1 + n_moire*m_g_unitvec_2)
-    g_vec_list = g_vec_list - offset
+    g_vec_list = []
+
+    for i in range(n_g):
+        for j in range(n_g):
+            g_vec_list.append(i*m_g_unitvec_1+j*m_g_unitvec_2)
+    
+    for i in range(n_g):
+        for j in range(1, n_g):
+            g_vec_list.append(-j*m_g_unitvec_1+(i-j)*m_g_unitvec_2)
+
+    for i in range(1, n_g):
+        for j in range(1, n_g):
+            g_vec_list.append(-i*m_g_unitvec_2+(j-i)*m_g_unitvec_1)
+
     print("Gvec list[0] should be zero:", g_vec_list[0])
-    num_g = g_vec_list.shape[0]
+    num_g = len(g_vec_list)
     err = 0.02*np.dot(m_g_unitvec_1, m_g_unitvec_1)
 
     transmat_list = []
@@ -285,10 +299,28 @@ def _set_kmesh_neighbour(g_vec_list, n_k, m_g_unitvec_1, m_g_unitvec_2, n_moire,
     return transmat_list, neighbor_map
 
 
-def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, symm=True, relax=False)->tuple:
-    """  
-    Tight binding solver for moire system
+def _cal_eigen_hamk(hamk, smat, datatype, fulltb):
+    """
+    different method for eigenval problem
+    """
 
+    w = 0
+    if fulltb:
+        print("hamk shape", hamk.shape)
+        v, _ = np.linalg.eigh(hamk)
+    else:
+        if datatype == 'symm_relax' or datatype == 'relax':
+            v, w = la.eigh(hamk, b=smat)
+        else:
+            v, w = np.linalg.eigh(hamk)
+
+    return v, w
+
+
+def tightbinding_solver(n_moire:int, n_g:int, n_k:int, datatype:str, valley:str, disp=True, fulltb=False)->tuple:
+    """  
+    Tight Binding Solver for moire system
+    datatype support:'atomic', corrugation', 'relax', 'symm_relax'
     -------
     Returns:
     
@@ -309,36 +341,35 @@ def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, s
     emin = 1000
     count = 1
 
-    atom_pstn_list = mset.read_atom_pstn_list(n_moire, relax)
-
-    # old solution 
-    # atom_neighbour_list = mset.read_atom_neighbour_list("../data/", n_moire)
-    # (dr, dd, row, col) = mset.set_relative_dis_ndarray(atom_pstn_list, atom_neighbour_list, m_g_unitvec_1, 
-    #                                                     m_g_unitvec_2,  m_unitvec_1,         m_unitvec_2)
-
-    # new solution
+    # load atom list
+    atom_pstn_list = mset.read_atom_pstn_list(n_moire, datatype)
+    # construct moire info
     (all_nns, enlarge_atom_pstn_list)= mset.set_atom_neighbour_list(atom_pstn_list, m_unitvec_1, m_unitvec_2)
     (dr, dd, row, col) = mset.set_relative_dis_ndarray_new(atom_pstn_list, enlarge_atom_pstn_list, all_nns)
 
-    if(disp): # k-path sampling
+    if(disp): 
+        # k-path sampling
         (ksec, kline, kmesh) = _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, n_k)
-    else:     # uniform sampling
+    else:     
+        # uniform sampling
         kmesh = _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k)
     
+    if valley == 'valley_comb':
+        g_vec_list = _set_g_vec_list_comb_valley(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire)
+    elif valley == '+1':
+        g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, 1)
+    elif valley == '-1':
+        g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, -1)
+    else:
+        g_vec_list = _set_g_vec_list_comb_valley(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire)
     
-    #g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g)
-    # symmetry G list or non symmetry
-    # if symm:
-    #     g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
-    # else:
-    #     print("nsymm2 g list construction.")
-    #     g_vec_list = _set_g_vec_list_nsymm_2(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
-
-    g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
-    gr_mtrx, tr_mtrx = _set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
+    # construct constant matrix
+    (gr_mtrx, tr_mtrx, sr_mtrx)   = _set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
                                        row, col, g_vec_list, atom_pstn_list, valley)
-    
-    transmat_list, neighbor_map = _set_kmesh_neighbour(g_vec_list, n_k, m_g_unitvec_1, m_g_unitvec_2, n_moire, valley)
+    # construct constant list
+    (transmat_list, neighbor_map) = _set_kmesh_neighbour(n_g, m_g_unitvec_1, m_g_unitvec_2)
+
+
 
     n_atom = len(atom_pstn_list)
     n_band = len(g_vec_list)*4
@@ -358,13 +389,12 @@ def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, s
     for k_vec in kmesh:
         print("k sampling process, counter:", count)
         count += 1
-        hamk = _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom)
-        eigen_val, eigen_vec = np.linalg.eigh(hamk)
+        hamk = _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom, fulltb)
+        eigen_val, eigen_vec = _cal_eigen_hamk(hamk, sr_mtrx, datatype, fulltb)
         if np.max(eigen_val) > emax:
             emax = np.max(eigen_val)
         if np.min(eigen_val) < emin:
             emin = np.min(eigen_val)
-        #print(eigen_val)
         emesh.append(eigen_val)
         dmesh.append(eigen_vec)
     print('='*100)
@@ -372,45 +402,6 @@ def tightbinding_solver(n_moire:int, n_g:int, n_k:int, valley:int, disp=False, s
     print('='*100)
 
     return (np.array(emesh), np.array(dmesh), kline, transmat_list, neighbor_map)
-
-
-def tightbinding_plot(n_moire:int, n_g:int, n_k:int, band:int, symm:bool, name:str, relax:bool):
-
-    emesh, dmesh, kline, _, _ = tightbinding_solver(n_moire, n_g, n_k, 1, True, symm, relax)
-    n_band = emesh[0].shape[0]
-
-    fig, ax = plt.subplots()
-    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k-1], kline[3*n_k-1]])
-    ax.set_xticklabels([r'$\bar{K}$',  r'$\bar{\Gamma}$',  r'$\bar{M}$', r'$\bar{K}^\prime$'])
-    ax.set_xlim(0, kline[-1])
-
-    for i in range(band):
-        plt.plot(kline, emesh[:, n_band//2+i],'-b')
-        plt.plot(kline, emesh[:, n_band//2-1-i],'-b')
-
-    #plt.plot(kline, emesh[:, n_band//2-1],'-b')
-    #plt.plot(kline, emesh[:, n_band//2-2])
-
-    emesh, dmesh, kline, _, _ = tightbinding_solver(n_moire, n_g, n_k, -1, True, symm, relax)
-
-    for i in range(band):
-        plt.plot(kline, emesh[:, n_band//2+i],'--r')
-        plt.plot(kline, emesh[:, n_band//2-1-i],'--r')
-
-    #plt.plot(kline, emesh[:, n_band//2-1],'--r')
-    #plt.plot(kline, emesh[:, n_band//2-2])
-
-    ax.set_ylabel("Engergy (eV)")
-    ax.set_title("Tight Binding Band Structure of TBG"+" Nmoire "+str(n_moire))
-    ax.axvline(x=kline[0], color="black")
-    ax.axvline(x=kline[n_k-1], color="black")
-    ax.axvline(x=kline[2*n_k-1], color="black")
-    ax.axvline(x=kline[3*n_k-1], color="black")
-
-    if relax:
-        plt.savefig("../output/relaxbands"+str(n_moire)+name+".png", dpi=500)
-    else:
-        plt.savefig("../output/tbbands"+str(n_moire)+name+".png", dpi=500)
 
 
 def _set_moire_potential(hamk):
@@ -436,10 +427,10 @@ def _analyze_moire_potential(u):
     moire_potential = u1+u2+u3+u4
     print(u1.shape)
     
-    return moire_potential
+    return u1
 
 
-def moire_analyze(n_moire:int, n_g:int, valley:int, relax=False)->tuple:
+def moire_analyze(n_moire:int, n_g:int, valley:int, datatype:str)->tuple:
     
     
     (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
@@ -447,7 +438,7 @@ def moire_analyze(n_moire:int, n_g:int, valley:int, relax=False)->tuple:
      m_k2_vec,      m_m_vec,     rt_mtrx_half) = mset._set_moire(n_moire)
 
 
-    atom_pstn_list = mset.read_atom_pstn_list(n_moire, relax)
+    atom_pstn_list = mset.read_atom_pstn_list(n_moire, datatype)
 
 
     (all_nns, enlarge_atom_pstn_list) = mset.set_atom_neighbour_list(atom_pstn_list, m_unitvec_1, m_unitvec_2)
@@ -459,8 +450,8 @@ def moire_analyze(n_moire:int, n_g:int, valley:int, relax=False)->tuple:
     
 
     g_vec_list = _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g, n_moire, valley)
-    gr_mtrx, tr_mtrx = _set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
-                                       row, col, g_vec_list, atom_pstn_list, valley)
+    gr_mtrx, tr_mtrx, sr_mtrx = _set_const_mtrx(n_moire,  dr,    dd,  m_g_unitvec_1,  m_g_unitvec_2, 
+                                                row, col, g_vec_list, atom_pstn_list, valley)
 
 
     n_atom = len(atom_pstn_list)
@@ -478,7 +469,7 @@ def moire_analyze(n_moire:int, n_g:int, valley:int, relax=False)->tuple:
     print('='*100)
 
     for kpts in ksec:
-        hamk = _cal_hamiltonian_k(dr, kpts, gr_mtrx, tr_mtrx, row, col, n_atom)
+        hamk = _cal_hamiltonian_k(dr, kpts, gr_mtrx, tr_mtrx, row, col, n_atom, False)
         u    = _set_moire_potential(hamk)
         print("max u", np.max(u))
         pot  = _analyze_moire_potential(u)
