@@ -1,17 +1,12 @@
 import sys
 sys.path.append("..")
-
-
-import numpy as np
-import tightbinding.moire_tb as tbtb
+import tightbinding.moire_plot as mplt
 
 
 n_moire = 30
 n_g = 5
 n_k = 20
-# Control band plotted
-band = 1
 
-tbtb.tightbinding_plot(n_moire, n_g, n_k, band, True, "_4bnd", False)
 
-#tbtb.tightbinding_plot_comb_valley(n_moire, n_g, n_k, band, True, "_4bnd", False)
+mplt.tightbinding_plot_sep_valley(n_moire, n_g, n_k,  1, 'symm_relax', "./test_newsymm")
+mplt.tightbinding_plot_valley_comb(n_moire, n_g, n_k, 2, 'symm_relax', "./test_newsymm")
