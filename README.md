@@ -12,8 +12,8 @@
   - Topology: Chern number calculation
   - Moire Potential Analysis.
   - Symmetry Constrain
-    - C3 symmetry
-    - M symmetry
+    - C3z symmetry
+    - C2x symmetry
 - Continuum Model as a reference.
 
 - [] Sparse eigenvalue solver for full tight binding.
