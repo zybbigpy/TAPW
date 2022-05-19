@@ -13,7 +13,7 @@ n_k = 18
 valley = 1
 # Control band plotted
 
-emesh, dmesh, _, transmatlist, neighbor_map = tbtb.tightbinding_solver(n_moire, n_g, n_k, 'corrugation', '+1', False, False)
+emesh, dmesh, _, transmatlist, neighbor_map = tbtb.tightbinding_solver(n_moire, n_g, n_k, 'corrugation', '+1', disp=False)
 
 np.save("bands.npy", dmesh)
 np.save("trans.npy", np.array(transmatlist))

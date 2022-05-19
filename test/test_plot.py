@@ -7,6 +7,8 @@ n_moire = 13
 n_g = 5
 n_k = 20
 
+
+mplt.tightbinding_plot_sparsetb(n_moire, n_g, n_k, 5, 'atom', "./test")
 mplt.tightbinding_plot_fulltb(n_moire, n_g, n_k, 10, 'atom', "./test")
 mplt.tightbinding_plot_fulltb(n_moire, n_g, n_k, 10, 'corrugation', "./test")
 

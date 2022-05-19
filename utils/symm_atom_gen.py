@@ -57,7 +57,7 @@ def symm_reconstruct(m_g_unitvec1, m_g_unitvec2, symm, atoms, halfatoms):
     return np.append(atoms_symm_2d_new, atoms_symm_z, axis=1)
 
 
-moire_list = [i for i in range(30, 31, 2)]
+moire_list = [i for i in range(30, 32, 2)]
 for n_moire in moire_list:
     atoms = np.array(tbset.read_atom_pstn_list(n_moire, 'relax'))
     print(atoms.shape)

@@ -16,7 +16,7 @@
     - C2x symmetry
 - Continuum Model as a reference.
 
-- [] Sparse eigenvalue solver for full tight binding.
+- Sparse eigenvalue solver for full tight binding.
 ## Dependent Module
 
 See `requirements.txt`. You can refer to `.github/workflows/main.yml` I provide to set up the environment.

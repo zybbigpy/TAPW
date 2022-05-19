@@ -9,7 +9,7 @@ __author__ = 'Wangqian Miao'
 
 
 def test_profile(n_moire, n_g, n_k):
-    tbtb.tightbinding_solver(n_moire, n_g, n_k, 'atom', '+1', False, False)
+    tbtb.tightbinding_solver(n_moire, n_g, n_k, 'atom', '+1', disp=False)
 
 def main():
     test_profile(30, 5, 3)

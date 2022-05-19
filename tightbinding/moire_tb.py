@@ -5,7 +5,10 @@ import scipy.linalg as la
 
 from scipy.linalg import block_diag
 from scipy import sparse
+from scipy.sparse.linalg import eigs
 from itertools import product
+from numba import jit
+
 
 # eV
 VPI_0 = -2.7
@@ -15,6 +18,7 @@ VSIGMA_0 = 0.48
 R_RANGE = 0.184*mset.A_0
 
 
+@jit
 def _set_g_vec_list(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, valley:int):
     """
     old version code, but it makes sure G[0]-offset=[0, 0].
@@ -104,6 +108,7 @@ def _set_g_vec_list_symm(m_g_unitvec_1, m_g_unitvec_2, n_g:int, n_moire:int, val
     return g_vec_list
 
 
+@jit(nopython=True, parallel=True)
 def _sk_integral(dr, dd):
     """
     dr (*, 2) ndarray, dd (*, ) ndarray, * represents for interaction pair
@@ -179,6 +184,7 @@ def _set_const_mtrx(n_moire,  dr,  dd,    m_g_unitvec_1,  m_g_unitvec_2,
     return (gr_mtrx, tr_mtrx, sr_mtrx)
 
 
+@jit(parallel=True)
 def _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom, fulltb):
     """
     Calculate H(k), we project the sparse hopping matrix on planewaves or fullTB
@@ -204,7 +210,7 @@ def _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom, fulltb):
 
     if fulltb:
         # full TB
-        hamk = hr_mtrx.todense()
+        hamk = hr_mtrx
     else:
         # planewave projection
         hamk = gr_mtrx * (hr_mtrx * gr_mtrx.H)
@@ -213,6 +219,7 @@ def _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom, fulltb):
     return hamk
     
 
+@jit
 def _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k:int)->list:
     
     k_step = 1/n_k
@@ -299,15 +306,19 @@ def _set_kmesh_neighbour(n_g, m_g_unitvec_1, m_g_unitvec_2):
     return transmat_list, neighbor_map
 
 
-def _cal_eigen_hamk(hamk, smat, datatype, fulltb):
+def _cal_eigen_hamk(hamk, smat, datatype, fulltb, sparse):
     """
     different method for eigenval problem
     """
 
     w = 0
     if fulltb:
-        print("hamk shape", hamk.shape)
-        v, _ = np.linalg.eigh(hamk)
+        if sparse:
+            print("Sparse TB Solver.")
+            v, _ = eigs(hamk, k=10, sigma=0.78)
+        else:
+            print("Full TB. hamk shape", hamk.shape)
+            v, _ = np.linalg.eigh(hamk.todense())
     else:
         if datatype == 'symm_relax' or datatype == 'relax':
             v, w = la.eigh(hamk, b=smat)
@@ -317,7 +328,8 @@ def _cal_eigen_hamk(hamk, smat, datatype, fulltb):
     return v, w
 
 
-def tightbinding_solver(n_moire:int, n_g:int, n_k:int, datatype:str, valley:str, disp=True, fulltb=False)->tuple:
+@jit(parallel=True)
+def tightbinding_solver(n_moire:int, n_g:int, n_k:int, datatype:str, valley:str, disp=True, fulltb=False, sparse=True)->tuple:
     """  
     Tight Binding Solver for moire system
     datatype support:'atomic', corrugation', 'relax', 'symm_relax'
@@ -390,7 +402,7 @@ def tightbinding_solver(n_moire:int, n_g:int, n_k:int, datatype:str, valley:str,
         print("k sampling process, counter:", count)
         count += 1
         hamk = _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom, fulltb)
-        eigen_val, eigen_vec = _cal_eigen_hamk(hamk, sr_mtrx, datatype, fulltb)
+        eigen_val, eigen_vec = _cal_eigen_hamk(hamk, sr_mtrx, datatype, fulltb, sparse)
         if np.max(eigen_val) > emax:
             emax = np.max(eigen_val)
         if np.min(eigen_val) < emin:
