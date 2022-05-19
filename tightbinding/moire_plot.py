@@ -18,7 +18,7 @@ def tightbinding_plot_sparsetb(n_moire:int, n_g:int, n_k:int, band:int, datatype
     n_band = emesh[0].shape[0]
 
     fig, ax = plt.subplots()
-    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k-1], kline[3*n_k-1]])
+    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k], kline[3*n_k]])
     ax.set_xticklabels([r'$\bar{K}$',  r'$\bar{\Gamma}$',  r'$\bar{M}$', r'$\bar{K}^\prime$'])
     ax.set_xlim(0, kline[-1])
 
@@ -35,9 +35,9 @@ def tightbinding_plot_sparsetb(n_moire:int, n_g:int, n_k:int, band:int, datatype
         ax.axhline(y=mu_val, linewidth=1.5, linestyle='--', color='grey')
     ax.set_title(name)
     ax.axvline(x=kline[0], color="black")
-    ax.axvline(x=kline[n_k-1], color="black")
-    ax.axvline(x=kline[2*n_k-1], color="black")
-    ax.axvline(x=kline[3*n_k-1], color="black")
+    ax.axvline(x=kline[n_k], color="black")
+    ax.axvline(x=kline[2*n_k], color="black")
+    ax.axvline(x=kline[3*n_k], color="black")
 
     plt.savefig(pathname+str(n_moire)+datatype+"_sparsetb.png", dpi=500)
 
@@ -48,7 +48,7 @@ def tightbinding_plot_fulltb(n_moire:int, n_g:int, n_k:int, band:int, datatype:s
     n_band = emesh[0].shape[0]
 
     fig, ax = plt.subplots()
-    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k-1], kline[3*n_k-1]])
+    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k], kline[3*n_k]])
     ax.set_xticklabels([r'$\bar{K}$',  r'$\bar{\Gamma}$',  r'$\bar{M}$', r'$\bar{K}^\prime$'])
     ax.set_xlim(0, kline[-1])
 
@@ -63,9 +63,9 @@ def tightbinding_plot_fulltb(n_moire:int, n_g:int, n_k:int, band:int, datatype:s
         ax.axhline(y=mu_val, linewidth=1.5, linestyle='--', color='grey')
     ax.set_title(name)
     ax.axvline(x=kline[0], color="black")
-    ax.axvline(x=kline[n_k-1], color="black")
-    ax.axvline(x=kline[2*n_k-1], color="black")
-    ax.axvline(x=kline[3*n_k-1], color="black")
+    ax.axvline(x=kline[n_k], color="black")
+    ax.axvline(x=kline[2*n_k], color="black")
+    ax.axvline(x=kline[3*n_k], color="black")
 
     plt.savefig(pathname+str(n_moire)+datatype+"_fulltb.png", dpi=500)
 
@@ -77,7 +77,7 @@ def tightbinding_plot_valley_comb(n_moire:int, n_g:int, n_k:int, band:int, datat
     n_band = emesh[0].shape[0]
 
     fig, ax = plt.subplots()
-    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k-1], kline[3*n_k-1]])
+    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k], kline[3*n_k]])
     ax.set_xticklabels([r'$\bar{K}$',  r'$\bar{\Gamma}$',  r'$\bar{M}$', r'$\bar{K}^\prime$'])
     ax.set_xlim(0, kline[-1])
 
@@ -92,9 +92,9 @@ def tightbinding_plot_valley_comb(n_moire:int, n_g:int, n_k:int, band:int, datat
         ax.axhline(y=mu_val, linewidth=1.5, linestyle='--', color='grey')
     ax.set_title(name)
     ax.axvline(x=kline[0], color="black")
-    ax.axvline(x=kline[n_k-1], color="black")
-    ax.axvline(x=kline[2*n_k-1], color="black")
-    ax.axvline(x=kline[3*n_k-1], color="black")
+    ax.axvline(x=kline[n_k], color="black")
+    ax.axvline(x=kline[2*n_k], color="black")
+    ax.axvline(x=kline[3*n_k], color="black")
 
     plt.savefig(pathname+str(n_moire)+datatype+"_vcomb.png", dpi=500)
 
@@ -106,7 +106,7 @@ def tightbinding_plot_sep_valley(n_moire:int, n_g:int, n_k:int, band:int, dataty
     n_band = emesh[0].shape[0]
 
     fig, ax = plt.subplots()
-    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k-1], kline[3*n_k-1]])
+    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k], kline[3*n_k]])
     ax.set_xticklabels([r'$\bar{K}$',  r'$\bar{\Gamma}$',  r'$\bar{M}$', r'$\bar{K}^\prime$'])
     ax.set_xlim(0, kline[-1])
 
@@ -126,9 +126,9 @@ def tightbinding_plot_sep_valley(n_moire:int, n_g:int, n_k:int, band:int, dataty
         ax.axhline(y=mu_val, linewidth=1.5, linestyle='--', color='grey')
     ax.set_title(name)
     ax.axvline(x=kline[0], color="black")
-    ax.axvline(x=kline[n_k-1], color="black")
-    ax.axvline(x=kline[2*n_k-1], color="black")
-    ax.axvline(x=kline[3*n_k-1], color="black")
+    ax.axvline(x=kline[n_k], color="black")
+    ax.axvline(x=kline[2*n_k], color="black")
+    ax.axvline(x=kline[3*n_k], color="black")
 
     plt.savefig(pathname+str(n_moire)+datatype+"_vsep.png", dpi=500)
 
@@ -138,7 +138,7 @@ def tb_sep_valley_cmp(n_moire:int, n_g:int, n_k:int, bandfull:int, bandpw: int, 
     n_band = emesh[0].shape[0]
 
     fig, ax = plt.subplots()
-    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k-1], kline[3*n_k-1]])
+    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k], kline[3*n_k]])
     ax.set_xticklabels([r'$\bar{K}$',  r'$\bar{\Gamma}$',  r'$\bar{M}$', r'$\bar{K}^\prime$'])
     ax.set_xlim(0, kline[-1])
 
@@ -162,9 +162,9 @@ def tb_sep_valley_cmp(n_moire:int, n_g:int, n_k:int, bandfull:int, bandpw: int, 
     ax.set_ylabel("Engergy (eV)")
     ax.set_title(name)
     ax.axvline(x=kline[0], color="black")
-    ax.axvline(x=kline[n_k-1], color="black")
-    ax.axvline(x=kline[2*n_k-1], color="black")
-    ax.axvline(x=kline[3*n_k-1], color="black")
+    ax.axvline(x=kline[n_k], color="black")
+    ax.axvline(x=kline[2*n_k], color="black")
+    ax.axvline(x=kline[3*n_k], color="black")
 
     plt.savefig(pathname+str(n_moire)+datatype+"_vsep_cmp.png", dpi=500)
 
@@ -175,7 +175,8 @@ def tb_comb_valley_cmp(n_moire:int, n_g:int, n_k:int, bandfull:int, bandpw: int,
     n_band = emesh[0].shape[0]
 
     fig, ax = plt.subplots()
-    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k-1], kline[3*n_k-1]])
+    ax.set_xticks([kline[0], kline[n_k], kline[2*n_k], kline[3*n_k]])
+
     ax.set_xticklabels([r'$\bar{K}$',  r'$\bar{\Gamma}$',  r'$\bar{M}$', r'$\bar{K}^\prime$'])
     ax.set_xlim(0, kline[-1])
 
@@ -193,8 +194,8 @@ def tb_comb_valley_cmp(n_moire:int, n_g:int, n_k:int, bandfull:int, bandpw: int,
     ax.set_ylabel("Engergy (eV)")
     ax.set_title(name)
     ax.axvline(x=kline[0], color="black")
-    ax.axvline(x=kline[n_k-1], color="black")
-    ax.axvline(x=kline[2*n_k-1], color="black")
-    ax.axvline(x=kline[3*n_k-1], color="black")
+    ax.axvline(x=kline[n_k], color="black")
+    ax.axvline(x=kline[2*n_k], color="black")
+    ax.axvline(x=kline[3*n_k], color="black")
 
     plt.savefig(pathname+str(n_moire)+datatype+"_vcomb_cmp.png", dpi=500)

@@ -184,7 +184,6 @@ def _set_const_mtrx(n_moire,  dr,  dd,    m_g_unitvec_1,  m_g_unitvec_2,
     return (gr_mtrx, tr_mtrx, sr_mtrx)
 
 
-@jit(parallel=True)
 def _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom, fulltb):
     """
     Calculate H(k), we project the sparse hopping matrix on planewaves or fullTB
@@ -236,10 +235,13 @@ def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
     """
 
     num_sec = 4
-    ksec = np.zeros((num_sec,2),  float)
-    num_kpt = nk * (num_sec - 1)
-    kline = np.zeros((num_kpt),  float)
-    kmesh = np.zeros((num_kpt,2),float)
+    num_kpt = nk*(num_sec - 1)
+    length  = 0
+    
+    klen  = np.zeros((num_sec),     float)
+    ksec  = np.zeros((num_sec, 2),  float)
+    kline = np.zeros((num_kpt+1),   float)
+    kmesh = np.zeros((num_kpt+1, 2),float)
 
     # set k path (K1 - Gamma - M - K2)
     ksec[0] = m_k1_vec
@@ -248,13 +250,15 @@ def _set_tb_disp_kmesh(m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec, nk):
     ksec[3] = m_k2_vec
 
     for i in range(num_sec-1):
-        vec = ksec[i+1] - ksec[i]
-        klen = np.sqrt(np.dot(vec,vec))
-        step = klen/(nk)
+        vec    = ksec[i+1] - ksec[i]
+        length = np.sqrt(np.dot(vec,vec))
+        klen[i+1] = klen[i] + length
 
         for ikpt in range(nk):
-            kline[ikpt+i*nk] = kline[i*nk-1] + ikpt * step   
-            kmesh[ikpt+i*nk] = vec*ikpt/(nk-1) + ksec[i]
+            kline[ikpt+i*nk] = klen[i] + ikpt*length/nk   
+            kmesh[ikpt+i*nk] = ksec[i] + ikpt*vec/nk 
+    kline[num_kpt] = kline[2*nk] + length
+    kmesh[num_kpt] = ksec[3]
 
     return (ksec, kline, kmesh)
 
@@ -328,7 +332,6 @@ def _cal_eigen_hamk(hamk, smat, datatype, fulltb, sparse):
     return v, w
 
 
-@jit(parallel=True)
 def tightbinding_solver(n_moire:int, n_g:int, n_k:int, datatype:str, valley:str, disp=True, fulltb=False, sparse=True)->tuple:
     """  
     Tight Binding Solver for moire system
