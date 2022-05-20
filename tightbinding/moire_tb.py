@@ -218,7 +218,6 @@ def _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom, fulltb):
     return hamk
     
 
-@jit
 def _set_kmesh(m_g_unitvec_1, m_g_unitvec_2, n_k:int)->list:
     
     k_step = 1/n_k

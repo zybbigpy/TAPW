@@ -8,3 +8,5 @@ echo 'test tb chern number'
 python test_chern.py
 echo 'test tb plot compare'
 python test_plot_cmp.py
+echo 'test sparsetb plot compare'
+python test_plot_cmp_sparse.py
