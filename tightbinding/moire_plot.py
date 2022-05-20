@@ -38,7 +38,7 @@ def tightbinding_plot_sparsetb(n_moire:int, n_g:int, n_k:int, band:int, datatype
     ax.axvline(x=kline[n_k], color="black")
     ax.axvline(x=kline[2*n_k], color="black")
     ax.axvline(x=kline[3*n_k], color="black")
-
+    plt.tight_layout()
     plt.savefig(pathname+str(n_moire)+datatype+"_sparsetb.png", dpi=500)
 
 
@@ -66,7 +66,7 @@ def tightbinding_plot_fulltb(n_moire:int, n_g:int, n_k:int, band:int, datatype:s
     ax.axvline(x=kline[n_k], color="black")
     ax.axvline(x=kline[2*n_k], color="black")
     ax.axvline(x=kline[3*n_k], color="black")
-
+    plt.tight_layout()
     plt.savefig(pathname+str(n_moire)+datatype+"_fulltb.png", dpi=500)
 
 
@@ -95,7 +95,7 @@ def tightbinding_plot_valley_comb(n_moire:int, n_g:int, n_k:int, band:int, datat
     ax.axvline(x=kline[n_k], color="black")
     ax.axvline(x=kline[2*n_k], color="black")
     ax.axvline(x=kline[3*n_k], color="black")
-
+    plt.tight_layout()
     plt.savefig(pathname+str(n_moire)+datatype+"_vcomb.png", dpi=500)
 
 
@@ -129,7 +129,7 @@ def tightbinding_plot_sep_valley(n_moire:int, n_g:int, n_k:int, band:int, dataty
     ax.axvline(x=kline[n_k], color="black")
     ax.axvline(x=kline[2*n_k], color="black")
     ax.axvline(x=kline[3*n_k], color="black")
-
+    plt.tight_layout()
     plt.savefig(pathname+str(n_moire)+datatype+"_vsep.png", dpi=500)
 
 
@@ -165,7 +165,7 @@ def tb_sep_valley_cmp(n_moire:int, n_g:int, n_k:int, bandfull:int, bandpw: int, 
     ax.axvline(x=kline[n_k], color="black")
     ax.axvline(x=kline[2*n_k], color="black")
     ax.axvline(x=kline[3*n_k], color="black")
-
+    plt.tight_layout()
     plt.savefig(pathname+str(n_moire)+datatype+"_vsep_cmp.png", dpi=500)
 
 
@@ -197,7 +197,7 @@ def tb_comb_valley_cmp(n_moire:int, n_g:int, n_k:int, bandfull:int, bandpw: int,
     ax.axvline(x=kline[n_k], color="black")
     ax.axvline(x=kline[2*n_k], color="black")
     ax.axvline(x=kline[3*n_k], color="black")
-
+    plt.tight_layout()
     plt.savefig(pathname+str(n_moire)+datatype+"_vcomb_cmp.png", dpi=500)
 
 
@@ -238,7 +238,7 @@ def sparsetb_sep_valley_cmp(n_moire:int, n_g:int, n_k:int, bandsparse:int, bandp
     ax.axvline(x=kline[n_k], color="black")
     ax.axvline(x=kline[2*n_k], color="black")
     ax.axvline(x=kline[3*n_k], color="black")
-
+    plt.tight_layout()
     plt.savefig(pathname+str(n_moire)+datatype+"_vsep_cmp_sparse.png", dpi=500)
 
 
@@ -273,5 +273,5 @@ def sparsetb_comb_valley_cmp(n_moire:int, n_g:int, n_k:int, bandsparse:int, band
     ax.axvline(x=kline[n_k], color="black")
     ax.axvline(x=kline[2*n_k], color="black")
     ax.axvline(x=kline[3*n_k], color="black")
-
+    plt.tight_layout()
     plt.savefig(pathname+str(n_moire)+datatype+"_vcomb_cmp_sparse.png", dpi=500)
