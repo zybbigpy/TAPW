@@ -1,0 +1,6 @@
+[style]
+based_on_style = google
+SPLIT_COMPLEX_COMPREHENSION = true
+column_limit = 120
+indent_width = 4
+NO_SPACES_AROUND_SELECTED_BINARY_OPERATORS =set("+,*,@,/,+,-,>,<,+")

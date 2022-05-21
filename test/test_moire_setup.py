@@ -15,11 +15,10 @@ n_k = 3
 n_g = 5
 valley = -1
 
-
-print("=" * 100)
+print("="*100)
 # test innder product between unit vec and reciprocal vec
-assert np.dot(tbset.A_UNITVEC_1, tbset.A_G_UNITVEC_1) / np.pi - 2 < 1e-10
-assert np.dot(tbset.A_UNITVEC_2, tbset.A_G_UNITVEC_2) / np.pi - 2 < 1e-10
+assert np.dot(tbset.A_UNITVEC_1, tbset.A_G_UNITVEC_1)/np.pi-2<1e-10
+assert np.dot(tbset.A_UNITVEC_2, tbset.A_G_UNITVEC_2)/np.pi-2<1e-10
 
 # test info log
 tbset.system_info_log(n_moire)
@@ -39,7 +38,6 @@ print(atom_neighbour_list[2567][7])
 print(atom_pstn_list[267] == atoms[267])
 print(atom_pstn_list[1249] == atoms[1249])
 
-
 (
     m_unitvec_1,
     m_unitvec_2,
@@ -52,12 +50,10 @@ print(atom_pstn_list[1249] == atoms[1249])
     rt_mtrx_half,
 ) = tbset._set_moire(n_moire)
 
-print(np.dot(m_unitvec_1, m_g_unitvec_1) / np.pi)
-print(np.dot(m_unitvec_2, m_g_unitvec_2) / np.pi)
+print(np.dot(m_unitvec_1, m_g_unitvec_1)/np.pi)
+print(np.dot(m_unitvec_2, m_g_unitvec_2)/np.pi)
 
-all_nns, enlarge_atom_pstn_list = tbset.set_atom_neighbour_list(
-    atom_pstn_list, m_unitvec_1, m_unitvec_2
-)
+all_nns, enlarge_atom_pstn_list = tbset.set_atom_neighbour_list(atom_pstn_list, m_unitvec_1, m_unitvec_2)
 
 all_nns_mod = all_nns % num_atoms
 print("neighour index shape:", all_nns.shape)
@@ -82,4 +78,4 @@ for i in range(num_atoms):
 
 print(dr.shape, dd.shape)
 print("finish assertation in moire tb set up")
-print("=" * 100)
+print("="*100)

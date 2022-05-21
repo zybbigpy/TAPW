@@ -1,12 +1,10 @@
 import sys
 sys.path.append("..")
 
-
 import numpy as np
 import tightbinding.moire_tb as tbtb
 import tightbinding.moire_setup as tbset
 import matplotlib.pyplot as plt
-
 
 n_g = 7
 n_k = 10
@@ -14,20 +12,19 @@ n_k = 10
 flatnessv1 = []
 flatnessv2 = []
 
+
 def cal_flatness(emesh):
     nband = emesh[0].shape[0]
-    e1 = emesh[:, nband//2]
-    e2 = emesh[:, nband//2-1]
-    e  = []
+    e1 = emesh[:, nband // 2]
+    e2 = emesh[:, nband // 2-1]
+    e = []
     print(e1.shape, e2.shape)
     for i in range(e1.shape[0]):
         e.append(e1[i])
     for i in range(e2.shape[0]):
         e.append(e2[i])
-    
+
     return np.var(np.array(e))
-
-
 
 
 # for n_moire in range(30, 45, 2):
@@ -58,7 +55,6 @@ v2angle = []
 nmoirev1 = flatv1[:, 0]
 nmoirev2 = flatv2[:, 0]
 
-
 for n in nmoirev1:
     v1angle.append(moire_angle(int(n)))
 
@@ -66,12 +62,11 @@ for n in nmoirev2:
     v2angle.append(moire_angle(int(n)))
 
 print(v1angle)
-plt.plot(v1angle, flatv1[:, 1],'o-', label='Valley 1')
+plt.plot(v1angle, flatv1[:, 1], 'o-', label='Valley 1')
 plt.plot(v2angle, flatv2[:, 1], '*-', label='Valley 2')
 
 plt.ylabel('flatness')
 plt.xlabel('$\\theta$ (degree)')
-
 
 plt.legend()
 plt.savefig("./flatness.png", dpi=500)

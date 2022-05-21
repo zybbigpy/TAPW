@@ -9,33 +9,36 @@ import numpy as np
 def plot(atoms1, atoms2):
     fig, ax = plt.subplots()
     ax.set_aspect('equal', 'box')
-    plt.scatter(atoms1[:,0], atoms1[:,1])
-    plt.scatter(atoms2[:,0], atoms2[:,1])
+    plt.scatter(atoms1[:, 0], atoms1[:, 1])
+    plt.scatter(atoms2[:, 0], atoms2[:, 1])
     plt.show()
-
 
 
 c31 = tbset._set_rt_mtrx(np.pi*2/3)
 c32 = tbset._set_rt_mtrx(np.pi*4/3)
-c6  = tbset._set_rt_mtrx(np.pi/3)
-c2x = np.array([[-1, 0],[0, 1]])
+c6 = tbset._set_rt_mtrx(np.pi/3)
+c2x = np.array([[-1, 0], [0, 1]])
 
 
 def symm_c2x(atoms):
 
     return atoms@c2x@c6
 
+
 def symm_c31(atoms):
-    
-    return atoms@c31 
+
+    return atoms@c31
+
 
 def symm_c32(atoms):
-    
-    return atoms@c32 
+
+    return atoms@c32
+
 
 def symm_c2xc31(atoms):
 
     return atoms@c2x@c6@c31
+
 
 def symm_c2xc32(atoms):
     return atoms@c2x@c6@c32
@@ -69,25 +72,26 @@ moire_list = [i for i in range(30, 70)]
 for n_moire in moire_list:
     atoms = np.array(tbset.read_atom_pstn_list(n_moire, 'atom'))
     # conserve x-y dim
-    atoms = atoms[:,:2]
+    atoms = atoms[:, :2]
     natoms = atoms.shape[0]
-    halfatoms = natoms//2
+    halfatoms = natoms // 2
     print("number of total atoms:", natoms)
 
     inds = np.zeros([natoms, 5], dtype=int)
-    atoms_l1 = atoms[:natoms//2, :]
-    atoms_l2 = atoms[natoms//2:, :]
-    (m_unitvec_1,   m_unitvec_2, m_g_unitvec_1, 
-    m_g_unitvec_2, m_gamma_vec, m_k1_vec,    
-    m_k2_vec,      m_m_vec,     rt_mtrx_half) = tbset._set_moire(n_moire)
+    atoms_l1 = atoms[:natoms // 2, :]
+    atoms_l2 = atoms[natoms // 2:, :]
+    (m_unitvec_1, m_unitvec_2, m_g_unitvec_1, m_g_unitvec_2, m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec,
+     rt_mtrx_half) = tbset._set_moire(n_moire)
 
-    atoms_c31,    atoms_c31_l1,    atoms_c31_l2    = symm_reconstruct(m_g_unitvec_1, m_g_unitvec_2, symm_c31,    atoms, halfatoms)
-    atoms_c32,    atoms_c32_l1,    atoms_c32_l2    = symm_reconstruct(m_g_unitvec_1, m_g_unitvec_2, symm_c32,    atoms, halfatoms)
-    atoms_c2x,    atoms_c2x_l1,    atoms_c2x_l2    = symm_reconstruct(m_g_unitvec_1, m_g_unitvec_2, symm_c2x,    atoms, halfatoms)
+    atoms_c31, atoms_c31_l1, atoms_c31_l2 = symm_reconstruct(m_g_unitvec_1, m_g_unitvec_2, symm_c31, atoms, halfatoms)
+    atoms_c32, atoms_c32_l1, atoms_c32_l2 = symm_reconstruct(m_g_unitvec_1, m_g_unitvec_2, symm_c32, atoms, halfatoms)
+    atoms_c2x, atoms_c2x_l1, atoms_c2x_l2 = symm_reconstruct(m_g_unitvec_1, m_g_unitvec_2, symm_c2x, atoms, halfatoms)
     #plot(atoms, atoms_c2x)
-    atoms_c2xc31, atoms_c2xc31_l1, atoms_c2xc31_l2 = symm_reconstruct(m_g_unitvec_1, m_g_unitvec_2, symm_c2xc31, atoms, halfatoms)
-    atoms_c2xc32, atoms_c2xc32_l1, atoms_c2xc32_l2 = symm_reconstruct(m_g_unitvec_1, m_g_unitvec_2, symm_c2xc32, atoms, halfatoms)
-   
+    atoms_c2xc31, atoms_c2xc31_l1, atoms_c2xc31_l2 = symm_reconstruct(m_g_unitvec_1, m_g_unitvec_2, symm_c2xc31, atoms,
+                                                                      halfatoms)
+    atoms_c2xc32, atoms_c2xc32_l1, atoms_c2xc32_l2 = symm_reconstruct(m_g_unitvec_1, m_g_unitvec_2, symm_c2xc32, atoms,
+                                                                      halfatoms)
+
     find_ind(atoms_c31_l1, atoms_l1, halfatoms, 0, 0, inds, 0)
     find_ind(atoms_c31_l2, atoms_l2, halfatoms, 1, 1, inds, 0)
 
@@ -103,14 +107,12 @@ for n_moire in moire_list:
     find_ind(atoms_c2xc32_l1, atoms_l2, halfatoms, 1, 0, inds, 4)
     find_ind(atoms_c2xc32_l2, atoms_l1, halfatoms, 0, 1, inds, 4)
 
-
     for i in range(natoms):
         dis1 = np.linalg.norm(atoms[i]-atoms_c31[inds[i][0]])
         dis2 = np.linalg.norm(atoms[i]-atoms_c32[inds[i][1]])
         dis3 = np.linalg.norm(atoms[i]-atoms_c2x[inds[i][2]])
         dis4 = np.linalg.norm(atoms[i]-atoms_c2xc31[inds[i][3]])
         dis5 = np.linalg.norm(atoms[i]-atoms_c2xc32[inds[i][4]])
-
 
         #print("check")
         if dis1>1E-10:
@@ -123,7 +125,7 @@ for n_moire in moire_list:
             print("alert", i)
         if dis5>1E-10:
             print("alert", i)
-        
+
     print(inds[0])
     print(inds[1])
     np.save("../data/group/new"+str(n_moire)+".npy", inds)

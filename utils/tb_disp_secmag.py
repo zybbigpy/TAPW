@@ -1,10 +1,8 @@
 import sys
 sys.path.append("..")
 
-
 import numpy as np
 import tightbinding.moire_tb as tbtb
-
 
 n_g = 6
 n_k = 30

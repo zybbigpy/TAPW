@@ -3,7 +3,6 @@ import sys
 sys.path.append("..")
 import tightbinding.moire_plot as mplt
 
-
 n_moire = 10
 n_g = 5
 n_k = 30
