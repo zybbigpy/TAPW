@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append("..")
 import tightbinding.moire_plot as mplt
 
@@ -9,8 +10,7 @@ n_k = 30
 
 bandfull = 5
 bandpw = 10
-mplt.tb_comb_valley_cmp(n_moire, n_g, n_k, bandfull, bandpw, 'atom', "./test")
+mplt.tb_comb_valley_cmp(n_moire, n_g, n_k, bandfull, bandpw, "atom", "./test")
 bandfull = 5
 bandpw = 5
-mplt.tb_sep_valley_cmp(n_moire, n_g, n_k, bandfull, bandpw, 'atom', "./test")
-
+mplt.tb_sep_valley_cmp(n_moire, n_g, n_k, bandfull, bandpw, "atom", "./test")
