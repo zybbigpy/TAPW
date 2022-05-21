@@ -8,7 +8,7 @@ from scipy import sparse
 from scipy.sparse.linalg import eigs
 from itertools import product
 from numba import jit
-import times
+import time
 
 # eV
 VPI_0 = -2.7
