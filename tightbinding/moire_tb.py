@@ -371,7 +371,7 @@ def tightbinding_solver(
     2. dmesh: eigenvectors, np.array(n_k, n_bands, n_bands)
     3. kline: 0 when uniform sampling in 1st B.Z., k path for tb disp
     """
-    start_time = time.clock()
+    start_time = time.process_time() 
     (
         m_unitvec_1,
         m_unitvec_2,
@@ -449,7 +449,7 @@ def tightbinding_solver(
     print("num of bands".ljust(30), ":", n_band)
     print("="*100)
 
-    setup_time = time.clock()
+    setup_time = time.process_time() 
 
     for k_vec in kmesh:
         print("k sampling process, counter:", count)
@@ -466,7 +466,7 @@ def tightbinding_solver(
     print("emax =", emax, "emin =", emin)
     print("="*100)
 
-    comp_time = time.clock()
+    comp_time = time.process_time() 
     print("set up time:", setup_time-start_time, "comp time:", comp_time-setup_time)
     print("="*100)
     return (np.array(emesh), np.array(dmesh), kline, transmat_list, neighbor_map)
