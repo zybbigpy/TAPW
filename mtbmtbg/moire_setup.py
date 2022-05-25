@@ -58,7 +58,7 @@ def _set_rt_mtrx(theta: float) -> np.ndarray:
 
 
 def _set_moire(n_moire: int) -> tuple:
-    """Calculate moire information for the system
+    """calculate moire information for the system
 
     Args:
         n_moire (int): an integer to describe moire tbg system
@@ -120,6 +120,7 @@ def set_atom_pstn_list(n_moire: int) -> np.ndarray:
     atom_b_pstn = ATOM_PSTN_2-A_UNITVEC_1
     small_g_vec = np.array([m_g_unitvec_1, m_g_unitvec_2, -m_g_unitvec_1-m_g_unitvec_2])
 
+    # searching boundary
     ly = m_unitvec_1[1]
     n = int(2*ly/A_C)+2
     delta = 0.0001
@@ -182,24 +183,25 @@ def set_atom_pstn_list(n_moire: int) -> np.ndarray:
 
 def set_atom_neighbour_list(
         atom_pstn_list: np.ndarray,
-        m_unitvec_1: np.ndarray,
-        m_unitvec_2: np.ndarray,
+        m_basis_vecs: dict,
         distance: float = 2.5113*A_C,
 ) -> tuple:
     """set atom neighbor information
 
-    We adopt a KDTree searching scheme in a 3x3 super cell to build neighbour information for 
-    all atoms in the moire unit cell.
+    We adopt a KDTree searching scheme in a 3x3 super cell to build neighbour 
+    information for     all atoms in the moire unit cell.
 
     Args:
         atom_pstn_list (np.ndarray): atom postions in a moire unit cell
-        m_unitvec_1 (np.ndarray): moire unit vector 1
-        m_unitvec_2 (np.ndarray): moire unit vector 2
+        m_basis_vecs (dict) : moire basis vectors dictionary
         distance (float): KDtree searching cutoff distance. Defaults to 2.5113*A_C.
 
     Returns:
         tuple: all nn indices, 3x3 supercell postions 
     """
+
+    m_unitvec_1 = m_basis_vecs['mu1']
+    m_unitvec_2 = m_basis_vecs['mu2']
 
     # number of all atoms
     num_atoms = atom_pstn_list.shape[0]
@@ -245,7 +247,7 @@ def set_relative_dis_ndarray(atom_pstn_list: np.ndarray, enlarge_atom_pstn_list:
         all_nns (np.ndarray): nearest neighbor array
 
     Returns:
-        tuple: (dr, dd, row, col)
+        tuple: (npair_dict, ndist_dict)
     """
 
     # print("num of atoms (code in moire set up):", len(atom_pstn_list))
@@ -264,12 +266,52 @@ def set_relative_dis_ndarray(atom_pstn_list: np.ndarray, enlarge_atom_pstn_list:
     # (row, col) <=> (index_i, index_j)
     row = [iatom for iatom in range(num_atoms) for n in range(ind[iatom].shape[0])]
     col = [jatom for subindex in ind for jatom in subindex]
-
-    assert len(row) == len(col)
+    # neighbour pair dict
+    npair_dict = {}
+    npair_dict['r'] = row
+    npair_dict['c'] = col
 
     # first two dimentions (dri -drj)
     dr = (atom_pstn_2darray-atom_neighbour_2darray)[:, :2]
     # the thrid dimention  (dri -drj)
     dd = (atom_pstn_2darray-atom_neighbour_2darray)[:, -1]
+    # neighour distance dict
+    ndist_dict = {}
+    ndist_dict['dr'] = dr
+    ndist_dict['dd'] = dd
 
-    return (dr, dd, row, col)
+    return (npair_dict, ndist_dict)
+
+
+def _set_g_vec_list(
+        n_g: int,
+        m_basis_vecs: dict,
+) -> np.ndarray:
+    """generate G list
+
+    Args:
+        n_g (int): an integer to descirbe the glist area size
+        m_basis_vecs (dict): moire basis vectors dictionary
+
+    Returns:
+        np.ndarray: glist
+    """
+
+    m_g_unitvec_1 = m_basis_vecs['mg1']
+    m_g_unitvec_2 = m_basis_vecs['mg2']
+    g_vec_list = []
+
+    #construct a hexagon area by using three smallest g vectors (with symmetry)
+    g_3 = -m_g_unitvec_1-m_g_unitvec_2
+
+    for (i, j) in product(range(n_g), range(n_g)):
+        g_vec_list.append(i*m_g_unitvec_1+j*m_g_unitvec_2)
+
+    for (i, j) in product(range(1, n_g), range(1, n_g)):
+        g_vec_list.append(i*g_3+j*m_g_unitvec_1)
+
+    for i in range(n_g):
+        for j in range(1, n_g):
+            g_vec_list.append(j*g_3+i*m_g_unitvec_2)
+
+    return np.array(g_vec_list)
