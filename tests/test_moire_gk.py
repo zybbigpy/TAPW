@@ -19,7 +19,7 @@ class SetUpTest(unittest.TestCase):
         fig, ax = plt.subplots()
         ax.set_aspect('equal', 'box')
         for i in range(glist.shape[0]):
-            ax.scatter(glist[i][0], glist[i][1], marker='o', s=400, c='', edgecolors='black', alpha=0.4)
+            ax.scatter(glist[i][0], glist[i][1], marker='o', s=400, c='w', edgecolors='k', alpha=0.4)
             ax.text(
                 glist[i][0],
                 glist[i][1],
