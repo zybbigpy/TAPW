@@ -17,7 +17,7 @@ def read_atom_neighbour_list(path: str, n_moire: int) -> np.ndarray:
             data = [int(data_str) for data_str in line_data]
             atom_neighbour_list.append(data)
 
-    return np.array(atom_neighbour_list)
+    return np.array(atom_neighbour_list, dtype=object)
 
 
 class SetUpTest(unittest.TestCase):

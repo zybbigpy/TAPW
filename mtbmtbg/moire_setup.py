@@ -178,7 +178,7 @@ def set_atom_pstn_list(n_moire: int) -> np.ndarray:
 
     assert num_a1 == num_a2 == num_b1 == num_b2
 
-    return np.array(atom_pstn_list)
+    return np.array(atom_pstn_list, dtype=object)
 
 
 def set_atom_neighbour_list(
@@ -281,37 +281,3 @@ def set_relative_dis_ndarray(atom_pstn_list: np.ndarray, enlarge_atom_pstn_list:
     ndist_dict['dd'] = dd
 
     return (npair_dict, ndist_dict)
-
-
-def _set_g_vec_list(
-        n_g: int,
-        m_basis_vecs: dict,
-) -> np.ndarray:
-    """generate G list
-
-    Args:
-        n_g (int): an integer to descirbe the glist area size
-        m_basis_vecs (dict): moire basis vectors dictionary
-
-    Returns:
-        np.ndarray: glist
-    """
-
-    m_g_unitvec_1 = m_basis_vecs['mg1']
-    m_g_unitvec_2 = m_basis_vecs['mg2']
-    g_vec_list = []
-
-    #construct a hexagon area by using three smallest g vectors (with symmetry)
-    g_3 = -m_g_unitvec_1-m_g_unitvec_2
-
-    for (i, j) in product(range(n_g), range(n_g)):
-        g_vec_list.append(i*m_g_unitvec_1+j*m_g_unitvec_2)
-
-    for (i, j) in product(range(1, n_g), range(1, n_g)):
-        g_vec_list.append(i*g_3+j*m_g_unitvec_1)
-
-    for i in range(n_g):
-        for j in range(1, n_g):
-            g_vec_list.append(j*g_3+i*m_g_unitvec_2)
-
-    return np.array(g_vec_list)
