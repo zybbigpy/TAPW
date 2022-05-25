@@ -178,7 +178,7 @@ def set_atom_pstn_list(n_moire: int) -> np.ndarray:
 
     assert num_a1 == num_a2 == num_b1 == num_b2
 
-    return np.array(atom_pstn_list, dtype=object)
+    return np.array(atom_pstn_list)
 
 
 def set_atom_neighbour_list(

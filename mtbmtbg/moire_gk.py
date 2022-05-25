@@ -32,7 +32,7 @@ def _set_g_vec_list(n_g: int, m_basis_vecs: dict) -> np.ndarray:
         for j in range(1, n_g):
             g_vec_list.append(j*g_3+i*m_g_unitvec_2)
 
-    return np.array(g_vec_list, dtype=object)
+    return np.array(g_vec_list)
 
 
 def _set_kmesh(n_k: int, m_basis_vecs: dict) -> list:
