@@ -156,8 +156,8 @@ def _set_const_mtrx(
     """
     calculate two constant matrix
 
-    --------
-    Returns:
+    Returns
+    -------
 
     1. gr_mtrx (4*n_g, n_atom) np.matrix
     2. tr_mtrx (n_atom, n_atom) sparse matrix
@@ -219,7 +219,7 @@ def _cal_hamiltonian_k(dr, k_vec, gr_mtrx, tr_mtrx, row, col, n_atom, fulltb):
         print(kr_mtrx_delta.max())
         raise Exception("kr matrix is not hermitian?!")
 
-    # Full tight binding spectrum can be calculated by directly diagonalized `hr_mtrx``
+    # Full tight binding spectrum can be calculated by directly diagonalized `hr_mtrx`
     hr_mtrx = kr_mtrx.multiply(tr_mtrx)
     hr_mtrx_cc = (hr_mtrx.transpose()).conjugate()
     hr_mtrx_delta = hr_mtrx-hr_mtrx_cc
@@ -345,6 +345,7 @@ def _cal_eigen_hamk(hamk, smat, datatype, fulltb, sparse):
     else:
         if datatype == "symm_relax" or datatype == "relax":
             v, w = la.eigh(hamk, b=smat)
+            #v, w = np.linalg.eigh(hamk)
         else:
             v, w = np.linalg.eigh(hamk)
 
@@ -364,14 +365,15 @@ def tightbinding_solver(
     """
     Tight Binding Solver for moire system
     datatype support:'atomic', corrugation', 'relax', 'symm_relax'
+
+    Returns
     -------
-    Returns:
 
     1. emesh: eigenvalues, np.array(n_k, n_bands)
     2. dmesh: eigenvectors, np.array(n_k, n_bands, n_bands)
     3. kline: 0 when uniform sampling in 1st B.Z., k path for tb disp
     """
-    start_time = time.process_time() 
+    start_time = time.process_time()
     (
         m_unitvec_1,
         m_unitvec_2,
@@ -449,7 +451,7 @@ def tightbinding_solver(
     print("num of bands".ljust(30), ":", n_band)
     print("="*100)
 
-    setup_time = time.process_time() 
+    setup_time = time.process_time()
 
     for k_vec in kmesh:
         print("k sampling process, counter:", count)
@@ -466,7 +468,7 @@ def tightbinding_solver(
     print("emax =", emax, "emin =", emin)
     print("="*100)
 
-    comp_time = time.process_time() 
+    comp_time = time.process_time()
     print("set up time:", setup_time-start_time, "comp time:", comp_time-setup_time)
     print("="*100)
     return (np.array(emesh), np.array(dmesh), kline, transmat_list, neighbor_map)
