@@ -8,7 +8,7 @@ import tightbinding.moire_chern as tbchern
 
 n_moire = 30
 n_g = 5
-n_k = 18
+n_k = 10
 valley = 1
 # Control band plotted
 

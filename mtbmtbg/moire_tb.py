@@ -261,7 +261,7 @@ def tb_solver(n_moire: int,
     # constant matrix dictionary
     const_mtrx_dict = _set_const_mtrx(n_moire, npair_dict, ndist_dict, m_basis_vecs, g_vec_list, atom_pstn_list)
     # constant list
-    (transmat_list, neighbor_map) = mgk.set_kmesh_neighbour(n_g, m_basis_vecs, g_vec_list)
+    (transmat_list, neighbor_map) = mgk.set_kmesh_neighbour(n_g, m_basis_vecs, o_g_vec_list)
 
     if disp:
         (kline, kmesh) = mgk.set_tb_disp_kmesh(n_k, high_symm_pnts)

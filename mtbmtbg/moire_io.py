@@ -21,7 +21,7 @@ def read_atom_pstn_list(n_moire: int, datatype=DataType.CORRU) -> np.ndarray:
     elif datatype == DataType.CORRU:
         print("Load corrugation data.")
         atom_pstn_list = np.loadtxt(
-            "../data/atom/atom"+str(n_moire)+".csv",
+            "../data/corrugation/atom"+str(n_moire)+".csv",
             delimiter=",",
             comments="#",
         )

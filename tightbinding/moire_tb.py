@@ -120,7 +120,6 @@ def _set_g_vec_list_symm(
     return g_vec_list
 
 
-@jit(nopython=True, parallel=True)
 def _sk_integral(dr: np.array, dd: np.array) -> np.array:
     """
     dr (*, 2) ndarray, dd (*, ) ndarray, * represents for interaction pair
@@ -137,6 +136,10 @@ def _sk_integral(dr: np.array, dd: np.array) -> np.array:
     vsigma = VSIGMA_0*np.exp(-(res_sqrt-mset.D_AB)/R_RANGE)
 
     hopping = vpi*(1-dd**2/res)+vsigma*(dd**2)/res
+
+    np.save("../tests_files/dr.npy", dr)
+    np.save("../tests_files/dd.npy", dd)
+    np.save("../tests_files/hopping.npy", hopping)
 
     return hopping
 

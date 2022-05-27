@@ -52,7 +52,7 @@ class MoireGKTest(unittest.TestCase):
 
     def test_kdisp_generation(self):
         ((rt_angle_r, rt_angle_d), m_basis_vecs, high_symm_pnts) = mset._set_moire(30)
-        n_k1 = 15 
+        n_k1 = 15
         n_k2 = 20
         n_k3 = 30
         (kline1, kmesh1) = mgk.set_tb_disp_kmesh(n_k1, high_symm_pnts)
@@ -62,6 +62,6 @@ class MoireGKTest(unittest.TestCase):
         self.assertEqual(kline1[n_k1], kline2[n_k2])
         self.assertEqual(kline1[n_k1], kline3[n_k3])
         self.assertEqual(kline1[2*n_k1], kline2[2*n_k2])
-        self.assertEqual(kline1[2*n_k1], kline3[2*n_k3])        
+        self.assertEqual(kline1[2*n_k1], kline3[2*n_k3])
         self.assertEqual(kline1[3*n_k1], kline2[3*n_k2])
         self.assertEqual(kline1[3*n_k1], kline3[3*n_k3])

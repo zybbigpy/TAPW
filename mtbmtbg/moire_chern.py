@@ -1,12 +1,26 @@
 import numpy as np
 import scipy.linalg as la
 
-from scipy.linalg import block_diag
-from scipy import sparse
+import mtbmtbg.moire_tb as mtb
+from mtbmtbg.config import DataType, ValleyType
 
 
 def index(x, y, n_k):
     """determine the index in the kmesh
+
+    Args:
+        x (int): 
+        y (int): 
+        n_k (int): 
+
+    Returns:
+        int: 
+    """
+    return (x % n_k)*n_k+(y % n_k)
+
+
+def d(x, y, n_k):
+    """check whether the B.Z. boudary
 
     Args:
         x (_type_): _description_
@@ -16,12 +30,9 @@ def index(x, y, n_k):
     Returns:
         _type_: _description_
     """
-    return (x % n_k)*n_k+(y % n_k)
-
-
-def d(x, y, n_k):
 
     dx, dy = 0, 0
+
     if x == n_k:
         dx = 1
     if y == n_k:
@@ -74,3 +85,18 @@ def cal_chern(bands, n_k, init, last, transmat_list, neighbor_map):
             ret += small_loop(bands, m, n, n_k, init, last, transmat_list, neighbor_map)
 
     return ret/(2*np.pi*1j)
+
+
+def cal_moire_chern(n_moire: int, n_g: int, n_k: int, n_chern: int, datatype=DataType.CORRU, valley=ValleyType.VALLEY1):
+
+    cherns = []
+    _, dmesh, _, trans, nmap = mtb.tb_solver(n_moire, n_g, n_k, disp=False, datatype=datatype, valley=valley)
+    nband = dmesh.shape[2]
+    dmesh = dmesh[:, :, (nband // 2-n_chern):(nband // 2+n_chern)]
+    for i in range(2*n_chern):
+        chern = cal_chern(dmesh, n_k, i, i, trans, nmap)
+        assert np.imag(chern)<1e-9
+        cherns.append(np.rint(np.real(chern)))
+        print("band i:", i, "chern number:", np.rint(np.real(chern)))
+
+    return np.array(cherns)

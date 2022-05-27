@@ -20,17 +20,29 @@ def set_g_vec_list(n_g: int, m_basis_vecs: dict) -> np.ndarray:
     g_vec_list = []
 
     #construct a hexagon area by using three smallest g vectors (with symmetry)
-    g_3 = -m_g_unitvec_1-m_g_unitvec_2
+    # g_3 = -m_g_unitvec_1-m_g_unitvec_2
 
-    for (i, j) in product(range(n_g), range(n_g)):
-        g_vec_list.append(i*m_g_unitvec_1+j*m_g_unitvec_2)
+    # for (i, j) in product(range(n_g), range(n_g)):
+    #     g_vec_list.append(i*m_g_unitvec_1+j*m_g_unitvec_2)
 
-    for (i, j) in product(range(1, n_g), range(1, n_g)):
-        g_vec_list.append(i*g_3+j*m_g_unitvec_1)
+    # for (i, j) in product(range(1, n_g), range(1, n_g)):
+    #     g_vec_list.append(i*g_3+j*m_g_unitvec_1)
+
+    # for i in range(n_g):
+    #     for j in range(1, n_g):
+    #         g_vec_list.append(j*g_3+i*m_g_unitvec_2)
+
+    for i in range(n_g):
+        for j in range(n_g):
+            g_vec_list.append(i*m_g_unitvec_1+j*m_g_unitvec_2)
 
     for i in range(n_g):
         for j in range(1, n_g):
-            g_vec_list.append(j*g_3+i*m_g_unitvec_2)
+            g_vec_list.append(-j*m_g_unitvec_1+(i-j)*m_g_unitvec_2)
+
+    for i in range(1, n_g):
+        for j in range(1, n_g):
+            g_vec_list.append(-i*m_g_unitvec_2+(j-i)*m_g_unitvec_1)
 
     return np.array(g_vec_list)
 
@@ -108,6 +120,7 @@ def set_kmesh_neighbour(n_g: int, m_basis_vecs: dict, g_vec_list: np.ndarray) ->
     Returns:
         tuple: (transmat_list, neighbor_map)
     """
+    assert np.allclose(g_vec_list[0], np.array([0.0, 0.0]))
 
     m_g_unitvec_1 = m_basis_vecs['mg1']
     m_g_unitvec_2 = m_basis_vecs['mg2']
@@ -140,4 +153,4 @@ def set_kmesh_neighbour(n_g: int, m_basis_vecs: dict, g_vec_list: np.ndarray) ->
                 if diff<err:
                     neighbor_map[m, i, j] = n
 
-    return (transmat_list, neighbor_map)
+    return (np.array(transmat_list), neighbor_map)
