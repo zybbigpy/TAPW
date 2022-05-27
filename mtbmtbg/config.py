@@ -34,7 +34,7 @@ class TBInfo:
     # eV
     VSIGMA_0 = 0.48
     # Ang
-    R_RANGE = 0.184*Structure().A_C
+    R_RANGE = 0.184*Structure.A_C
 
 
 class DataType:
@@ -49,3 +49,14 @@ class EngineType:
     """name for different engine types
     """
     TBPLW = 'TB'
+    TBFULL = 'tbfull'
+    TBSPARSE = 'tbsparse'
+
+
+class ValleyType:
+    """different type of valleys
+    """
+    VALLEY1 = 'valley1'
+    VALLEY2 = 'valley2'
+    # combined two valleys
+    VALLEYC = 'valleyc'

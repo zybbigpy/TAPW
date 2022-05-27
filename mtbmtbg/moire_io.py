@@ -1,33 +1,31 @@
 import numpy as np
+from mtbmtbg.config import DataType
 
 
-def read_atom_pstn_list(n_moire: int, datatype: str) -> list:
+def read_atom_pstn_list(n_moire: int, datatype=DataType.CORRU) -> np.ndarray:
 
-    if datatype == "symm_relax":
+    if datatype == DataType.RELAX:
         print("Load relaxed data after symmetrized.")
         atom_pstn_list = np.loadtxt(
             "../data/relaxsymm/symmatom"+str(n_moire)+".csv",
             delimiter=",",
             comments="#",
         )
-    elif datatype == "relax":
-        print("Load relaxed data.")
+    elif datatype == DataType.RIGID:
+        print("Load rigid atomic data.")
         atom_pstn_list = np.loadtxt(
-            "../data/relax/relaxatom"+str(n_moire)+".csv",
+            "../data/atom/atom"+str(n_moire)+".csv",
             delimiter=",",
             comments="#",
         )
-    elif datatype == "corrugation":
-        print("Load corruagtion data.")
+    elif datatype == DataType.CORRU:
+        print("Load corrugation data.")
         atom_pstn_list = np.loadtxt(
-            "../data/corrugation/atom"+str(n_moire)+".csv",
+            "../data/atom/atom"+str(n_moire)+".csv",
             delimiter=",",
             comments="#",
         )
-    elif datatype == "atom":
-        print("Load atomic data.")
-        atom_pstn_list = np.loadtxt("../data/atom/atom"+str(n_moire)+".csv", delimiter=",", comments="#")
-    else:
+    else:  # default datatype == DataType.CORRU
         print("Default! Load corrugation data.")
         atom_pstn_list = np.loadtxt(
             "../data/corrugation/atom"+str(n_moire)+".csv",
@@ -35,27 +33,4 @@ def read_atom_pstn_list(n_moire: int, datatype: str) -> list:
             comments="#",
         )
 
-    return list(atom_pstn_list)
-
-
-def save_atom_pstn_list(atom_pstn_list: list, path: str, n_moire: int):
-
-    atoms = np.array(atom_pstn_list)
-    np.savetxt(path+"atom"+str(n_moire)+".csv", atoms, header="Rx, Ry, d", delimiter=",")
-
-
-def read_atom_neighbour_list(path: str, n_moire: int) -> list:
-    """
-    aborted, we wont generate neighbour list file any more.
-    """
-
-    with open(path+"Nlist"+str(n_moire)+".dat", "r") as f:
-        print("Open file Nlist...\n")
-        lines = f.readlines()
-        atom_neighbour_list = []
-        for line in lines:
-            line_data = line.split()
-            data = [int(data_str) for data_str in line_data]
-            atom_neighbour_list.append(data)
-
-    return atom_neighbour_list
+    return atom_pstn_list

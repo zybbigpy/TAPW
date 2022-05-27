@@ -20,7 +20,7 @@ def read_atom_neighbour_list(path: str, n_moire: int) -> np.ndarray:
     return np.array(atom_neighbour_list, dtype=object)
 
 
-class SetUpTest(unittest.TestCase):
+class MoireSetUpTest(unittest.TestCase):
 
     def test_atomic_structure(self):
         a1 = mset.A_UNITVEC_1

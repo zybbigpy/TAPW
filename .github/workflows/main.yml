@@ -24,12 +24,8 @@ jobs:
         run: |
             cd tests
             pytest
-      - name: basic test  
-        run: |
-            cd test
-            bash test.sh
       - name: Archive output figs 
         uses: actions/upload-artifact@v2
         with:
           name: test-output-figs
-          path: test/*.png
+          path: tests/*.png

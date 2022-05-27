@@ -6,25 +6,25 @@ from mtbmtbg.config import Structure
 from numba import jit
 
 # lattice constant (angstrom)
-A_C = Structure().A_C
-A_EDGE = Structure().A_EDGE
+A_C = Structure.A_C
+A_EDGE = Structure.A_EDGE
 
 # moire information (angstrom)
-D1_LAYER = Structure().D1_LAYER
-D2_LAYER = Structure().D2_LAYER
-D_AB = Structure().D_AB
+D1_LAYER = Structure.D1_LAYER
+D2_LAYER = Structure.D2_LAYER
+D_AB = Structure.D_AB
 
 # unit vector for atom system
-A_UNITVEC_1 = Structure().A_UNITVEC_1
-A_UNITVEC_2 = Structure().A_UNITVEC_2
+A_UNITVEC_1 = Structure.A_UNITVEC_1
+A_UNITVEC_2 = Structure.A_UNITVEC_2
 
 # reciprocal unit vector for atom system
-A_G_UNITVEC_1 = Structure().A_G_UNITVEC_1
-A_G_UNITVEC_2 = Structure().A_G_UNITVEC_2
+A_G_UNITVEC_1 = Structure.A_G_UNITVEC_1
+A_G_UNITVEC_2 = Structure.A_G_UNITVEC_2
 
 # atom postion in graphene
-ATOM_PSTN_1 = Structure().ATOM_PSTN_1
-ATOM_PSTN_2 = Structure().ATOM_PSTN_2
+ATOM_PSTN_1 = Structure.ATOM_PSTN_1
+ATOM_PSTN_2 = Structure.ATOM_PSTN_2
 
 
 def _set_moire_angle(n_moire: int) -> tuple:

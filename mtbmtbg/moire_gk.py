@@ -4,7 +4,7 @@ from itertools import product
 from scipy.linalg import block_diag
 
 
-def _set_g_vec_list(n_g: int, m_basis_vecs: dict) -> np.ndarray:
+def set_g_vec_list(n_g: int, m_basis_vecs: dict) -> np.ndarray:
     """generate G list
 
     Args:
@@ -35,7 +35,7 @@ def _set_g_vec_list(n_g: int, m_basis_vecs: dict) -> np.ndarray:
     return np.array(g_vec_list)
 
 
-def _set_kmesh(n_k: int, m_basis_vecs: dict) -> list:
+def set_kmesh(n_k: int, m_basis_vecs: dict) -> np.ndarray:
     """set up normal k points sampling in 1st B.Z
 
     Args:
@@ -43,7 +43,7 @@ def _set_kmesh(n_k: int, m_basis_vecs: dict) -> list:
         m_basis_vecs (dict): moire basis vectors dictionary
 
     Returns:
-        list: kmesh
+        np.ndarray: kmesh
     """
 
     m_g_unitvec_1 = m_basis_vecs['mg1']
@@ -51,10 +51,10 @@ def _set_kmesh(n_k: int, m_basis_vecs: dict) -> list:
     k_step = 1/n_k
     kmesh = [i*k_step*m_g_unitvec_1+j*k_step*m_g_unitvec_2 for (i, j) in product(range(n_k), range(n_k))]
 
-    return kmesh
+    return np.array(kmesh)
 
 
-def _set_tb_disp_kmesh(n_k: int, high_symm_pnts: dict) -> tuple:
+def set_tb_disp_kmesh(n_k: int, high_symm_pnts: dict) -> tuple:
     """setup kpath along high symmetry points in moire B.Z.
 
     Note that, the length of each path is not equal, so it is not a 
@@ -65,7 +65,7 @@ def _set_tb_disp_kmesh(n_k: int, high_symm_pnts: dict) -> tuple:
         high_symm_pnts (dict): hcoordinates of high symmetry points
 
     Returns:
-        tuple: (ksec, kline, kmesh)
+        tuple: (kline, kmesh)
     """
 
     num_sec = 4
@@ -94,10 +94,10 @@ def _set_tb_disp_kmesh(n_k: int, high_symm_pnts: dict) -> tuple:
     kline[num_kpt] = kline[2*n_k]+length
     kmesh[num_kpt] = ksec[3]
 
-    return (ksec, kline, kmesh)
+    return (kline, kmesh)
 
 
-def _set_kmesh_neighbour(n_g: int, m_basis_vecs: dict, g_vec_list: np.ndarray) -> tuple:
+def set_kmesh_neighbour(n_g: int, m_basis_vecs: dict, g_vec_list: np.ndarray) -> tuple:
     """hard to describe.....
 
     Args:
