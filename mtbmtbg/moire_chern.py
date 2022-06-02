@@ -90,9 +90,12 @@ def cal_chern(bands, n_k, init, last, transmat_list, neighbor_map):
 def cal_moire_chern(n_moire: int, n_g: int, n_k: int, n_chern: int, datatype=DataType.CORRU, valley=ValleyType.VALLEY1):
 
     cherns = []
-    _, dmesh, _, trans, nmap = mtb.tb_solver(n_moire, n_g, n_k, disp=False, datatype=datatype, valley=valley)
+    ret = mtb.tb_solver(n_moire, n_g, n_k, disp=False, datatype=datatype, valley=valley)
+    dmesh = ret['dmesh']
+    trans = ret['trans']
+    nmap = ret['nbmap']
     nband = dmesh.shape[2]
-    dmesh = dmesh[:, :, (nband // 2-n_chern):(nband // 2+n_chern)]
+    dmesh = dmesh[:, :, (nband//2-n_chern):(nband//2+n_chern)]
     for i in range(2*n_chern):
         chern = cal_chern(dmesh, n_k, i, i, trans, nmap)
         assert np.imag(chern)<1e-9

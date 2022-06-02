@@ -1,7 +1,6 @@
 import time
 import numpy as np
 import scipy.linalg as sla
-from scipy.linalg import block_diag
 from scipy import sparse
 
 import mtbmtbg.moire_setup as mset
@@ -108,7 +107,7 @@ def _set_const_mtrx(
                        ]).reshape(n_g, n_atom)
 
     g1, g2, g3, g4 = np.hsplit(gr_mtrx, 4)
-    gr_mtrx = block_diag(g1, g2, g3, g4)
+    gr_mtrx = sla.block_diag(g1, g2, g3, g4)
 
     hopping = _sk_integral(ndist_dict)
     tr_mtrx = sparse.csr_matrix((hopping, (row, col)), shape=(n_atom, n_atom))
@@ -297,4 +296,10 @@ def tb_solver(n_moire: int,
     print("set up time:", setup_time-start_time, "comp time:", comp_time-setup_time)
     print("="*100)
 
-    return (np.array(emesh), np.array(dmesh), kline, transmat_list, neighbor_map)
+    return {
+        'emesh': np.array(emesh),
+        'dmesh': np.array(dmesh),
+        'kline': kline,
+        'trans': transmat_list,
+        'nbmap': neighbor_map
+    }

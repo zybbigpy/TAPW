@@ -5,8 +5,8 @@ import numpy as np
 
 def chemical_potential(emesh):
     n_band = emesh[0].shape[0]
-    condunction_min = np.min(emesh[:, n_band // 2])
-    vallence_max = np.max(emesh[:, n_band // 2-1])
+    condunction_min = np.min(emesh[:, n_band//2])
+    vallence_max = np.max(emesh[:, n_band//2-1])
     mu = (condunction_min+vallence_max)/2
 
     return mu
@@ -41,8 +41,8 @@ def tightbinding_plot_sparsetb(
     if band>5:
         band = 5
     for i in range(band):
-        plt.plot(kline, emesh[:, n_band // 2+i], ".", c="blue")
-        plt.plot(kline, emesh[:, n_band // 2-1-i], ".", c="blue")
+        plt.plot(kline, emesh[:, n_band//2+i], ".", c="blue")
+        plt.plot(kline, emesh[:, n_band//2-1-i], ".", c="blue")
 
     ax.set_ylabel("Engergy (eV)")
     if mu == True:
@@ -84,8 +84,8 @@ def tightbinding_plot_fulltb(
     ax.set_xlim(0, kline[-1])
 
     for i in range(band):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="blue", lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="blue", lw=1)
 
     ax.set_ylabel("Engergy (eV)")
     if mu == True:
@@ -120,8 +120,8 @@ def tightbinding_plot_valley_comb(
     ax.set_xlim(0, kline[-1])
 
     for i in range(band):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="blue", lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="blue", lw=1)
 
     ax.set_ylabel("Engergy (eV)")
     if mu == True:
@@ -156,14 +156,14 @@ def tightbinding_plot_sep_valley(
     ax.set_xlim(0, kline[-1])
 
     for i in range(band):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="blue", lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="blue", lw=1)
 
     emesh, _, kline, _, _ = mtb.tightbinding_solver(n_moire, n_g, n_k, datatype, "-1", disp=True, fulltb=False)
 
     for i in range(band):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="blue", lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="blue", lw=1)
 
     ax.set_ylabel("Engergy (eV)")
     if mu == True:
@@ -204,21 +204,21 @@ def tb_sep_valley_cmp(
     ax.set_xlim(0, kline[-1])
 
     for i in range(bandfull):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="red", lw=2, alpha=0.8)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="red", lw=2, alpha=0.8)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="red", lw=2, alpha=0.8)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="red", lw=2, alpha=0.8)
 
     emesh, _, kline, _, _ = mtb.tightbinding_solver(n_moire, n_g, n_k, datatype, "+1", disp=True, fulltb=False)
     n_band = emesh[0].shape[0]
 
     for i in range(bandpw):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="blue", lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="blue", lw=1)
 
     emesh, _, kline, _, _ = mtb.tightbinding_solver(n_moire, n_g, n_k, datatype, "-1", disp=True, fulltb=False)
 
     for i in range(bandpw):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="blue", lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="blue", lw=1)
 
     ax.set_ylabel("Engergy (eV)")
     ax.set_title(name)
@@ -258,15 +258,15 @@ def tb_comb_valley_cmp(
     ax.set_xlim(0, kline[-1])
 
     for i in range(bandfull):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="red", lw=2, alpha=0.8)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="red", lw=2, alpha=0.8)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="red", lw=2, alpha=0.8)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="red", lw=2, alpha=0.8)
 
     emesh, _, kline, _, _ = mtb.tightbinding_solver(n_moire, n_g, n_k, datatype, "valley_comb", disp=True, fulltb=False)
     n_band = emesh[0].shape[0]
 
     for i in range(bandpw):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="blue", lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="blue", lw=1)
 
     ax.set_ylabel("Engergy (eV)")
     ax.set_title(name)
@@ -297,14 +297,14 @@ def sparsetb_sep_valley_cmp(
     ax.set_xlim(0, kline[-1])
 
     for i in range(bandpw):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="blue", lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="blue", lw=1)
 
     emesh, _, kline, _, _ = mtb.tightbinding_solver(n_moire, n_g, n_k, datatype, "-1", disp=True, fulltb=False)
 
     for i in range(bandpw):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="blue", lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="blue", lw=1)
 
     # In Sparse solver, we only reserve 15 kpts on the kline
     n_k = 5
@@ -322,8 +322,8 @@ def sparsetb_sep_valley_cmp(
         bandsparse = 5
 
     for i in range(bandsparse):
-        plt.plot(kline, emesh[:, n_band // 2+i], ".", c="red", alpha=0.8)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], ".", c="red", alpha=0.8)
+        plt.plot(kline, emesh[:, n_band//2+i], ".", c="red", alpha=0.8)
+        plt.plot(kline, emesh[:, n_band//2-1-i], ".", c="red", alpha=0.8)
 
     ax.set_ylabel("Engergy (eV)")
     ax.set_title(name)
@@ -355,8 +355,8 @@ def sparsetb_comb_valley_cmp(
     ax.set_xlim(0, kline[-1])
 
     for i in range(bandpw):
-        plt.plot(kline, emesh[:, n_band // 2+i], "-", c="blue", lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], "-", c="blue", lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], "-", c="blue", lw=1)
 
     # we only compute 15 kpts on the kline for comparison
     n_k = 5
@@ -373,8 +373,8 @@ def sparsetb_comb_valley_cmp(
     if bandsparse>5:
         bandsparse = 5
     for i in range(bandsparse):
-        plt.plot(kline, emesh[:, n_band // 2+i], ".", c="red", alpha=0.8)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], ".", c="red", alpha=0.8)
+        plt.plot(kline, emesh[:, n_band//2+i], ".", c="red", alpha=0.8)
+        plt.plot(kline, emesh[:, n_band//2-1-i], ".", c="red", alpha=0.8)
 
     ax.set_ylabel("Engergy (eV)")
     ax.set_title(name)

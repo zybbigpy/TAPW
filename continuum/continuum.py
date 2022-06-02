@@ -265,10 +265,10 @@ if __name__ == "__main__":
 
     # 7 bands
     for i in range(1):
-        plt.plot(kline, emesh[:, n_band // 2+i])
-        plt.plot(kline, emesh[:, n_band // 2-i])
+        plt.plot(kline, emesh[:, n_band//2+i])
+        plt.plot(kline, emesh[:, n_band//2-i])
 
-    plt.plot(kline, emesh[:, n_band // 2-1])
+    plt.plot(kline, emesh[:, n_band//2-1])
     #plt.plot(kline, emesh[:, n_band//2-2])
 
     ax.set_ylabel("Engergy (eV)")

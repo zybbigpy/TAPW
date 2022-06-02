@@ -33,7 +33,7 @@ nmap = np.load("map.npy")
 print(dmesh.shape, trans.shape, nmap.shape)
 nband = dmesh.shape[2]
 nchern = 5
-dmesh = dmesh[:, :, (nband // 2-nchern):(nband // 2+nchern)]
+dmesh = dmesh[:, :, (nband//2-nchern):(nband//2+nchern)]
 for i in range(2*nchern):
     chern = tbchern.cal_chern(dmesh, n_k, i, i, trans, nmap)
     assert np.imag(chern)<1e-9

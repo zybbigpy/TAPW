@@ -74,12 +74,12 @@ for n_moire in moire_list:
     # conserve x-y dim
     atoms = atoms[:, :2]
     natoms = atoms.shape[0]
-    halfatoms = natoms // 2
+    halfatoms = natoms//2
     print("number of total atoms:", natoms)
 
     inds = np.zeros([natoms, 5], dtype=int)
-    atoms_l1 = atoms[:natoms // 2, :]
-    atoms_l2 = atoms[natoms // 2:, :]
+    atoms_l1 = atoms[:natoms//2, :]
+    atoms_l2 = atoms[natoms//2:, :]
     (m_unitvec_1, m_unitvec_2, m_g_unitvec_1, m_g_unitvec_2, m_gamma_vec, m_k1_vec, m_k2_vec, m_m_vec,
      rt_mtrx_half) = tbset._set_moire(n_moire)
 

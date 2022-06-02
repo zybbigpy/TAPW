@@ -64,7 +64,7 @@ for n_moire in moire_list:
     atoms = np.array(tbset.read_atom_pstn_list(n_moire, 'relax'))
     print(atoms.shape)
     natoms = atoms.shape[0]
-    halfatoms = natoms // 2
+    halfatoms = natoms//2
     print("num of atoms:", natoms)
     inds = np.load("../data/group/new"+str(n_moire)+".npy")
     print("index shape:", inds.shape)

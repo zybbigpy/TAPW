@@ -26,6 +26,6 @@ nmap = np.load("map.npy")
 
 print(dmesh.shape, trans.shape, nmap.shape)
 nband = dmesh.shape[2]
-dmesh = dmesh[:, :, (nband // 2-3):(nband // 2+3)]
+dmesh = dmesh[:, :, (nband//2-3):(nband//2+3)]
 for i in range(6):
     print(tbchern.cal_chern(dmesh, n_k, i, i, trans, nmap))

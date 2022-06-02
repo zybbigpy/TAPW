@@ -15,8 +15,8 @@ flatnessv2 = []
 
 def cal_flatness(emesh):
     nband = emesh[0].shape[0]
-    e1 = emesh[:, nband // 2]
-    e2 = emesh[:, nband // 2-1]
+    e1 = emesh[:, nband//2]
+    e2 = emesh[:, nband//2-1]
     e = []
     print(e1.shape, e2.shape)
     for i in range(e1.shape[0]):

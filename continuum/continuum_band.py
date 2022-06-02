@@ -287,13 +287,13 @@ if __name__ == "__main__":
 
     # 7 bands
     for i in range(band):
-        plt.plot(kline, emesh[:, n_band // 2+i], '-', c='blue', alpha=0.7, lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], '-', c='blue', alpha=0.7, lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], '-', c='blue', alpha=0.7, lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], '-', c='blue', alpha=0.7, lw=1)
 
     (emesh, dmesh, kline) = cont_solver(n_moire, n_g, n_k, -valley)
     for i in range(band):
-        plt.plot(kline, emesh[:, n_band // 2+i], '-', c='blue', alpha=0.7, lw=1)
-        plt.plot(kline, emesh[:, n_band // 2-1-i], '-', c='blue', alpha=0.7, lw=1)
+        plt.plot(kline, emesh[:, n_band//2+i], '-', c='blue', alpha=0.7, lw=1)
+        plt.plot(kline, emesh[:, n_band//2-1-i], '-', c='blue', alpha=0.7, lw=1)
 
     ax.set_ylabel("Engergy (eV)")
     #ax.set_title("Continuum Model, Flat Bands of TBG")
