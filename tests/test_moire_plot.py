@@ -3,11 +3,6 @@ import unittest
 
 sys.path.append("..")
 
-import sys
-import unittest
-
-sys.path.append("..")
-
 from mtbmtbg.config import DataType, EngineType, ValleyType
 import mtbmtbg.moire_plot as mplot
 

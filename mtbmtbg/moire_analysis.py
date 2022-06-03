@@ -97,7 +97,7 @@ def analyze_moire_potential(n_moire: int, n_g: int, datatype=DataType.CORRU, val
                                       n_atom,
                                       engine=EngineType.TBPLW)
         u = _set_moire_potential(hamk)
-        moire_potential[pnt] = _analyze_moire_potential(u)
+        moire_potential[kpnt] = _analyze_moire_potential(u)
 
     print("="*100)
 
