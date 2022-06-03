@@ -20,7 +20,4 @@ def cal_flatness(n_moire: int, n_g: int, datatype=DataType.CORRU):
     emesh = ret['emesh']
     v2_flatness = _cal_flatband_var(emesh)
 
-    self.assertTrue(v1_flatness<2*1e-6)
-    self.assertTrue(v2_flatness<2*1e-6)
-
     return (v1_flatness, v2_flatness)
