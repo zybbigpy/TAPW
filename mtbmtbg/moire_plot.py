@@ -1,5 +1,5 @@
 import mtbmtbg.moire_tb as mtb
-import mtbmtbg.moire_analysis as maly
+import mtbmtbg.moire_analysis as manal
 from mtbmtbg.config import DataType, EngineType, ValleyType
 
 import matplotlib.pyplot as plt
@@ -238,10 +238,27 @@ def moire_potential_plot(n_moire: int,
                          pathname="./",
                          datatype=DataType.CORRU,
                          valley=ValleyType.VALLEY1):
-    ret = maly.cal_moire_potential(n_moire, n_g, datatype, valley)
+    ret = manal.analyze_moire_potential(n_moire, n_g, datatype, valley)
     glist = ret['glist']
     u_val = ret['mpot'][kpnt][u]
     fig, ax = plt.subplots()
     glist_plot_module(ax, glist, u_val)
     plt.tight_layout()
-    plt.savefig(pathname+"more_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_"+u+"_moire_pot.png", dpi=500)
+    plt.savefig(pathname+"more_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_"+u+"_potential.png", dpi=500)
+
+
+def moire_band_convergence_plot(n_moire: int,
+                                n_g: int,
+                                kpnt: str = 'gamma',
+                                u: str = 'u1',
+                                pathname="./",
+                                datatype=DataType.CORRU,
+                                valley=ValleyType.VALLEY1):
+
+    ret = manal.analyze_band_convergence(n_moire, n_g, datatype, valley)
+    glist = ret['glist']
+    band_val = ret['band'][kpnt]
+    fig, ax = plt.subplots()
+    glist_plot_module(ax, glist, band_val)
+    plt.tight_layout()
+    plt.savefig(pathname+"more_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_band_convergence.png", dpi=500)
