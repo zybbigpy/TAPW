@@ -24,7 +24,7 @@ def _set_moire_potential(hamk: np.ndarray) -> np.ndarray:
     # h4 = hamk[dim1:dim2, dim1:dim2]
     h2 = hamk[0:dim1, dim1:dim2]
     h3 = hamk[dim1:dim2, 0:dim1]
-    assert np.allclose(h2, h3.T.conj())==True
+    assert np.allclose(h2, h3.T.conj()) == True
     u = h2
 
     return u
@@ -39,7 +39,7 @@ def _analyze_moire_potential(u: np.ndarray) -> tuple:
     Returns:
         dict: {'u1': u1, 'u2': u2, 'u3': u3, 'u4': u4}
     """
-    
+
     dim1 = int(u.shape[0]/2)
     dim2 = 2*dim1
     # U_{A1, A2} U_{A1, B2}
@@ -89,11 +89,16 @@ def cal_moire_potential(n_moire: int, n_g: int, datatype=DataType.CORRU, valley=
     moire_potential = {}
 
     for pnt in high_symm_pnts:
-        print("analyze moire potential on high symmetry point:", pnt, high_symm_pnts[pnt] )
-        hamk = mtb._cal_hamiltonian_k(ndist_dict, npair_dict, const_mtrx_dict, high_symm_pnts[pnt], n_atom, engine=EngineType.TBPLW)
+        print("analyze moire potential on high symmetry point:", pnt, high_symm_pnts[pnt])
+        hamk = mtb._cal_hamiltonian_k(ndist_dict,
+                                      npair_dict,
+                                      const_mtrx_dict,
+                                      high_symm_pnts[pnt],
+                                      n_atom,
+                                      engine=EngineType.TBPLW)
         u = _set_moire_potential(hamk)
         moire_potential[pnt] = _analyze_moire_potential(u)
 
     print("="*100)
 
-    return { 'glist': o_g_vec_list, 'mpot': moire_potential }
+    return {'glist': o_g_vec_list, 'mpot': moire_potential}

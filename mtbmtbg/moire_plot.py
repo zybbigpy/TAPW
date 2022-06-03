@@ -25,15 +25,15 @@ def chemical_potential(emesh: np.ndarray) -> float:
 
 
 def band_plot_module(ax: plt.axes,
-                    kline: np.ndarray,
-                    emesh: np.ndarray,
-                    n_k: int,
-                    bands: int,
-                    shape: str = "-",
-                    color: str = "blue",
-                    alpha: float = 1,
-                    figname: str = "",
-                    mu: bool = False):
+                     kline: np.ndarray,
+                     emesh: np.ndarray,
+                     n_k: int,
+                     bands: int,
+                     shape: str = "-",
+                     color: str = "blue",
+                     alpha: float = 1,
+                     figname: str = "",
+                     mu: bool = False):
     """plot module for TBG
 
     Args:
@@ -67,11 +67,7 @@ def band_plot_module(ax: plt.axes,
     ax.set_title(figname)
 
 
-def glist_plot_module(
-        ax:plt.axes,
-        glist: np.ndarray, 
-        val: np.ndarray,
-        figname: str=""):  
+def glist_plot_module(ax: plt.axes, glist: np.ndarray, val: np.ndarray, figname: str = ""):
     """plot values on glist
 
     Args:
@@ -82,8 +78,8 @@ def glist_plot_module(
     """
     assert glist.shape[0] == val.shape[0]
     ax.set_aspect('equal', 'box')
-    ax.scatter(glist[:,0], glist[:, 1], c=val/np.max(val),s=200, cmap='Purples')
-    ax.scatter(glist[:,0], glist[:, 1], marker='o', s=200, c='w', edgecolors='black', alpha=0.2)
+    ax.scatter(glist[:, 0], glist[:, 1], c=val/np.max(val), s=200, cmap='Purples')
+    ax.scatter(glist[:, 0], glist[:, 1], marker='o', s=200, c='w', edgecolors='black', alpha=0.2)
     ax.set_title(figname)
 
 
@@ -235,7 +231,13 @@ def sparsetb_combv_cmp(n_moire: int,
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_sparsetb_combv_cmp.png", dpi=500)
 
 
-def moire_potential_plot(n_moire: int, n_g: int, kpnt: str='gamma', u:str ='u1', pathname="./",datatype=DataType.CORRU, valley=ValleyType.VALLEY1):
+def moire_potential_plot(n_moire: int,
+                         n_g: int,
+                         kpnt: str = 'gamma',
+                         u: str = 'u1',
+                         pathname="./",
+                         datatype=DataType.CORRU,
+                         valley=ValleyType.VALLEY1):
     ret = maly.cal_moire_potential(n_moire, n_g, datatype, valley)
     glist = ret['glist']
     u_val = ret['mpot'][kpnt][u]

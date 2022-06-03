@@ -3,6 +3,15 @@ from mtbmtbg.config import DataType
 
 
 def read_atom_pstn_list(n_moire: int, datatype=DataType.CORRU) -> np.ndarray:
+    """read atom position list from csc files
+
+    Args:
+        n_moire (int): an integer to describe a moire TBG
+        datatype (DataType, optional): the datatype for atoms. Defaults to DataType.CORRU.
+
+    Returns:
+        np.ndarray: atom_pstn_list array
+    """
 
     if datatype == DataType.RELAX:
         print("Load relaxed data after symmetrized.")

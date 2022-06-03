@@ -224,7 +224,7 @@ def tb_solver(n_moire: int,
               disp: bool = True,
               datatype=DataType.CORRU,
               engine=EngineType.TBPLW,
-              valley=ValleyType.VALLEY1) -> tuple:
+              valley=ValleyType.VALLEY1) -> dict:
     """tight binding solver for TBG
 
     Args:
@@ -232,12 +232,17 @@ def tb_solver(n_moire: int,
         n_g (int): Glist size, n_g = 5 for MATBG
         n_k (int): n_k 
         disp (bool): whether calculate dispersion
-        datatype (_type_, optional): atom data type. Defaults to DataType.CORRU.
-        engine (_type_, optional): TB solver engine type. Defaults to EngineType.TBPLW.
-        valley (_type_, optional): valley concerned. Defaults to ValleyType.VALLEY1.
+        datatype (DataType, optional): atom data type. Defaults to DataType.CORRU.
+        engine (EngineType, optional): TB solver engine type. Defaults to EngineType.TBPLW.
+        valley (EngineType, optional): valley concerned. Defaults to EngineType.VALLEY1.
 
     Returns:
-        tuple: _description_
+        dict:         
+        'emesh': np.array(emesh),
+        'dmesh': np.array(dmesh),
+        'kline': kline,
+        'trans': transmat_list,
+        'nbmap': neighbor_map
     """
     start_time = time.process_time()
     dmesh = []
