@@ -4,3 +4,4 @@ scikit-learn==1.0
 matplotlib==3.5
 numba==0.55
 pytest==7.1
+pytest-cov==3.0
