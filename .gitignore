@@ -1,11 +1,13 @@
-# test fugs
+# experiment
+exp/
+# test figs
 test/test_fig/
 test/test_log/
 # Mac
 .DS_Store
-#
-data/*.npy
+# all npy under data
 *.npy
+# output
 output/
 # Byte-compiled / optimized / DLL files
 __pycache__/
