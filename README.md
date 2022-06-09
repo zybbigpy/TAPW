@@ -3,25 +3,32 @@
 [![basic test workflow](https://github.com/zybbigpy/TBG/actions/workflows/ci.yml/badge.svg)](https://github.com/zybbigpy/TBG/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## Features
+
+- [x] Tight Binding Solver for TBG problem: `TBPLW`, `TBFULL`, `TBSPASE` method.
+
+- [x] Continumm model solver.
+
+- [x] Difference TB method band structure comparison.
+
+- [x] Moire potential Analysis.
+
+- [x] Valley Chern number calculation.
+
+- [x] $C_3$ symmetry constrain.
+## Dependent Module
+ 
+Our development is based on `SciPy`, `Numpy`, `Sklearn` and `matplotlib`.
+
+## RoadMap
+
+![](./assets/roadmap.svg)
+
+## Benchmark
+
+![](assets/benchmark.png)
 ## Reference and Citation
 
 1. For continuum model, refer to [this PRX paper by Koshino](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.8.031087).
 2. For TB Planewave method, please cite my MPhil Thesis.
-
-## Features
-
-[x] Tight Binding Solver for TBG problem: `TBPLW`, `FULLTB`, `SPARSETB` method.
-
-[x] Continumm model solver.
-
-[x] Difference TB method band structure comparison.
-
-[x] Moire potential Analysis.
-
-[x] Valley Chern number calculation.
-
-[x] $C_3$ symmetry constrain.
-## Dependent Module
- 
-Our development is based on `SciPy`, `Numpy`, `Sklearn` and `matplotlib`.
 
