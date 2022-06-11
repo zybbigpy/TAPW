@@ -1,4 +1,5 @@
 import mtbmtbg.moire_tb as mtb
+import mtbmtbg.moire_cont as mcont
 import mtbmtbg.moire_analysis as manal
 from mtbmtbg.config import DataType, EngineType, ValleyType
 
@@ -262,3 +263,16 @@ def moire_band_convergence_plot(n_moire: int,
     glist_plot_module(ax, glist, band_val)
     plt.tight_layout()
     plt.savefig(pathname+"more_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_band_convergence.png", dpi=500)
+
+
+def cont_plot_combv(n_moire: int, n_g: int, n_k: int, bands: int, pathname="./", figname="",):
+    fig, ax = plt.subplots()
+    ret = mcont.cont_solver(n_moire, n_g, n_k, valley=1)
+    emesh = ret['emesh']
+    kline = ret['kline']
+    band_plot_module(ax, kline, emesh, n_k, bands, figname=figname)
+    ret = mcont.cont_solver(n_moire, n_g, n_k, valley=-1)
+    emesh = ret['emesh']
+    kline = ret['kline']
+    band_plot_module(ax, kline, emesh, n_k, bands, figname=figname)
+    plt.savefig(pathname+"moire_"+str(n_moire)+"_"+"_cont_combv.png", dpi=500)

@@ -60,3 +60,15 @@ class ValleyType:
     VALLEY2 = 'valley2'
     # combined two valleys
     VALLEYC = 'valleyc'
+
+
+class Cont:
+    # two paramters, unit eV (chiral limit U1 = U2)
+    U1 = 0.0797
+    U2 = 0.0975
+    # pauli matrices
+    SIGMA_X = np.array([[0, 1], [1, 0]])
+    SIGMA_Y = np.array([[0, -1j], [1j, 0]])
+    SIGMA_Z = np.array([[1, 0], [0, -1]])
+    # fermi velocity 2.1354eV*a
+    HBARVF = 2.1354*Structure.A_C
