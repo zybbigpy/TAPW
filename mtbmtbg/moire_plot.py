@@ -1,10 +1,12 @@
 import mtbmtbg.moire_tb as mtb
 import mtbmtbg.moire_cont as mcont
+import mtbmtbg.moire_setup as mset
 import mtbmtbg.moire_analysis as manal
 from mtbmtbg.config import DataType, EngineType, ValleyType
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pybinding as pb
 
 
 def chemical_potential(emesh: np.ndarray) -> float:
@@ -265,7 +267,14 @@ def moire_band_convergence_plot(n_moire: int,
     plt.savefig(pathname+"more_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_band_convergence.png", dpi=500)
 
 
-def cont_plot_combv(n_moire: int, n_g: int, n_k: int, bands: int, pathname="./", figname="",):
+def cont_plot_combv(
+        n_moire: int,
+        n_g: int,
+        n_k: int,
+        bands: int,
+        pathname="./",
+        figname="",
+):
     fig, ax = plt.subplots()
     ret = mcont.cont_solver(n_moire, n_g, n_k, valley=1)
     emesh = ret['emesh']
@@ -276,3 +285,69 @@ def cont_plot_combv(n_moire: int, n_g: int, n_k: int, bands: int, pathname="./",
     kline = ret['kline']
     band_plot_module(ax, kline, emesh, n_k, bands, figname=figname)
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+"_cont_combv.png", dpi=500)
+
+
+def two_graphene_monolayers():
+    """Two individual AA stacked layers of monolayer graphene without any interlayer hopping"""
+    from pybinding.repository.graphene.constants import a_cc, a, t
+    c0 = 0.335  # [nm] graphene interlayer spacing
+    lat = pb.Lattice(a1=[a*np.sqrt(3)/2, -a/2], a2=[a*np.sqrt(3)/2, a/2])
+    lat.add_sublattices(('A1', [0, 0, c0/2]), ('B1', [2*a/np.sqrt(3), 0, c0/2]), ('A2', [0, 0, -c0/2]),
+                        ('B2', [2*a/np.sqrt(3), 0, -c0/2]))
+    lat.register_hopping_energies({'gamma0': t})
+    lat.add_hoppings(
+        # layer 1
+        ([0, -1], 'A1', 'B1', 'gamma0'),
+        ([-1, 0], 'A1', 'B1', 'gamma0'),
+        ([-1, -1], 'A1', 'B1', 'gamma0'),
+        # layer 2
+        ([0, -1], 'A2', 'B2', 'gamma0'),
+        ([-1, 0], 'A2', 'B2', 'gamma0'),
+        ([-1, -1], 'A2', 'B2', 'gamma0'),
+        # not interlayer hopping
+    )
+    lat.min_neighbors = 2
+    return lat
+
+
+def twist_layers(theta):
+    # from degrees to radians and get a half
+    theta = theta/180*np.pi/2
+
+    @pb.site_position_modifier
+    def rotate(x, y, z):
+        # rotate layer 1 and layer 2 separately
+        layer2 = (z<0)
+        x0 = x[layer2]
+        y0 = y[layer2]
+        x[layer2] = x0*np.cos(-theta)-y0*np.sin(-theta)
+        y[layer2] = y0*np.cos(-theta)+x0*np.sin(-theta)
+
+        layer1 = (z>0)
+        x0 = x[layer1]
+        y0 = y[layer1]
+        x[layer1] = x0*np.cos(theta)-y0*np.sin(theta)
+        y[layer1] = y0*np.cos(theta)+x0*np.sin(theta)
+
+        return x, y, z
+
+    return rotate
+
+
+def real_space_plot(n_moire: int, pathname="./"):
+    from pybinding.repository.graphene.constants import a
+    _, theta_d = mset._set_moire_angle(n_moire)
+    l_theta = a/(2*np.sin(theta_d/180*np.pi/2))
+
+    model = pb.Model(two_graphene_monolayers(), pb.regular_polygon(num_sides=6, radius=1.5*l_theta, angle=np.pi/6),
+                     twist_layers(theta=theta_d))
+    plt.figure(figsize=(6.5, 6.5))
+    model.plot(site={"radius": 0})
+    model.shape.plot()
+
+    plt.quiver(0, 0, 1/2*l_theta, np.sqrt(3)/2*l_theta, scale_units='xy', scale=1, color=(1, 0, 0, 0.5))
+    plt.text(1/4*l_theta, np.sqrt(3)/4*l_theta, r'${L}_1$', fontsize=18)
+    plt.quiver(0, 0, -1/2*l_theta, np.sqrt(3)/2*l_theta, scale_units='xy', scale=1, color=(1, 0, 0, 0.5))
+    plt.text(-1/3*l_theta, np.sqrt(3)/4*l_theta, r'${L}_2$', fontsize=18)
+    plt.tight_layout()
+    plt.savefig(pathname+"moire_"+str(n_moire)+"_"+"_realspace.png", dpi=500)

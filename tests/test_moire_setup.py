@@ -7,6 +7,8 @@ import numpy as np
 import mtbmtbg.moire_setup as mset
 import matplotlib.pyplot as plt
 
+from mtbmtbg.config import Structure
+
 
 def read_atom_neighbour_list(path: str, n_moire: int) -> np.ndarray:
     with open(path+"Nlist"+str(n_moire)+".dat", "r") as f:
@@ -43,6 +45,9 @@ class MoireSetUpTest(unittest.TestCase):
         self.assertTrue(np.allclose(np.dot(mu2, mg2), 2*np.pi))
         self.assertTrue(np.allclose(np.dot(mu1, mg2), 0))
         self.assertTrue(np.allclose(np.dot(mu2, mg1), 0))
+        l_theta = Structure.A_C/(2*np.sin(rt_angle_r/2))
+        self.assertTrue(np.allclose(l_theta, np.linalg.norm(mu1)))
+        self.assertTrue(np.allclose(l_theta, np.linalg.norm(mu2)))
 
     def test_atom_generation(self):
         atoms = mset.set_atom_pstn_list(30)

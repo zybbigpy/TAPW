@@ -5,11 +5,11 @@
 
 ## Features
 
-- [x] Tight Binding Solver for TBG problem: `TBPLW`, `TBFULL`, `TBSPASE` method.
+- [x] Tight Binding Solver for TBG problem: `TBPLW`, `TBFULL`, `TBSPASE` method implemented.
 
 - [x] Continumm model solver.
 
-- [x] Difference TB method band structure comparison.
+- [x] Different TB method band structure comparison.
 
 - [x] Moire potential Analysis.
 
@@ -18,15 +18,12 @@
 - [x] $C_3$ symmetry constrain.
 ## Dependent Module
  
-Our development is based on `SciPy`, `Numpy`, `Sklearn` and `matplotlib`.
+Our development is based on `SciPy`, `Numpy`, `Sklearn`, `Pybinding` and `matplotlib`.
 
 ## RoadMap
 
 ![](./assets/roadmap.svg)
 
-## Benchmark
-
-![](assets/benchmark.png)
 ## Reference and Citation
 
 1. For continuum model, refer to [this PRX paper by Koshino](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.8.031087).

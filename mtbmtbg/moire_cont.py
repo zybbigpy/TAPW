@@ -2,7 +2,7 @@ import numpy as np
 
 import mtbmtbg.moire_setup as mset
 import mtbmtbg.moire_gk as mgk
-from  mtbmtbg.config import Cont, Structure
+from mtbmtbg.config import Cont, Structure
 
 # reciprocal unit vector for atom system
 A_G_UNITVEC_1 = Structure.A_G_UNITVEC_1
@@ -11,14 +11,13 @@ A_G_UNITVEC_2 = Structure.A_G_UNITVEC_2
 
 def _set_kpt(rotmat):
 
-
     kpt = (-A_G_UNITVEC_1+A_G_UNITVEC_2)/3
     print("kpt:", kpt)
     # after rotation
     kpt1 = kpt@rotmat.T
     kpt2 = kpt@rotmat
 
-    return {'kpt1':kpt1, 'kpt2':kpt2}
+    return {'kpt1': kpt1, 'kpt2': kpt2}
 
 
 def _check_eq(vec1, vec2):
@@ -31,8 +30,7 @@ def _check_eq(vec1, vec2):
         return False
 
 
-def _set_g_vec_list_valley(n_moire: int, g_vec_list: np.ndarray, m_basis_vecs: dict,
-                           valley:int) -> np.ndarray:
+def _set_g_vec_list_valley(n_moire: int, g_vec_list: np.ndarray, m_basis_vecs: dict, valley: int) -> np.ndarray:
     """set Glist containg one specific valley or all valleys
 
     Args:
@@ -61,7 +59,7 @@ def _set_g_vec_list_valley(n_moire: int, g_vec_list: np.ndarray, m_basis_vecs: d
 
 
 def _make_transfer_const(m_basis_vecs, valley):
-    
+
     m_g_unitvec_1 = m_basis_vecs['mg1']
     m_g_unitvec_2 = m_basis_vecs['mg2']
 
@@ -135,11 +133,7 @@ def _make_hamk(k, kpts, glist, rt_mtrx_half, tmat, valley):
     return hamk
 
 
-def cont_solver(n_moire: int,
-                n_g: int,
-                n_k: int,
-                disp: bool = True,
-                valley: int = 1) -> dict:
+def cont_solver(n_moire: int, n_g: int, n_k: int, disp: bool = True, valley: int = 1) -> dict:
     """
     continuum model solver for TBG system
     """
@@ -169,7 +163,6 @@ def cont_solver(n_moire: int,
     else:
         kmesh = mgk.set_kmesh(n_k, m_basis_vecs)
 
-
     for k in kmesh:
         print("k sampling process, counter:", count)
         count += 1
@@ -178,8 +171,4 @@ def cont_solver(n_moire: int,
         emesh.append(eigen_val)
         dmesh.append(eigen_vec)
 
-    return {
-        'emesh': np.array(emesh),
-        'dmesh': np.array(dmesh),
-        'kline': kline
-    }
+    return {'emesh': np.array(emesh), 'dmesh': np.array(dmesh), 'kline': kline}
