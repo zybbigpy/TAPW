@@ -3,7 +3,6 @@ import numpy as np
 from itertools import product
 from sklearn.neighbors import KDTree
 from mtbmtbg.config import Structure
-from numba import jit
 
 # lattice constant (angstrom)
 A_C = Structure.A_C
