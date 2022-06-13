@@ -6,16 +6,12 @@
 ## Features
 
 - [x] Tight Binding Solver for TBG problem: `TBPLW`, `TBFULL`, `TBSPASE` method implemented.
-
 - [x] Continumm model solver.
-
 - [x] Different TB method band structure comparison.
-
 - [x] Moire potential Analysis.
-
 - [x] Valley Chern number calculation.
-
 - [x] $C_3$ symmetry constrain.
+
 ## Dependent Module
  
 Our development is based on `SciPy`, `Numpy`, `Sklearn`, `Pybinding` and `matplotlib`.
