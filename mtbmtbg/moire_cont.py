@@ -2,6 +2,7 @@ import numpy as np
 
 import mtbmtbg.moire_setup as mset
 import mtbmtbg.moire_gk as mgk
+from mtbmtbg.moire_shuffle import cont_shuffle_to_tbplw
 from mtbmtbg.config import Cont, Structure
 
 # reciprocal unit vector for atom system
@@ -12,7 +13,7 @@ A_G_UNITVEC_2 = Structure.A_G_UNITVEC_2
 def _set_kpt(rotmat):
 
     kpt = (-A_G_UNITVEC_1+A_G_UNITVEC_2)/3
-    print("kpt:", kpt)
+    # print("kpt:", kpt)
     # after rotation
     kpt1 = kpt@rotmat.T
     kpt2 = kpt@rotmat
@@ -172,3 +173,33 @@ def cont_solver(n_moire: int, n_g: int, n_k: int, disp: bool = True, valley: int
         dmesh.append(eigen_vec)
 
     return {'emesh': np.array(emesh), 'dmesh': np.array(dmesh), 'kline': kline}
+
+
+def cont_potential(n_moire:int, n_g:int, valley: int = 1):
+
+
+    # construct moire info
+    rt_angle_r, rt_angle_d = mset._set_moire_angle(n_moire)
+    rt_mtrx_half = mset._set_rt_mtrx(rt_angle_r/2)
+    (_, m_basis_vecs, high_symm_pnts) = mset._set_moire(n_moire)
+    # set up g list
+    o_g_vec_list = mgk.set_g_vec_list(n_g, m_basis_vecs)
+    # move to specific valley or combined valley
+    g_vec_list = _set_g_vec_list_valley(n_moire, o_g_vec_list, m_basis_vecs, valley)
+    # interlayer interaction
+    tmat = _make_t(g_vec_list, m_basis_vecs, valley)
+    # atomic K points
+    kpts = _set_kpt(rt_mtrx_half)
+
+
+    hamk = _make_hamk(high_symm_pnts['gamma'], kpts, g_vec_list, rt_mtrx_half, tmat, valley)
+    hamk_shuffled = cont_shuffle_to_tbplw(hamk)
+    dim1 = int(hamk.shape[0]/2)
+    dim2 = 2*dim1
+    u = hamk_shuffled[0:dim1, dim1:dim2]
+    dim1 = int(u.shape[0]/2)
+    dim2 = 2*dim1
+    u1 = np.abs(u[0:dim1, 0:dim1])[0, :]
+
+    return {'glist': o_g_vec_list, 'mpot': u1}
+

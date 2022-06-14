@@ -247,7 +247,7 @@ def moire_potential_plot(n_moire: int,
     fig, ax = plt.subplots()
     glist_plot_module(ax, glist, u_val)
     plt.tight_layout()
-    plt.savefig(pathname+"more_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_"+u+"_potential.png", dpi=500)
+    plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_"+u+"_potential.png", dpi=500)
 
 
 def moire_band_convergence_plot(n_moire: int,
@@ -264,7 +264,7 @@ def moire_band_convergence_plot(n_moire: int,
     fig, ax = plt.subplots()
     glist_plot_module(ax, glist, band_val)
     plt.tight_layout()
-    plt.savefig(pathname+"more_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_band_convergence.png", dpi=500)
+    plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_band_convergence.png", dpi=500)
 
 
 def cont_plot_combv(

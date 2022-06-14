@@ -5,7 +5,7 @@
 
 ## Features
 
-- [x] Tight Binding Solver for TBG problem: `TBPLW`, `TBFULL`, `TBSPASE` method implemented.
+- [x] Tight Binding Solver for TBG problem: `TBPLW`, `TBFULL`, `TBSPASE` methods implemented.
 - [x] Continumm model solver.
 - [x] Different TB method band structure comparison.
 - [x] Moire potential Analysis.
