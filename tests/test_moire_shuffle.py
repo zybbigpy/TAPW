@@ -21,3 +21,4 @@ class MoireShuffleTest(unittest.TestCase):
         mplot.glist_plot_module(ax, glist, u_val)
         plt.tight_layout()
         plt.savefig("./shuffle_potential.png", dpi=500)
+        plt.close()

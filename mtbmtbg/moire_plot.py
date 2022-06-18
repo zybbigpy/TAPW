@@ -94,6 +94,7 @@ def tb_plot_sparsetb(n_moire: int, n_g: int, n_k: int, bands: int, datatype: str
     band_plot_module(ax, kline, emesh, n_k, bands, shape='.', figname=figname, mu=mu)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_sparsetb.png", dpi=500)
+    plt.close()
 
 
 def tb_plot_fulltb(n_moire: int, n_g: int, n_k: int, bands: int, datatype: str, pathname="./", figname="", mu=False):
@@ -104,6 +105,7 @@ def tb_plot_fulltb(n_moire: int, n_g: int, n_k: int, bands: int, datatype: str, 
     band_plot_module(ax, kline, emesh, n_k, bands, figname=figname, mu=mu)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_fulltb.png", dpi=500)
+    plt.close()
 
 
 def tb_plot_tbplw_sepv(n_moire: int, n_g: int, n_k: int, bands: int, datatype: str, pathname="./", figname="",
@@ -119,6 +121,7 @@ def tb_plot_tbplw_sepv(n_moire: int, n_g: int, n_k: int, bands: int, datatype: s
     band_plot_module(ax, kline, emesh, n_k, bands, figname=figname, mu=mu)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_tbplw_sepv.png", dpi=500)
+    plt.close()
 
 
 def tb_plot_tbplw_combv(n_moire: int,
@@ -136,6 +139,7 @@ def tb_plot_tbplw_combv(n_moire: int,
     band_plot_module(ax, kline, emesh, n_k, bands, figname=figname, mu=mu)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_tbplw_combv.png", dpi=500)
+    plt.close()
 
 
 def fulltb_sepv_cmp(n_moire: int,
@@ -162,6 +166,7 @@ def fulltb_sepv_cmp(n_moire: int,
     band_plot_module(ax, kline, emesh, n_k2, band2, shape='.', color='red', alpha=0.5, figname=figname)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_fulltb_sepv_cmp.png", dpi=500)
+    plt.close()
 
 
 def fulltb_combv_cmp(n_moire: int,
@@ -184,6 +189,7 @@ def fulltb_combv_cmp(n_moire: int,
     band_plot_module(ax, kline, emesh, n_k2, band2, shape='.', color='red', alpha=0.5, figname=figname)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_fulltb_combv_cmp.png", dpi=500)
+    plt.close()
 
 
 def sparsetb_sepv_cmp(n_moire: int,
@@ -210,6 +216,7 @@ def sparsetb_sepv_cmp(n_moire: int,
     band_plot_module(ax, kline, emesh, n_k2, band2, shape='.', color='red', alpha=0.5, figname=figname)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_sparsetb_sepv_cmp.png", dpi=500)
+    plt.close()
 
 
 def sparsetb_combv_cmp(n_moire: int,
@@ -232,6 +239,7 @@ def sparsetb_combv_cmp(n_moire: int,
     band_plot_module(ax, kline, emesh, n_k2, band2, shape='.', color='red', alpha=0.5, figname=figname)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_sparsetb_combv_cmp.png", dpi=500)
+    plt.close()
 
 
 def moire_potential_plot(n_moire: int,
@@ -248,6 +256,7 @@ def moire_potential_plot(n_moire: int,
     glist_plot_module(ax, glist, u_val)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_"+u+"_potential.png", dpi=500)
+    plt.close()
 
 
 def moire_band_convergence_plot(n_moire: int,
@@ -265,6 +274,7 @@ def moire_band_convergence_plot(n_moire: int,
     glist_plot_module(ax, glist, band_val)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_band_convergence.png", dpi=500)
+    plt.close()
 
 
 def cont_plot_combv(
@@ -285,6 +295,7 @@ def cont_plot_combv(
     kline = ret['kline']
     band_plot_module(ax, kline, emesh, n_k, bands, figname=figname)
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+"_cont_combv.png", dpi=500)
+    plt.close()
 
 
 def two_graphene_monolayers():
@@ -351,3 +362,4 @@ def real_space_plot(n_moire: int, pathname="./"):
     plt.text(-1/3*l_theta, np.sqrt(3)/4*l_theta, r'${L}_2$', fontsize=18)
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+"_realspace.png", dpi=500)
+    plt.close()
