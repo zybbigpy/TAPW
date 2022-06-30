@@ -57,14 +57,14 @@ def _analyze_moire_potential(u: np.ndarray) -> tuple:
     return {'u1': u1, 'u2': u2, 'u3': u3, 'u4': u4}
 
 
-def analyze_moire_potential(n_moire: int, n_g: int, datatype=DataType.CORRU, valley=ValleyType.VALLEY1) -> dict:
+def analyze_moire_potential(n_moire: int, n_g: int, datatype=DataType.CORRU, valley=ValleyType.VALLEYK1) -> dict:
     """calculate the moire potential at high symmetry point
 
     Args:
         n_moire (int): an integer to describe the size of moire TBG .
         n_g (int): an interger to control the glist size. 
         datatype (DataType, optional): input atom type. Defaults to DataType.CORRU.
-        valley (ValleyType, optional): valley to be calculated. Defaults to ValleyType.VALLEY1.
+        valley (ValleyType, optional): valley to be calculated. Defaults to ValleyType.VALLEYK1.
 
     Returns:
         dict: { 'glist': o_g_vec_list, 'mpot': moire_potential }
@@ -104,7 +104,7 @@ def analyze_moire_potential(n_moire: int, n_g: int, datatype=DataType.CORRU, val
     return {'glist': o_g_vec_list, 'mpot': moire_potential}
 
 
-def analyze_band_convergence(n_moire: int, n_g: int, datatype=DataType.CORRU, valley=ValleyType.VALLEY1) -> dict:
+def analyze_band_convergence(n_moire: int, n_g: int, datatype=DataType.CORRU, valley=ValleyType.VALLEYK1) -> dict:
     """analyze band convergence by get the abs value of A1 bands.
     !ATTENTION!: ValleyType.VALLEYC is not supported HERE!
 
@@ -112,7 +112,7 @@ def analyze_band_convergence(n_moire: int, n_g: int, datatype=DataType.CORRU, va
         n_moire (int): an integer to describe the moire system.
         n_g (int): test the convergence of n_g
         datatype (DataType, optional): input atom data type. Defaults to DataType.CORRU.
-        valley (ValleyType, optional): valley type. Defaults to ValleyType.VALLEY1.
+        valley (ValleyType, optional): valley type. Defaults to ValleyType.VALLEYK1.
     
     Returns:
         dict:     return {'glist': o_g_vec_list, 'band': moire_band}

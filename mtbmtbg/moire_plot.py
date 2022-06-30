@@ -111,11 +111,11 @@ def tb_plot_fulltb(n_moire: int, n_g: int, n_k: int, bands: int, datatype: str, 
 def tb_plot_tbplw_sepv(n_moire: int, n_g: int, n_k: int, bands: int, datatype: str, pathname="./", figname="",
                        mu=False):
     fig, ax = plt.subplots()
-    ret = mtb.tb_solver(n_moire, n_g, n_k, True, datatype, valley=ValleyType.VALLEY1)
+    ret = mtb.tb_solver(n_moire, n_g, n_k, True, datatype, valley=ValleyType.VALLEYK1)
     emesh = ret['emesh']
     kline = ret['kline']
     band_plot_module(ax, kline, emesh, n_k, bands, figname=figname, mu=mu)
-    ret = mtb.tb_solver(n_moire, n_g, n_k, True, datatype, valley=ValleyType.VALLEY2)
+    ret = mtb.tb_solver(n_moire, n_g, n_k, True, datatype, valley=ValleyType.VALLEYK2)
     emesh = ret['emesh']
     kline = ret['kline']
     band_plot_module(ax, kline, emesh, n_k, bands, figname=figname, mu=mu)
@@ -152,11 +152,11 @@ def fulltb_sepv_cmp(n_moire: int,
                     pathname="./",
                     figname=""):
     fig, ax = plt.subplots()
-    ret = mtb.tb_solver(n_moire, n_g, n_k1, True, datatype, valley=ValleyType.VALLEY1)
+    ret = mtb.tb_solver(n_moire, n_g, n_k1, True, datatype, valley=ValleyType.VALLEYK1)
     emesh = ret['emesh']
     kline = ret['kline']
     band_plot_module(ax, kline, emesh, n_k1, band1, figname=figname)
-    ret = mtb.tb_solver(n_moire, n_g, n_k1, True, datatype, valley=ValleyType.VALLEY2)
+    ret = mtb.tb_solver(n_moire, n_g, n_k1, True, datatype, valley=ValleyType.VALLEYK2)
     emesh = ret['emesh']
     kline = ret['kline']
     band_plot_module(ax, kline, emesh, n_k1, band1, figname=figname)
@@ -202,11 +202,11 @@ def sparsetb_sepv_cmp(n_moire: int,
                       pathname="./",
                       figname=""):
     fig, ax = plt.subplots()
-    ret = mtb.tb_solver(n_moire, n_g, n_k1, True, datatype, valley=ValleyType.VALLEY1)
+    ret = mtb.tb_solver(n_moire, n_g, n_k1, True, datatype, valley=ValleyType.VALLEYK1)
     emesh = ret['emesh']
     kline = ret['kline']
     band_plot_module(ax, kline, emesh, n_k1, band1, figname=figname)
-    ret = mtb.tb_solver(n_moire, n_g, n_k1, True, datatype, valley=ValleyType.VALLEY2)
+    ret = mtb.tb_solver(n_moire, n_g, n_k1, True, datatype, valley=ValleyType.VALLEYK2)
     emesh = ret['emesh']
     kline = ret['kline']
     band_plot_module(ax, kline, emesh, n_k1, band1, figname=figname)
@@ -248,7 +248,7 @@ def moire_potential_plot(n_moire: int,
                          u: str = 'u1',
                          pathname="./",
                          datatype=DataType.CORRU,
-                         valley=ValleyType.VALLEY1):
+                         valley=ValleyType.VALLEYK1):
     ret = manal.analyze_moire_potential(n_moire, n_g, datatype, valley)
     glist = ret['glist']
     u_val = ret['mpot'][kpnt][u]
@@ -265,7 +265,7 @@ def moire_band_convergence_plot(n_moire: int,
                                 u: str = 'u1',
                                 pathname="./",
                                 datatype=DataType.CORRU,
-                                valley=ValleyType.VALLEY1):
+                                valley=ValleyType.VALLEYK1):
 
     ret = manal.analyze_band_convergence(n_moire, n_g, datatype, valley)
     glist = ret['glist']

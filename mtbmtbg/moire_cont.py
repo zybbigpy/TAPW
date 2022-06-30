@@ -38,7 +38,7 @@ def _set_g_vec_list_valley(n_moire: int, g_vec_list: np.ndarray, m_basis_vecs: d
         n_moire (int): an integer describe the moire system
         g_vec_list (np.ndarray): original Glist and G[0, 0] = [0, 0]
         m_basis_vecs (dict): moire basis vecs dictionary
-        valley (ValleyType.VALLEY1): valley
+        valley (ValleyType.VALLEYK1): valley
 
     Returns:
         np.ndarray: Glist for computation
@@ -55,7 +55,7 @@ def _set_g_vec_list_valley(n_moire: int, g_vec_list: np.ndarray, m_basis_vecs: d
         return gv1
     elif valley == -1:
         return gv2
-    else:  # default use VALLEY1
+    else:  # default use VALLEYK1
         return gv1
 
 

@@ -14,14 +14,14 @@ R_RANGE = TBInfo.R_RANGE
 
 
 def _set_g_vec_list_valley(n_moire: int, g_vec_list: np.ndarray, m_basis_vecs: dict,
-                           valley: ValleyType.VALLEY1) -> np.ndarray:
+                           valley: ValleyType.VALLEYK1) -> np.ndarray:
     """set Glist containg one specific valley or all valleys
 
     Args:
         n_moire (int): an integer describe the moire system
         g_vec_list (np.ndarray): original Glist and G[0, 0] = [0, 0]
         m_basis_vecs (dict): moire basis vecs dictionary
-        valley (ValleyType.VALLEY1): valley
+        valley (ValleyType.VALLEYK1): valley
 
     Returns:
         np.ndarray: Glist for computation
@@ -35,13 +35,13 @@ def _set_g_vec_list_valley(n_moire: int, g_vec_list: np.ndarray, m_basis_vecs: d
     gv2 = g_vec_list-offset
     gvc = np.append(gv1, gv2, axis=0)
 
-    if valley == ValleyType.VALLEY1:
+    if valley == ValleyType.VALLEYK1:
         return gv1
-    elif valley == ValleyType.VALLEY2:
+    elif valley == ValleyType.VALLEYK2:
         return gv2
     elif valley == ValleyType.VALLEYC:
         return gvc
-    else:  # default use VALLEY1
+    else:  # default use VALLEYK1
         return gv1
 
 
@@ -224,7 +224,7 @@ def tb_solver(n_moire: int,
               disp: bool = True,
               datatype=DataType.CORRU,
               engine=EngineType.TBPLW,
-              valley=ValleyType.VALLEY1) -> dict:
+              valley=ValleyType.VALLEYK1) -> dict:
     """tight binding solver for TBG
 
     Args:
@@ -234,7 +234,7 @@ def tb_solver(n_moire: int,
         disp (bool): whether calculate dispersion
         datatype (DataType, optional): atom data type. Defaults to DataType.CORRU.
         engine (EngineType, optional): TB solver engine type. Defaults to EngineType.TBPLW.
-        valley (EngineType, optional): valley concerned. Defaults to EngineType.VALLEY1.
+        valley (EngineType, optional): valley concerned. Defaults to EngineType.VALLEYK1.
 
     Returns:
         dict:         

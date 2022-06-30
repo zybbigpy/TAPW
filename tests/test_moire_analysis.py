@@ -37,7 +37,7 @@ class MoireAnaysisTest(unittest.TestCase):
     def test_moire_band_convergence(self):
         n_moire = 30
         n_g = 5
-        ret = manal.analyze_band_convergence(n_moire, n_g, datatype=DataType.CORRU, valley=ValleyType.VALLEY1)
+        ret = manal.analyze_band_convergence(n_moire, n_g, datatype=DataType.CORRU, valley=ValleyType.VALLEYK1)
         glist = ret['glist']
         band = ret['band']['gamma']
         self.assertTrue(glist.shape[0], band.shape[0])

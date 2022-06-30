@@ -13,10 +13,10 @@ def _cal_flatband_var(emesh):
 
 
 def cal_flatness(n_moire: int, n_g: int, datatype=DataType.CORRU):
-    ret = mtb.tb_solver(n_moire, n_g, 10, disp=False, datatype=datatype, valley=ValleyType.VALLEY1)
+    ret = mtb.tb_solver(n_moire, n_g, 10, disp=False, datatype=datatype, valley=ValleyType.VALLEYK1)
     emesh = ret['emesh']
     v1_flatness = _cal_flatband_var(emesh)
-    ret = mtb.tb_solver(n_moire, n_g, 10, disp=False, datatype=datatype, valley=ValleyType.VALLEY2)
+    ret = mtb.tb_solver(n_moire, n_g, 10, disp=False, datatype=datatype, valley=ValleyType.VALLEYK2)
     emesh = ret['emesh']
     v2_flatness = _cal_flatband_var(emesh)
 
