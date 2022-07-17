@@ -5,6 +5,7 @@ import mtbmtbg.moire_analysis as manal
 from mtbmtbg.config import DataType, EngineType, ValleyType
 
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import numpy as np
 import pybinding as pb
 
@@ -81,9 +82,17 @@ def glist_plot_module(ax: plt.axes, glist: np.ndarray, val: np.ndarray, figname:
     """
     assert glist.shape[0] == val.shape[0]
     ax.set_aspect('equal', 'box')
-    ax.scatter(glist[:, 0], glist[:, 1], c=val/np.max(val), s=200, cmap='Purples')
-    ax.scatter(glist[:, 0], glist[:, 1], marker='o', s=200, c='w', edgecolors='black', alpha=0.2)
+    #p = ax.scatter(glist[:, 0], glist[:, 1], c=np.log(val/np.max(val)), s=200, cmap='Purples')
+    p = ax.scatter(glist[:, 0],
+                   glist[:, 1],
+                   c=val,
+                   norm=colors.LogNorm(vmin=val.min(), vmax=val.max()),
+                   s=200,
+                   cmap='RdBu_r')
+    ax.scatter(glist[:, 0], glist[:, 1], marker='o', s=200, c='w', edgecolors='black', alpha=0.1)
     ax.set_title(figname)
+
+    return p
 
 
 def tb_plot_sparsetb(n_moire: int, n_g: int, n_k: int, bands: int, datatype: str, pathname="./", figname="", mu=False):
@@ -250,10 +259,19 @@ def moire_potential_plot(n_moire: int,
                          datatype=DataType.CORRU,
                          valley=ValleyType.VALLEYK1):
     ret = manal.analyze_moire_potential(n_moire, n_g, datatype, valley)
-    glist = ret['glist']
-    u_val = ret['mpot'][kpnt][u]
+    # unit [nm^-1]
+    glist = ret['glist']*10
+    # unit [meV]
+    u_val = ret['mpot'][kpnt][u]*1000
     fig, ax = plt.subplots()
-    glist_plot_module(ax, glist, u_val)
+
+    p = glist_plot_module(ax, glist, u_val)
+    cbar = fig.colorbar(p, ax=ax)
+    cbar.ax.set_ylabel('$u$ [meV]', rotation=270, labelpad=12)
+    adjust_spines(ax, ['left', 'bottom'])
+    ax.set_xlabel('[nm$^{-1}$]')
+    ax.set_ylabel('[nm$^{-1}$]')
+
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+datatype+"_"+kpnt+"_"+u+"_potential.png", dpi=500)
     plt.close()
@@ -363,3 +381,24 @@ def real_space_plot(n_moire: int, pathname="./"):
     plt.tight_layout()
     plt.savefig(pathname+"moire_"+str(n_moire)+"_"+"_realspace.png", dpi=500)
     plt.close()
+
+
+def adjust_spines(ax, spines):
+    for loc, spine in ax.spines.items():
+        if loc in spines:
+            spine.set_position(('outward', 10))  # outward by 10 points
+        else:
+            spine.set_color('none')  # don't draw spine
+
+    # turn off ticks where there is no spine
+    if 'left' in spines:
+        ax.yaxis.set_ticks_position('left')
+    else:
+        # no yaxis ticks
+        ax.yaxis.set_ticks([])
+
+    if 'bottom' in spines:
+        ax.xaxis.set_ticks_position('bottom')
+    else:
+        # no xaxis ticks
+        ax.xaxis.set_ticks([])

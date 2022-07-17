@@ -42,7 +42,7 @@ def _set_g_vec_list_valley(n_moire: int, g_vec_list: np.ndarray, m_basis_vecs: d
         return gv1
 
 
-def _set_relative_dis(atom_pstn_list: np.ndarray, m_basis_vecs:dict, npair_dict:dict)->dict:
+def _set_relative_dis(atom_pstn_list: np.ndarray, m_basis_vecs: dict, npair_dict: dict) -> dict:
     """set relative distance for the neighbour pairs
 
     Args:
@@ -53,7 +53,7 @@ def _set_relative_dis(atom_pstn_list: np.ndarray, m_basis_vecs:dict, npair_dict:
     Returns:
         dict: (dr, dd)
     """
-    
+
     row, col = npair_dict['r'], npair_dict['c']
     m_g_unitvec_1 = m_basis_vecs['mg1']
     m_g_unitvec_2 = m_basis_vecs['mg2']
@@ -74,7 +74,7 @@ def _set_relative_dis(atom_pstn_list: np.ndarray, m_basis_vecs:dict, npair_dict:
 
     dr = (x.reshape(-1, 1))*m_unitvec_1+(y.reshape(-1, 1))*m_unitvec_2
 
-    return {'dr':dr, 'dd':dd}
+    return {'dr': dr, 'dd': dd}
 
 
 def _set_gr_mtrx(
@@ -106,27 +106,29 @@ def _set_gr_mtrx(
                        ]).reshape(n_g, n_atom)
 
     g1, g2, g3, g4 = np.hsplit(gr_mtrx, 4)
-    gr_mtrx = sla.block_diag(g1, g2, g3, g4,
-                             g1, g2, g3, g4,
-                             g1, g2, g3, g4)
+    gr_mtrx = sla.block_diag(g1, g2, g3, g4, g1, g2, g3, g4, g1, g2, g3, g4)
 
     return gr_mtrx
 
 
 def _read_fc_rc():
     row = np.load('row.npy')
-    col = np.load('col.npy')    
+    col = np.load('col.npy')
     fc = sp.load_npz('hopping.npz')
     fc_t = fc.transpose()
-    fc_delta = fc - fc_t
+    fc_delta = fc-fc_t
     if fc_delta.max()>1.0e-9:
-        print("force constant is not symmetric?!",fc_delta.max())
+        print("force constant is not symmetric?!", fc_delta.max())
 
-    
-    return fc, {'r':row, 'c': col}
+    return fc, {'r': row, 'c': col}
 
 
-def _cal_dynamic_k(k_vec: np.ndarray, ndist_dict:dict, npair_dict:dict, n_atom:int, fc, gr_mtrx, 
+def _cal_dynamic_k(k_vec: np.ndarray,
+                   ndist_dict: dict,
+                   npair_dict: dict,
+                   n_atom: int,
+                   fc,
+                   gr_mtrx,
                    engine=EngineType.TBPLW):
 
     row, col = npair_dict['r'], npair_dict['c']
@@ -134,9 +136,7 @@ def _cal_dynamic_k(k_vec: np.ndarray, ndist_dict:dict, npair_dict:dict, n_atom:i
 
     tk_data = np.exp(-1j*np.dot(dr, k_vec))
     kr_mtrx = sp.csr_matrix((tk_data, (row, col)), shape=(n_atom, n_atom))
-    kr_mtrx = sp.bmat([[kr_mtrx, kr_mtrx, kr_mtrx], 
-                       [kr_mtrx, kr_mtrx, kr_mtrx], 
-                       [kr_mtrx, kr_mtrx, kr_mtrx]]).tocsr()
+    kr_mtrx = sp.bmat([[kr_mtrx, kr_mtrx, kr_mtrx], [kr_mtrx, kr_mtrx, kr_mtrx], [kr_mtrx, kr_mtrx, kr_mtrx]]).tocsr()
     kr_mtrx_cc = (kr_mtrx.transpose()).conjugate()
     kr_mtrx_delta = kr_mtrx-kr_mtrx_cc
 
@@ -146,7 +146,7 @@ def _cal_dynamic_k(k_vec: np.ndarray, ndist_dict:dict, npair_dict:dict, n_atom:i
 
     dynamic_k = kr_mtrx.multiply(fc)/Phonon.CARBON_MASS
     dynamic_k_cc = (dynamic_k.transpose()).conjugate()
-    dynamic_k_delta = dynamic_k - dynamic_k_cc
+    dynamic_k_delta = dynamic_k-dynamic_k_cc
     if dynamic_k_delta.max()>1.0e-9:
         print(dynamic_k_delta.max())
         raise Exception("dynamic matrix is not hermitian?!")
@@ -170,12 +170,7 @@ def _cal_eigen_dynamick(dynamic_k, engine=EngineType.TBPLW):
     return v, w
 
 
-def phonon_solver(n_moire: int,
-                n_g: int,
-                n_k: int,
-                engine=EngineType.TBPLW,
-                valley=ValleyType.VALLEYK1):
-    
+def phonon_solver(n_moire: int, n_g: int, n_k: int, engine=EngineType.TBPLW, valley=ValleyType.VALLEYK1):
 
     atom_pstn_list = np.loadtxt('rigid_atom6_origin.csv')
 
@@ -200,6 +195,7 @@ def phonon_solver(n_moire: int,
         emesh.append(np.sqrt(eig_val)*Phonon.VaspToTHz)
 
     return kline, np.array(emesh)
+
 
 n_k = 30
 kline, emesh = phonon_solver(6, 2, n_k, engine=EngineType.TBPLW, valley=ValleyType.VALLEYG)

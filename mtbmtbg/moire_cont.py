@@ -175,8 +175,7 @@ def cont_solver(n_moire: int, n_g: int, n_k: int, disp: bool = True, valley: int
     return {'emesh': np.array(emesh), 'dmesh': np.array(dmesh), 'kline': kline}
 
 
-def cont_potential(n_moire:int, n_g:int, valley: int = 1):
-
+def cont_potential(n_moire: int, n_g: int, valley: int = 1):
 
     # construct moire info
     rt_angle_r, rt_angle_d = mset._set_moire_angle(n_moire)
@@ -191,7 +190,6 @@ def cont_potential(n_moire:int, n_g:int, valley: int = 1):
     # atomic K points
     kpts = _set_kpt(rt_mtrx_half)
 
-
     hamk = _make_hamk(high_symm_pnts['gamma'], kpts, g_vec_list, rt_mtrx_half, tmat, valley)
     hamk_shuffled = cont_shuffle_to_tbplw(hamk)
     dim1 = int(hamk.shape[0]/2)
@@ -202,4 +200,3 @@ def cont_potential(n_moire:int, n_g:int, valley: int = 1):
     u1 = np.abs(u[0:dim1, 0:dim1])[0, :]
 
     return {'glist': o_g_vec_list, 'mpot': u1}
-

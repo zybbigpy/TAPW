@@ -23,7 +23,7 @@ def read_atom_pstn_list(n_moire: int, datatype=DataType.CORRU) -> np.ndarray:
     elif datatype == DataType.RIGID:
         print("Load rigid atomic data.")
         atom_pstn_list = np.loadtxt(
-            "../data/atom/atom"+str(n_moire)+".csv",
+            "../data/rigid/atom"+str(n_moire)+".csv",
             delimiter=",",
             comments="#",
         )

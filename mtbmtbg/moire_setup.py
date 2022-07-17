@@ -100,11 +100,12 @@ def _set_moire(n_moire: int) -> tuple:
     return ((rt_angle_r, rt_angle_d), m_basis_vecs, high_symm_pnts)
 
 
-def set_atom_pstn_list(n_moire: int) -> np.ndarray:
+def set_atom_pstn_list(n_moire: int, corru: bool=True) -> np.ndarray:
     """generate all atom positions in a commesurate moire systems
 
     Args:
         n_moire (int): an integer to describe a commesurate moire tbg structure.
+        corru (bool): genarate corrugation data or not, Default: True. 
 
     Returns:
         np.ndarray: atom positions
@@ -134,7 +135,8 @@ def set_atom_pstn_list(n_moire: int) -> np.ndarray:
         x = atom_pstn.dot(m_g_unitvec_1)/(2*np.pi)
         y = atom_pstn.dot(m_g_unitvec_2)/(2*np.pi)
         if (x> -delta) and (x<(1-delta)) and (y> -delta) and (y<(1-delta)):
-            d = 0.5*D1_LAYER+D2_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            out_plane = D2_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            d = 0.5*D1_LAYER+out_plane if corru else 0.5*D1_LAYER
             atom = np.array([atom_pstn[0], atom_pstn[1], d])
             atom_pstn_list.append(atom)
             num_a1 += 1
@@ -146,7 +148,8 @@ def set_atom_pstn_list(n_moire: int) -> np.ndarray:
         x = atom_pstn.dot(m_g_unitvec_1)/(2*np.pi)
         y = atom_pstn.dot(m_g_unitvec_2)/(2*np.pi)
         if (x> -delta) and (x<(1-delta)) and (y> -delta) and (y<(1-delta)):
-            d = 0.5*D1_LAYER+D2_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            out_plane = D2_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            d = 0.5*D1_LAYER+out_plane if corru else 0.5*D1_LAYER
             atom = np.array([atom_pstn[0], atom_pstn[1], d])
             atom_pstn_list.append(atom)
             num_b1 += 1
@@ -158,7 +161,8 @@ def set_atom_pstn_list(n_moire: int) -> np.ndarray:
         x = atom_pstn.dot(m_g_unitvec_1)/(2*np.pi)
         y = atom_pstn.dot(m_g_unitvec_2)/(2*np.pi)
         if (x> -delta) and (x<(1-delta)) and (y> -delta) and (y<(1-delta)):
-            d = -0.5*D1_LAYER-D2_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            out_plane = D2_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            d = -0.5*D1_LAYER-out_plane if corru else -0.5*D1_LAYER
             atom = np.array([atom_pstn[0], atom_pstn[1], d])
             atom_pstn_list.append(atom)
             num_a2 += 1
@@ -170,7 +174,8 @@ def set_atom_pstn_list(n_moire: int) -> np.ndarray:
         x = atom_pstn.dot(m_g_unitvec_1)/(2*np.pi)
         y = atom_pstn.dot(m_g_unitvec_2)/(2*np.pi)
         if (x> -delta) and (x<(1-delta)) and (y> -delta) and (y<(1-delta)):
-            d = -0.5*D1_LAYER-D2_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            out_plane = D2_LAYER*np.sum(np.cos(np.dot(small_g_vec, atom_pstn)))
+            d = -0.5*D1_LAYER-out_plane if corru else -0.5*D1_LAYER
             atom = np.array([atom_pstn[0], atom_pstn[1], d])
             atom_pstn_list.append(atom)
             num_b2 += 1

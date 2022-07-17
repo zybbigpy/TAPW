@@ -1,6 +1,7 @@
 import numpy as np
 from math import pi, sqrt
 
+
 class Structure:
     """ parameters for graphene structure
     """
@@ -24,6 +25,9 @@ class Structure:
     # atom postion in graphene
     ATOM_PSTN_1 = np.array([0, 0])
     ATOM_PSTN_2 = np.array([2*A_C/np.sqrt(3), 0])
+    # atomic K point
+    ATOM_K_1 = -1/3*A_G_UNITVEC_1+1/3*A_G_UNITVEC_2
+    ATOM_K_2 = 1/3*A_G_UNITVEC_1-1/3*A_G_UNITVEC_2
 
 
 class TBInfo:
@@ -59,7 +63,7 @@ class ValleyType:
     VALLEYK1 = 'valleyk1'
     VALLEYK2 = 'valleyk2'
     # not move
-    VALLEYG  = 'valleyg'
+    VALLEYG = 'valleyg'
     # combined two valleys
     VALLEYC = 'valleyc'
 
@@ -75,16 +79,17 @@ class Cont:
     # fermi velocity 2.1354eV*a
     HBARVF = 2.1354*Structure.A_C
 
+
 class Phonon:
     # Carbon mass
-    CARBON_MASS = 12.0107                          # [AMU]
+    CARBON_MASS = 12.0107  # [AMU]
     # physical constant
-    PlanckConstant = 4.13566733e-15                # [eV s]
-    Hbar = PlanckConstant/(2*pi)                   # [eV s]
-    SpeedOfLight = 299792458                       # [m/s]
-    AMU = 1.6605402e-27                            # [kg]
-    EV = 1.60217733e-19                            # [J]
-    Angstrom = 1.0e-10                             # [m]
-    THz = 1.0e12                                   # [/s]
+    PlanckConstant = 4.13566733e-15  # [eV s]
+    Hbar = PlanckConstant/(2*pi)  # [eV s]
+    SpeedOfLight = 299792458  # [m/s]
+    AMU = 1.6605402e-27  # [kg]
+    EV = 1.60217733e-19  # [J]
+    Angstrom = 1.0e-10  # [m]
+    THz = 1.0e12  # [/s]
     VaspToTHz = sqrt(EV/AMU)/Angstrom/(2*pi)/1e12  # [THz] 15.633302
-    THzToCm = 1.0e12/(SpeedOfLight*100)            # [cm^-1] 33.356410
+    THzToCm = 1.0e12/(SpeedOfLight*100)  # [cm^-1] 33.356410

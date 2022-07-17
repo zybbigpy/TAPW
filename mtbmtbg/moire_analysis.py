@@ -4,7 +4,7 @@ import mtbmtbg.moire_setup as mset
 import mtbmtbg.moire_tb as mtb
 import mtbmtbg.moire_gk as mgk
 import mtbmtbg.moire_io as mio
-from mtbmtbg.config import TBInfo, DataType, EngineType, ValleyType
+from mtbmtbg.config import TBInfo, DataType, EngineType, ValleyType, Structure
 
 
 def _set_moire_potential(hamk: np.ndarray) -> np.ndarray:
@@ -30,11 +30,12 @@ def _set_moire_potential(hamk: np.ndarray) -> np.ndarray:
     return u
 
 
-def _analyze_moire_potential(u: np.ndarray) -> tuple:
+def _analyze_moire_potential(u: np.ndarray, i: int = 0) -> tuple:
     """get U_{A1, A2} U_{A1, B2} U_{B1, A2} U_{B1, B2} part of the moire potential        
 
     Args:
         u (np.ndarray): moire potential
+        i (int): G vector index, default to be 0, G[0, 0] = [0, 0]
 
     Returns:
         dict: {'u1': u1, 'u2': u2, 'u3': u3, 'u4': u4}
@@ -49,10 +50,10 @@ def _analyze_moire_potential(u: np.ndarray) -> tuple:
     u3 = u[dim1:dim2, 0:dim1]
     u4 = u[dim1:dim2, dim1:dim2]
     # reserve the coupling U_{G0, Gi}, make sure G0=[0,0]
-    u1 = np.abs(u1[0, :])
-    u2 = np.abs(u2[0, :])
-    u3 = np.abs(u3[0, :])
-    u4 = np.abs(u4[0, :])
+    u1 = np.abs(u1[i, :])
+    u2 = np.abs(u2[i, :])
+    u3 = np.abs(u3[i, :])
+    u4 = np.abs(u4[i, :])
 
     return {'u1': u1, 'u2': u2, 'u3': u3, 'u4': u4}
 
@@ -80,6 +81,7 @@ def analyze_moire_potential(n_moire: int, n_g: int, datatype=DataType.CORRU, val
     o_g_vec_list = mgk.set_g_vec_list(n_g, m_basis_vecs)
     # move to specific valley or combined valley
     g_vec_list = mtb._set_g_vec_list_valley(n_moire, o_g_vec_list, m_basis_vecs, valley)
+    print("G[0,0]", g_vec_list[0])
     # constant matrix dictionary
     const_mtrx_dict = mtb._set_const_mtrx(n_moire, npair_dict, ndist_dict, m_basis_vecs, g_vec_list, atom_pstn_list)
     # number of atoms in the moire unit cell
@@ -102,6 +104,50 @@ def analyze_moire_potential(n_moire: int, n_g: int, datatype=DataType.CORRU, val
     print("="*100)
 
     return {'glist': o_g_vec_list, 'mpot': moire_potential}
+
+
+def moire_potential_vs_k(n_moire: int, n_g: int, n_k: int, datatype=DataType.CORRU):
+    # load atom data
+    atom_pstn_list = mio.read_atom_pstn_list(n_moire, datatype)
+    # construct moire info
+    (_, m_basis_vecs, high_symm_pnts) = mset._set_moire(n_moire)
+    (all_nns, enlarge_atom_pstn_list) = mset.set_atom_neighbour_list(atom_pstn_list, m_basis_vecs)
+    (npair_dict, ndist_dict) = mset.set_relative_dis_ndarray(atom_pstn_list, enlarge_atom_pstn_list, all_nns)
+    # set up original g list
+    o_g_vec_list = mgk.set_g_vec_list(n_g, m_basis_vecs)
+    # move to specific valley or combined valley
+    g_vec_list = mtb._set_g_vec_list_valley(n_moire, o_g_vec_list, m_basis_vecs, ValleyType.VALLEYK1)
+    print("G[0,0] should near K1", g_vec_list[0], Structure.ATOM_K_1)
+    # constant matrix dictionary
+    const_mtrx_dict = mtb._set_const_mtrx(n_moire, npair_dict, ndist_dict, m_basis_vecs, g_vec_list, atom_pstn_list)
+    # number of atoms in the moire unit cell
+    n_atom = atom_pstn_list.shape[0]
+    kmesh = mgk.set_kmesh(n_k, m_basis_vecs)
+
+    mg = np.linalg.norm(o_g_vec_list[1])
+    mg_cutoff = (n_g-2.9)*mg
+    print("="*100)
+    dis_list = []
+    moire_aa = []
+    moire_ab = []
+
+    for kpnt in kmesh:
+        hamk = mtb._cal_hamiltonian_k(ndist_dict, npair_dict, const_mtrx_dict, kpnt, n_atom, engine=EngineType.TBPLW)
+        u = _set_moire_potential(hamk)
+        for i in range(o_g_vec_list.shape[0]):
+            # distance = |kbar+G_i-K|
+            #dis = np.linalg.norm(kpnt+g_vec_list[i]-Structure.ATOM_K_1)
+            # kbar+Gi should close to ATOM_K_1
+            glist_i = o_g_vec_list[i]
+            if np.linalg.norm(glist_i)<mg_cutoff:
+                dis = kpnt+g_vec_list[i]
+                dis_list.append(dis)
+                pot = _analyze_moire_potential(u, i)
+                moire_aa.append(np.max(pot['u1']))
+                moire_ab.append(np.max(pot['u2']))
+
+    print("="*100)
+    return {'distance': np.array(dis_list), 'moire_aa': np.array(moire_aa), 'moire_ab': np.array(moire_ab)}
 
 
 def analyze_band_convergence(n_moire: int, n_g: int, datatype=DataType.CORRU, valley=ValleyType.VALLEYK1) -> dict:

@@ -87,7 +87,8 @@ def cal_chern(bands, n_k, init, last, transmat_list, neighbor_map):
     return ret/(2*np.pi*1j)
 
 
-def cal_moire_chern(n_moire: int, n_g: int, n_k: int, n_chern: int, datatype=DataType.CORRU, valley=ValleyType.VALLEYK1):
+def cal_moire_chern(n_moire: int, n_g: int, n_k: int, n_chern: int, datatype=DataType.CORRU,
+                    valley=ValleyType.VALLEYK1):
 
     cherns = []
     ret = mtb.tb_solver(n_moire, n_g, n_k, disp=False, datatype=datatype, valley=valley)

@@ -66,6 +66,26 @@ def set_kmesh(n_k: int, m_basis_vecs: dict) -> np.ndarray:
     return np.array(kmesh)
 
 
+def set_kmesh_dos(n_k: int, m_basis_vecs: dict) -> np.ndarray:
+    """set up normal k points sampling in 1st B.Z for DOS Calculation
+
+    Args:
+        n_k (int): number of kpts should be n_k**2. 
+        m_basis_vecs (dict): moire basis vectors dictionary
+
+    Returns:
+        np.ndarray: kmesh
+    """
+
+    m_g_unitvec_1 = m_basis_vecs['mg1']
+    m_g_unitvec_2 = m_basis_vecs['mg2']
+    # Different from `set_kmesh' here
+    k_step = 1/(n_k-1)
+    kmesh = [i*k_step*m_g_unitvec_1+j*k_step*m_g_unitvec_2 for (i, j) in product(range(n_k), range(n_k))]
+
+    return np.array(kmesh)
+
+
 def set_tb_disp_kmesh(n_k: int, high_symm_pnts: dict) -> tuple:
     """setup kpath along high symmetry points in moire B.Z.
 

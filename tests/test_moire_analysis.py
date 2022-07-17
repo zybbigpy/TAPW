@@ -6,8 +6,10 @@ sys.path.append("..")
 import numpy as np
 import mtbmtbg.moire_analysis as manal
 import mtbmtbg.moire_plot as mplot
-from mtbmtbg.config import DataType, ValleyType
+from mtbmtbg.config import DataType, ValleyType, Structure
 
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, PathPatch
 
 class MoireAnaysisTest(unittest.TestCase):
 
@@ -49,3 +51,37 @@ class MoireAnaysisTest(unittest.TestCase):
         mplot.moire_band_convergence_plot(n_moire, n_g, kpnt='k1')
         mplot.moire_band_convergence_plot(n_moire, n_g, kpnt='k2')
         mplot.moire_band_convergence_plot(n_moire, n_g, kpnt='gamma')
+
+    
+    def test_moire_vs_k(self):
+        n_moire = 30
+        n_g = 8
+        n_k = 3
+        ret = manal.moire_potential_vs_k(n_moire, n_g, n_k, datatype=DataType.CORRU)
+
+        # [nm^-1] [meV]
+        kpnts = ret['distance']*10
+        maa = ret['moire_aa']*1000
+        mab = ret['moire_ab']*1000
+
+    
+        fig, ax = plt.subplots()
+        ax.set_aspect('equal', 'box')
+        kx = kpnts[:, 0]
+        ky = kpnts[:, 1]
+        pat = Circle((Structure.ATOM_K_1[0]*10, Structure.ATOM_K_1[1]*10),
+                    3.15,
+                    edgecolor='k',
+                    facecolor='white',
+                    alpha=0.3,
+                    linestyle=':')
+        ax.add_patch(pat)
+        p = ax.scatter(kx, ky, c=mab, marker='o', s=50, cmap='RdBu_r')
+        cbar = fig.colorbar(p, ax=ax)
+        cbar.ax.set_ylabel('$u\'$ [meV]', rotation=270, labelpad=12)
+        mplot.adjust_spines(ax, ['left', 'bottom'])
+        ax.set_xlabel('[nm$^{-1}$]')
+        ax.set_ylabel('[nm$^{-1}$]')
+        plt.tight_layout()
+        plt.savefig("moire_pont_corru_ab_k.png", dpi=500)
+        plt.close()
