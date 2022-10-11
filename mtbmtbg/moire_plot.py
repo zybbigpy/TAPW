@@ -86,7 +86,7 @@ def glist_plot_module(ax: plt.axes, glist: np.ndarray, val: np.ndarray, figname:
     p = ax.scatter(glist[:, 0],
                    glist[:, 1],
                    c=val,
-                   norm=colors.LogNorm(vmin=val.min(), vmax=val.max()),
+                   norm=colors.LogNorm(vmin=val.min()+1e-10, vmax=val.max()),
                    s=200,
                    cmap='RdBu_r')
     ax.scatter(glist[:, 0], glist[:, 1], marker='o', s=200, c='w', edgecolors='black', alpha=0.1)

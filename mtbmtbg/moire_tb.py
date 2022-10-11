@@ -3,9 +3,6 @@ import numpy as np
 import scipy.linalg as sla
 from scipy import sparse
 
-import os
-os.chdir('../')
-
 import mtbmtbg.moire_setup as mset
 import mtbmtbg.moire_gk as mgk
 import mtbmtbg.moire_io as mio

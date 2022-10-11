@@ -18,7 +18,8 @@ class MoireShuffleTest(unittest.TestCase):
         glist = ret['glist']
         u_val = ret['mpot']
         fig, ax = plt.subplots()
-        mplot.glist_plot_module(ax, glist, u_val)
+        print("u_val min max", u_val.max(), u_val.min())
+        mplot.glist_plot_module(ax, glist, u_val)  
         plt.tight_layout()
         plt.savefig("./shuffle_potential.png", dpi=500)
         plt.close()
